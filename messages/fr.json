@@ -1,0 +1,72 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Sauvegarder",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "close": "Fermer",
+    "back": "Retour"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "about": "À propos",
+    "pricing": "Tarifs",
+    "contact": "Contact",
+    "privacy": "Confidentialité",
+    "terms": "Conditions"
+  },
+  "homepage": {
+    "title": "Plateforme Professionnelle d'Évaluation de Vie",
+    "subtitle": "Évaluez votre performance de vie dans les dimensions financières, de santé, sociales et personnelles",
+    "cta": "Faire l'Évaluation Gratuite",
+    "trustIndicators": {
+      "assessments": "10,000+ Évaluations",
+      "rating": "4.8/5 Note",
+      "time": "~8 Minutes"
+    }
+  },
+  "assessment": {
+    "title": "Évaluation de Vie",
+    "subtitle": "Répondez à 32 questions pour obtenir votre score de vie personnalisé",
+    "question": "Question {number} sur 32",
+    "category": {
+      "financial": "Santé Financière",
+      "health_fitness": "Bien-être Physique",
+      "social": "Réseau Social",
+      "romantic": "Développement Personnel"
+    },
+    "complete": "Terminer l'Évaluation",
+    "review": "Réviser Vos Réponses"
+  },
+  "scorecard": {
+    "title": "Votre Score de Vie",
+    "overall": "Score Global",
+    "percentile": "percentile",
+    "breakdown": "Analyse de Performance",
+    "insights": "Insights Clés",
+    "topStrength": "Force Principale",
+    "growthArea": "Zone de Croissance"
+  },
+  "pricing": {
+    "title": "Choisissez Votre Chemin vers la Croissance",
+    "free": {
+      "name": "Évaluation Gratuite",
+      "price": "0€",
+      "description": "Parfait pour commencer"
+    },
+    "report": {
+      "name": "Rapport d'Analyse Approfondie",
+      "price": "26€",
+      "description": "Insights complets et plan d'action"
+    },
+    "coach": {
+      "name": "Coach de Vie IA",
+      "price": "17€",
+      "description": "Soutien continu et responsabilité"
+    }
+  }
+}

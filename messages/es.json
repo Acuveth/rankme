@@ -1,0 +1,72 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "close": "Cerrar",
+    "back": "Atrás"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "pricing": "Precios",
+    "contact": "Contacto",
+    "privacy": "Privacidad",
+    "terms": "Términos"
+  },
+  "homepage": {
+    "title": "Plataforma Profesional de Evaluación de Vida",
+    "subtitle": "Evalúa tu rendimiento de vida en dimensiones financieras, de salud, sociales y personales",
+    "cta": "Hacer Evaluación Gratuita",
+    "trustIndicators": {
+      "assessments": "10,000+ Evaluaciones",
+      "rating": "4.8/5 Calificación",
+      "time": "~8 Minutos"
+    }
+  },
+  "assessment": {
+    "title": "Evaluación de Vida",
+    "subtitle": "Responde 32 preguntas para obtener tu puntuación de vida personalizada",
+    "question": "Pregunta {number} de 32",
+    "category": {
+      "financial": "Salud Financiera",
+      "health_fitness": "Bienestar Físico",
+      "social": "Red Social",
+      "romantic": "Crecimiento Personal"
+    },
+    "complete": "Completar Evaluación",
+    "review": "Revisar Tus Respuestas"
+  },
+  "scorecard": {
+    "title": "Tu Puntuación de Vida",
+    "overall": "Puntuación General",
+    "percentile": "percentil",
+    "breakdown": "Desglose de Rendimiento",
+    "insights": "Perspectivas Clave",
+    "topStrength": "Fortaleza Principal",
+    "growthArea": "Área de Crecimiento"
+  },
+  "pricing": {
+    "title": "Elige Tu Camino al Crecimiento",
+    "free": {
+      "name": "Evaluación Gratuita",
+      "price": "$0",
+      "description": "Perfecto para empezar"
+    },
+    "report": {
+      "name": "Reporte de Análisis Profundo",
+      "price": "$29",
+      "description": "Perspectivas completas y plan de acción"
+    },
+    "coach": {
+      "name": "Coach de Vida IA",
+      "price": "$19",
+      "description": "Apoyo continuo y responsabilidad"
+    }
+  }
+}

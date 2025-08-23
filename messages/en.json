@@ -1,0 +1,72 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "back": "Back"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "homepage": {
+    "title": "Professional Life Assessment Platform",
+    "subtitle": "Benchmark your life performance across financial, health, social, and personal dimensions",
+    "cta": "Take Free Assessment",
+    "trustIndicators": {
+      "assessments": "10,000+ Assessments",
+      "rating": "4.8/5 Rating",
+      "time": "~8 Minutes"
+    }
+  },
+  "assessment": {
+    "title": "Life Assessment",
+    "subtitle": "Answer 32 questions to get your personalized life score",
+    "question": "Question {number} of 32",
+    "category": {
+      "financial": "Financial Health",
+      "health_fitness": "Physical Wellness", 
+      "social": "Social Network",
+      "romantic": "Personal Growth"
+    },
+    "complete": "Complete Assessment",
+    "review": "Review Your Answers"
+  },
+  "scorecard": {
+    "title": "Your Life Score",
+    "overall": "Overall Score",
+    "percentile": "percentile",
+    "breakdown": "Performance Breakdown",
+    "insights": "Key Insights",
+    "topStrength": "Top Strength",
+    "growthArea": "Growth Area"
+  },
+  "pricing": {
+    "title": "Choose Your Path to Growth",
+    "free": {
+      "name": "Free Assessment",
+      "price": "$0",
+      "description": "Perfect for getting started"
+    },
+    "report": {
+      "name": "Deep Analysis Report",
+      "price": "$29",
+      "description": "Comprehensive insights & action plan"
+    },
+    "coach": {
+      "name": "AI Life Coach",
+      "price": "$19",
+      "description": "Ongoing support & accountability"
+    }
+  }
+}

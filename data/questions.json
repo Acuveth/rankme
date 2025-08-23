@@ -1,0 +1,286 @@
+{
+  "questions": [
+    {
+      "id": "fin_net_worth",
+      "category": "financial",
+      "type": "single",
+      "label": "What is your current net worth (assets - liabilities)?",
+      "options": ["Less than -$10k (significant debt)", "-$10k to $0 (some debt)", "$0 to $25k", "$25k to $100k", "$100k to $500k", "More than $500k"],
+      "pnts": true,
+      "skip": null
+    },
+    {
+      "id": "fin_income_avg3y",
+      "category": "financial",
+      "type": "single",
+      "label": "What is your average annual income over the last 3 years?",
+      "options": ["Less than $30k", "$30k - $50k", "$50k - $75k", "$75k - $100k", "$100k - $150k", "More than $150k"],
+      "pnts": true,
+      "skip": null
+    },
+    {
+      "id": "fin_income_trend",
+      "category": "financial",
+      "type": "single",
+      "label": "Compared to 12 months ago, your income has...",
+      "options": ["Decreased >20%", "Decreased 10-20%", "Stayed about the same", "Increased 10-20%", "Increased >20%"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "fin_savings_rate",
+      "category": "financial",
+      "type": "single",
+      "label": "What % of your net income did you save or invest in the last 12 months?",
+      "options": ["0% (spent everything)", "1-10%", "11-20%", "21-30%", "31-50%", "More than 50%"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "fin_emergency_fund",
+      "category": "financial",
+      "type": "single",
+      "label": "Your emergency fund covers roughly...",
+      "options": ["<1 month", "1-3 months", "3-6 months", "6-12 months", ">12 months"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "fin_debt_payments",
+      "category": "financial",
+      "type": "single",
+      "label": "Total monthly debt payments (loans, cards)",
+      "options": ["$0 (no debt payments)", "$1-$500", "$501-$1,000", "$1,001-$2,000", "$2,001-$4,000", "More than $4,000"],
+      "pnts": true,
+      "skip": null
+    },
+    {
+      "id": "fin_high_interest_debt",
+      "category": "financial",
+      "type": "single",
+      "label": "Did you carry high-interest debt (e.g., credit card) in the last 3 months?",
+      "options": ["No", "Yes, <$1k", "Yes, $1-5k", "Yes, >$5k"],
+      "pnts": false,
+      "skip": null,
+      "reverse": true
+    },
+    {
+      "id": "fin_real_estate",
+      "category": "financial",
+      "type": "single",
+      "label": "Real estate ownership",
+      "options": ["None", "Primary residence", "Rental(s)", "Both"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_height",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Height",
+      "options": ["Under 5'0\" (152cm)", "5'0\"-5'3\" (152-160cm)", "5'4\"-5'7\" (163-170cm)", "5'8\"-5'11\" (173-180cm)", "6'0\"-6'3\" (183-190cm)", "Over 6'3\" (190cm+)"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_weight",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Weight range",
+      "options": ["Under 120 lbs (54kg)", "120-150 lbs (54-68kg)", "150-180 lbs (68-82kg)", "180-220 lbs (82-100kg)", "220-280 lbs (100-127kg)", "Over 280 lbs (127kg+)"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_waist",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Waist size (clothing)",
+      "options": ["XS (26-28 inches)", "S (30-32 inches)", "M (34-36 inches)", "L (38-40 inches)", "XL (42-44 inches)", "XXL+ (46+ inches)"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_exercise_freq",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Exercise frequency: days/week with ≥20 min moderate/vigorous activity",
+      "options": ["0", "1-2", "3-4", "5-6", "7"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_training_minutes",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Weekly training minutes (all exercise combined)",
+      "options": ["0", "1-149", "150-299", "300-449", "450+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_pushups",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Push-ups in one unbroken set",
+      "options": ["0", "1-9", "10-19", "20-34", "35-49", "50+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_pullups",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Pull-ups (strict) in one set",
+      "options": ["0", "1-2", "3-5", "6-9", "10+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_cooper_or_5k",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "How would you rate your cardiovascular fitness?",
+      "options": ["Poor - get winded climbing stairs", "Below average - struggle with moderate exercise", "Average - can jog for 10-15 minutes", "Good - can run 3+ miles comfortably", "Very good - can run 5+ miles easily", "Excellent - could run a half marathon"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_sleep",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Sleep: average hours/night",
+      "options": ["<5", "5-6", "6-7", "7-8", ">8"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_alcohol",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Alcohol: standard drinks/week",
+      "options": ["0", "1-3", "4-7", "8-14", ">14"],
+      "pnts": false,
+      "skip": null,
+      "reverse": true
+    },
+    {
+      "id": "social_emergency_contacts",
+      "category": "social",
+      "type": "single",
+      "label": "If you needed $1,000 by tomorrow, how many friends/family could you realistically ask?",
+      "options": ["0", "1-2", "3-5", "6-10", "10+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_close_friends",
+      "category": "social",
+      "type": "single",
+      "label": "Close friends you can confide in",
+      "options": ["0", "1", "2-3", "4-5", "6+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_meetups",
+      "category": "social",
+      "type": "single",
+      "label": "Meet-ups with friends (offline)",
+      "options": ["<monthly", "monthly", "2-3x/month", "weekly", "2-3x/week", "daily"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_initiation",
+      "category": "social",
+      "type": "single",
+      "label": "Initiation: how often do you initiate plans?",
+      "options": ["Rarely", "Sometimes", "About half", "Often", "Almost always"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_circle_diversity",
+      "category": "social",
+      "type": "single",
+      "label": "Social circle diversity",
+      "options": ["Mostly one group", "2 distinct groups", "3+ distinct groups"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_community",
+      "category": "social",
+      "type": "single",
+      "label": "Community membership (club/sport/volunteer)",
+      "options": ["None", "1", "2+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_professional_network",
+      "category": "social",
+      "type": "single",
+      "label": "Professional favors: people who'd intro you to a job lead in 48h",
+      "options": ["0", "1-2", "3-5", "6-10", "10+"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_loneliness",
+      "category": "social",
+      "type": "single",
+      "label": "Loneliness in last 2 weeks",
+      "options": ["Never", "Rarely", "Sometimes", "Often", "Very often"],
+      "pnts": false,
+      "skip": null,
+      "reverse": true
+    },
+    {
+      "id": "rom_status",
+      "category": "romantic",
+      "type": "single",
+      "label": "Current status",
+      "options": ["Single", "Dating (not exclusive)", "Exclusive relationship", "Married/Long-term"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "rom_duration",
+      "category": "romantic",
+      "type": "single",
+      "label": "Duration of current/last relationship",
+      "options": ["<3 months", "3-12 months", "1-3 years", "3-7 years", ">7 years"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "rom_satisfaction",
+      "category": "romantic",
+      "type": "likert",
+      "label": "Satisfaction with current/last relationship",
+      "options": ["Very unsatisfied", "Unsatisfied", "Neutral", "Satisfied", "Very satisfied"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "rom_intimacy_or_dates",
+      "category": "romantic",
+      "type": "single",
+      "label": "Intimacy frequency (if partnered) / Dates in last 90 days (if single)",
+      "options": ["<monthly/0", "monthly/1-2", "weekly/3-5", "2-3x week/6-9", "4+ week/10+"],
+      "pnts": true,
+      "skip": {"when": {"id": "rom_status", "in": ["Single"]}, "ask": "rom_dates_single"}
+    },
+    {
+      "id": "rom_confidence",
+      "category": "romantic",
+      "type": "likert",
+      "label": "Confidence initiating conversations with attractive people",
+      "options": ["Very low", "Low", "Moderate", "High", "Very high"],
+      "pnts": false,
+      "skip": null
+    }
+  ]
+}

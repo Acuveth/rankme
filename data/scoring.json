@@ -1,0 +1,169 @@
+{
+  "scoring": {
+    "financial": {
+      "fin_net_worth": {
+        "type": "log_transform",
+        "bounds": { "min": -50000, "max": 5000000 },
+        "reverse": false
+      },
+      "fin_income_avg3y": {
+        "type": "log_transform",
+        "bounds": { "min": 0, "max": 500000 },
+        "reverse": false
+      },
+      "fin_income_trend": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "fin_savings_rate": {
+        "type": "percentage",
+        "bounds": { "min": 0, "max": 50 },
+        "reverse": false
+      },
+      "fin_emergency_fund": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "fin_debt_payments": {
+        "type": "log_transform",
+        "bounds": { "min": 0, "max": 10000 },
+        "reverse": true
+      },
+      "fin_high_interest_debt": {
+        "type": "linear_map",
+        "values": [100, 60, 30, 0],
+        "reverse": false
+      },
+      "fin_real_estate": {
+        "type": "linear_map",
+        "values": [0, 50, 75, 100],
+        "reverse": false
+      }
+    },
+    "health_fitness": {
+      "health_waist_to_height": {
+        "type": "ratio",
+        "ideal": 0.45,
+        "bounds": { "min": 0.35, "max": 0.65 },
+        "reverse": true
+      },
+      "health_exercise_freq": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "health_training_minutes": {
+        "type": "linear_map",
+        "values": [0, 30, 60, 85, 100],
+        "reverse": false
+      },
+      "health_pushups": {
+        "type": "linear_map",
+        "values": [0, 20, 40, 60, 80, 100],
+        "reverse": false
+      },
+      "health_pullups": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "health_cooper_or_5k": {
+        "type": "performance",
+        "cooper_bounds": { "min": 1500, "max": 3500 },
+        "time_5k_bounds": { "min": 15, "max": 40 },
+        "reverse": false
+      },
+      "health_sleep": {
+        "type": "optimal_range",
+        "ideal": [7, 8],
+        "values": [40, 60, 80, 100, 80],
+        "reverse": false
+      },
+      "health_alcohol": {
+        "type": "linear_map",
+        "values": [100, 80, 60, 30, 0],
+        "reverse": false
+      }
+    },
+    "social": {
+      "social_emergency_contacts": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "social_close_friends": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "social_meetups": {
+        "type": "linear_map",
+        "values": [0, 20, 40, 60, 80, 100],
+        "reverse": false
+      },
+      "social_initiation": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "social_circle_diversity": {
+        "type": "linear_map",
+        "values": [0, 50, 100],
+        "reverse": false
+      },
+      "social_community": {
+        "type": "linear_map",
+        "values": [0, 50, 100],
+        "reverse": false
+      },
+      "social_professional_network": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "social_loneliness": {
+        "type": "linear_map",
+        "values": [100, 75, 50, 25, 0],
+        "reverse": false
+      }
+    },
+    "romantic": {
+      "rom_status": {
+        "type": "linear_map",
+        "values": [25, 50, 75, 100],
+        "reverse": false
+      },
+      "rom_duration": {
+        "type": "linear_map",
+        "values": [20, 40, 60, 80, 100],
+        "reverse": false
+      },
+      "rom_satisfaction": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "rom_intimacy_or_dates": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "rom_confidence": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      }
+    }
+  },
+  "cohort_stats": {
+    "default": {
+      "financial": { "mean": 50, "stddev": 20 },
+      "health_fitness": { "mean": 50, "stddev": 20 },
+      "social": { "mean": 50, "stddev": 20 },
+      "romantic": { "mean": 50, "stddev": 20 },
+      "overall": { "mean": 50, "stddev": 15 }
+    }
+  }
+}
