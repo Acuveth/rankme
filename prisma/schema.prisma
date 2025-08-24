@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  country       String?
+  birthYear     Int?
+  sexGender     String?
+  consentFlags  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  assessments   Assessment[]
+  purchases     Purchase[]
+  subscriptions Subscription[]
+  events        Event[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Assessment {
+  id            String        @id @default(cuid())
+  userId        String?
+  anonId        String?
+  version       String        @default("1.0")
+  cohortAge     String
+  cohortSex     String
+  cohortRegion  String
+  status        String        @default("in_progress")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  user          User?         @relation(fields: [userId], references: [id])
+  answers       Answer[]
+  scoreCategory ScoreCategory?
+  scoreOverall  ScoreOverall?
+  purchases     Purchase[]
+  shareTokens   ShareToken[]
+}
+
+model Answer {
+  id            String        @id @default(cuid())
+  assessmentId  String
+  questionId    String
+  valueRaw      String
+  valueNorm     Float?
+  createdAt     DateTime      @default(now())
+  
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  
+  @@unique([assessmentId, questionId])
+}
+
+model ScoreCategory {
+  id            String        @id @default(cuid())
+  assessmentId  String        @unique
+  financial     Float
+  healthFitness Float
+  social        Float
+  romantic      Float
+  
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+}
+
+model ScoreOverall {
+  id                String        @id @default(cuid())
+  assessmentId      String        @unique
+  overall           Float
+  percentileOverall Float
+  percentileFinancial Float
+  percentileHealth  Float
+  percentileSocial  Float
+  percentileRomantic Float
+  
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+}
+
+model CohortStats {
+  id            String        @id @default(cuid())
+  cohortKey     String        @unique
+  category      String
+  mean          Float
+  stddev        Float
+  p1            Float
+  p99           Float
+  n             Int
+  updatedAt     DateTime      @updatedAt
+}
+
+model Purchase {
+  id            String        @id @default(cuid())
+  userId        String
+  assessmentId  String
+  product       String
+  price         Float
+  currency      String
+  status        String
+  stripeId      String?
+  createdAt     DateTime      @default(now())
+  
+  user          User          @relation(fields: [userId], references: [id])
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id])
+}
+
+model Subscription {
+  id            String        @id @default(cuid())
+  userId        String
+  product       String
+  status        String
+  periodEnd     DateTime
+  cancelAt      DateTime?
+  stripeId      String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  user          User          @relation(fields: [userId], references: [id])
+}
+
+model ShareToken {
+  id            String        @id @default(cuid())
+  assessmentId  String
+  token         String        @unique
+  expiresAt     DateTime
+  createdAt     DateTime      @default(now())
+  
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id])
+}
+
+model Event {
+  id            String        @id @default(cuid())
+  userId        String?
+  anonId        String?
+  name          String
+  props         String
+  createdAt     DateTime      @default(now())
+  
+  user          User?         @relation(fields: [userId], references: [id])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

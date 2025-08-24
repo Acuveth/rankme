@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { formatPercentile } from '@/lib/utils'
-import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3 } from 'lucide-react'
+import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3, Mail } from 'lucide-react'
 
 interface ScoreData {
   cohort: {
@@ -30,6 +30,9 @@ export default function ScorecardPage() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
   const [shareSvg, setShareSvg] = useState<string | null>(null)
+  const [email, setEmail] = useState('')
+  const [emailLoading, setEmailLoading] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
 
   useEffect(() => {
     fetchScoreData()
@@ -95,6 +98,36 @@ export default function ScorecardPage() {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+  }
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !scoreData) return
+
+    setEmailLoading(true)
+    try {
+      const response = await fetch('/api/email/send-results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assessmentId: params.id,
+          email: email
+        })
+      })
+
+      if (response.ok) {
+        setEmailSent(true)
+        setEmail('')
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to send email: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error('Error sending email:', error)
+      alert('Failed to send email. Please try again.')
+    } finally {
+      setEmailLoading(false)
+    }
   }
 
   if (loading) {
@@ -294,6 +327,64 @@ export default function ScorecardPage() {
                   This scorecard shows your percentile rankings. Unlock deeper insights with our premium features.
                 </p>
               </div>
+            </div>
+
+            {/* Email Results */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center mb-4">
+                <Mail className="h-5 w-5 text-gray-600 mr-2" />
+                <h3 className="font-bold text-gray-900">Email Your Results</h3>
+              </div>
+              
+              {emailSent ? (
+                <div className="text-center py-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-green-700 font-medium">Results sent successfully!</p>
+                  <p className="text-sm text-gray-600 mt-1">Check your inbox for your detailed life score.</p>
+                  <button
+                    onClick={() => setEmailSent(false)}
+                    className="text-sm text-gray-500 hover:text-gray-700 mt-2 underline"
+                  >
+                    Send to another email
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSendEmail}>
+                  <div className="mb-4">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email address"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
+                      required
+                      disabled={emailLoading}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={emailLoading || !email}
+                    className="w-full flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {emailLoading ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    ) : (
+                      <>
+                        <Mail className="h-5 w-5 mr-2" />
+                        Send My Results
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-3 text-center">
+                Get a beautifully formatted email with your complete assessment results and insights.
+              </p>
             </div>
 
             {/* Action Buttons */}

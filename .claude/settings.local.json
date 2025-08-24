@@ -7,7 +7,10 @@
       "Bash(npx prisma generate:*)",
       "Bash(npx prisma:*)",
       "Bash(npm run dev:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git reset:*)",
+      "Bash(del .gitindex.lock)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": [],

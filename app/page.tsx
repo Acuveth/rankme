@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle, TrendingUp, Users, Heart, DollarSign, Star, Shield, Zap } from 'lucide-react'
+import { ArrowRight, CheckCircle, TrendingUp, Users, Heart, DollarSign, Star, Shield, Zap, User, LogOut } from 'lucide-react'
 
 export default function LandingPage() {
+  const { data: session } = useSession()
   const features = [
     { icon: DollarSign, title: 'Financial Health', description: 'Income, savings & investment analysis' },
     { icon: Heart, title: 'Physical Wellness', description: 'Fitness, health & lifestyle metrics' },
@@ -42,12 +44,45 @@ export default function LandingPage() {
               <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Pricing
               </Link>
-              <Link
-                href="/assessment"
-                className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-              >
-                Start Assessment
-              </Link>
+              {session ? (
+                <div className="flex items-center space-x-4">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <User className="h-4 w-4 mr-1" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => signOut()}
+                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Sign Out
+                  </button>
+                  <Link
+                    href="/assessment"
+                    className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                  >
+                    New Assessment
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-4">
+                  <Link
+                    href="/auth/signin"
+                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/assessment"
+                    className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+                  >
+                    Start Assessment
+                  </Link>
+                </div>
+              )}
             </div>
             <div className="sm:hidden">
               <Link
