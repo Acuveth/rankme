@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name } = await request.json()
+    const { email, password, name, assessmentId } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json(
@@ -36,6 +36,19 @@ export async function POST(request: Request) {
         name: name || null,
       }
     })
+
+    // If an assessment ID was provided, connect it to the new user
+    if (assessmentId) {
+      try {
+        await prisma.assessment.update({
+          where: { id: assessmentId },
+          data: { userId: user.id }
+        })
+      } catch (error) {
+        console.error('Failed to connect assessment to user:', error)
+        // Don't fail the signup if we can't connect the assessment
+      }
+    }
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user

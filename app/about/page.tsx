@@ -274,7 +274,7 @@ export default function AboutPage() {
               Take the first step toward a better life with our comprehensive assessment.
             </p>
             <Link
-              href="/"
+              href="/assessment"
               className="inline-flex items-center px-8 py-4 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold"
             >
               <Award className="h-5 w-5 mr-2" />

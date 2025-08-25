@@ -95,6 +95,22 @@ function generateStoryGraphic(scoreData: any, template: string) {
           <stop offset="0%" style="stop-color:#6b7280;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
         </linearGradient>
+        <linearGradient id="financialGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="healthGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="socialGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="romanticGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#be185d;stop-opacity:1" />
+        </linearGradient>
       </defs>
 
       <rect width="${width}" height="${height}" fill="url(#bgGradient)"/>
@@ -152,13 +168,20 @@ function generateStoryGraphic(scoreData: any, template: string) {
       ${categories.map((category: any, index: number) => {
         const y = 1140 + (index * 120)
         const barWidth = (category.percentile / 100) * 600
+        const gradientMap: { [key: string]: string } = {
+          financial: 'financialGradient',
+          health_fitness: 'healthGradient',
+          social: 'socialGradient',
+          romantic: 'romanticGradient'
+        }
+        const gradientId = gradientMap[category.id] || 'scoreGradient'
         return `
-          <text x="240" y="${y}" fill="#9ca3af" font-size="18" font-family="Inter, sans-serif">
+          <text x="240" y="${y}" fill="#e5e7eb" font-size="18" font-family="Inter, sans-serif">
             ${categoryNames[category.id]}
           </text>
-          <rect x="240" y="${y + 15}" width="600" height="8" rx="4" fill="#374151"/>
-          <rect x="240" y="${y + 15}" width="${barWidth}" height="8" rx="4" fill="url(#scoreGradient)"/>
-          <text x="860" y="${y}" fill="white" font-size="18" font-weight="bold" font-family="Inter, sans-serif">
+          <rect x="240" y="${y + 15}" width="600" height="10" rx="5" fill="#1f2937"/>
+          <rect x="240" y="${y + 15}" width="${barWidth}" height="10" rx="5" fill="url(#${gradientId})"/>
+          <text x="860" y="${y}" fill="white" font-size="20" font-weight="bold" font-family="Inter, sans-serif">
             ${Math.round(category.percentile)}%
           </text>
         `

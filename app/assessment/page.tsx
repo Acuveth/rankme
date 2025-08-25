@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import questions from '@/data/questions.json'
 import { ChevronLeft, ChevronRight, Check, User, Globe, Calendar } from 'lucide-react'
 
@@ -17,6 +18,8 @@ interface Answers {
 
 export default function AssessmentPage() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const searchParams = useSearchParams()
   const [step, setStep] = useState<'cohort' | 'questions' | 'review'>('cohort')
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [cohortData, setCohortData] = useState<CohortData>({
@@ -40,6 +43,20 @@ export default function AssessmentPage() {
     
     const data = await response.json()
     setAssessmentId(data.assessmentId)
+    
+    // If user is logged in, immediately connect the assessment
+    if (session?.user) {
+      try {
+        await fetch('/api/assessment/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assessmentId: data.assessmentId })
+        })
+      } catch (error) {
+        console.error('Failed to connect assessment to user:', error)
+      }
+    }
+    
     setStep('questions')
   }
 
@@ -85,7 +102,15 @@ export default function AssessmentPage() {
     })
     
     if (response.ok) {
-      router.push(`/scorecard/${assessmentId}`)
+      const product = searchParams.get('product')
+      
+      if (product === 'report') {
+        router.push(`/paywall/report/${assessmentId}`)
+      } else if (product === 'coach') {
+        router.push(`/paywall/coach/${assessmentId}`)
+      } else {
+        router.push(`/scorecard/${assessmentId}`)
+      }
     }
   }
 

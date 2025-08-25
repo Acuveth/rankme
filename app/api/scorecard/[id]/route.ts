@@ -36,7 +36,8 @@ export async function GET(
         { id: 'health_fitness', percentile: assessment.scoreOverall.percentileHealth },
         { id: 'social', percentile: assessment.scoreOverall.percentileSocial },
         { id: 'romantic', percentile: assessment.scoreOverall.percentileRomantic }
-      ]
+      ],
+      completionTime: assessment.completionTime // Time in seconds
     }
 
     return NextResponse.json(scoreData)

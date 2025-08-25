@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test UI Fixes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .task { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: 2px solid #ddd; 
+            cursor: pointer; 
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .task.completed { 
+            border-color: #22c55e; 
+            background-color: #f0fdf4; 
+        }
+        .completion-bar {
+            background: #f3f4f6;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .completion-fill {
+            height: 100%;
+            background: #22c55e;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        .stat {
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>UI Fixes Test Simulation</h1>
+    
+    <div class="test-case">
+        <h2>Test 1: Single Click Response</h2>
+        <p><strong>Issue:</strong> Visual glitch requiring double-click</p>
+        <p><strong>Fix:</strong> Use newWeeklyProgress instead of closure state</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>Completion Rate</div>
+                <div id="completion-rate">0%</div>
+            </div>
+            <div class="stat">
+                <div>Tasks Completed</div>
+                <div id="tasks-completed">0/5</div>
+            </div>
+        </div>
+        
+        <div class="completion-bar">
+            <div class="completion-fill" id="completion-fill" style="width: 0%"></div>
+        </div>
+        
+        <div class="task" onclick="toggleTask(0)">
+            <span id="task-0-icon">⭕</span> Set up automatic savings transfer of $50/week
+        </div>
+        <div class="task" onclick="toggleTask(1)">
+            <span id="task-1-icon">⭕</span> Track all expenses for one week using an app
+        </div>
+        <div class="task" onclick="toggleTask(2)">
+            <span id="task-2-icon">⭕</span> Research one investment option (index funds, ETFs, etc.)
+        </div>
+        <div class="task" onclick="toggleTask(3)">
+            <span id="task-3-icon">⭕</span> Calculate your net worth and create a simple spreadsheet
+        </div>
+        <div class="task" onclick="toggleTask(4)">
+            <span id="task-4-icon">⭕</span> Read one article about personal finance or budgeting
+        </div>
+    </div>
+
+    <script>
+        let taskStates = [false, false, false, false, false];
+        
+        function toggleTask(index) {
+            console.log(`Clicking task ${index}, current state: ${taskStates[index]}`);
+            
+            // Simulate the fixed logic: create new state immediately
+            const newStates = [...taskStates];
+            newStates[index] = !newStates[index];
+            taskStates = newStates;
+            
+            console.log(`New state: ${taskStates[index]}`);
+            
+            // Update UI immediately
+            updateTaskUI(index, taskStates[index]);
+            updateStats();
+        }
+        
+        function updateTaskUI(index, completed) {
+            const taskElement = document.querySelector(`.task:nth-child(${index + 6})`); // Offset for header elements
+            const iconElement = document.getElementById(`task-${index}-icon`);
+            
+            if (completed) {
+                taskElement.classList.add('completed');
+                iconElement.textContent = '✅';
+            } else {
+                taskElement.classList.remove('completed');
+                iconElement.textContent = '⭕';
+            }
+        }
+        
+        function updateStats() {
+            const completed = taskStates.filter(state => state).length;
+            const total = taskStates.length;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('completion-rate').textContent = `${percentage}%`;
+            document.getElementById('tasks-completed').textContent = `${completed}/${total}`;
+            document.getElementById('completion-fill').style.width = `${percentage}%`;
+            
+            console.log(`Updated stats: ${completed}/${total} = ${percentage}%`);
+        }
+    </script>
+</body>
+</html>

@@ -18,7 +18,8 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/'
+  const assessmentId = searchParams.get('assessmentId')
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -56,6 +57,7 @@ export default function SignUpPage() {
           name,
           email,
           password,
+          assessmentId,  // Pass assessment ID if present
         }),
       })
 
@@ -103,7 +105,11 @@ export default function SignUpPage() {
             Back to Home
           </Link>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Create your account</h1>
-          <p className="text-gray-600">Join RankMe and track your life performance</p>
+          <p className="text-gray-600">
+            {assessmentId 
+              ? 'Create an account to save your assessment results' 
+              : 'Join RankMe and track your life performance'}
+          </p>
         </div>
 
         {/* Error Message */}

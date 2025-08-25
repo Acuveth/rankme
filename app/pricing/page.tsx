@@ -91,7 +91,7 @@ export default function PricingPage() {
             </div>
 
             <Link
-              href="/"
+              href="/assessment"
               className="w-full flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-semibold"
             >
               Start Free Assessment
@@ -146,12 +146,12 @@ export default function PricingPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => alert('Please complete the free assessment first')}
+            <Link
+              href="/assessment?product=report"
               className="w-full flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold"
             >
               Get Deep Analysis
-            </button>
+            </Link>
           </div>
 
           {/* AI Coach */}
@@ -203,12 +203,12 @@ export default function PricingPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => alert('Please complete the free assessment first')}
+            <Link
+              href="/assessment?product=coach"
               className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all font-semibold"
             >
               Start Free Trial
-            </button>
+            </Link>
             <p className="text-xs text-center text-gray-500 mt-3">First 7 days free</p>
           </div>
         </div>
@@ -373,17 +373,17 @@ export default function PricingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/"
+                href="/assessment"
                 className="px-8 py-4 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-all font-semibold"
               >
                 Start Free Assessment
               </Link>
-              <button
-                onClick={() => alert('Please complete assessment first')}
-                className="px-8 py-4 border border-white/30 text-white rounded-xl hover:bg-white/10 transition-all font-semibold"
+              <Link
+                href="/sample-report"
+                className="inline-block px-8 py-4 border border-white/30 text-white rounded-xl hover:bg-white/10 transition-all font-semibold"
               >
                 View Sample Report
-              </button>
+              </Link>
             </div>
           </div>
         </div>

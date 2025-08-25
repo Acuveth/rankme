@@ -10,12 +10,19 @@
       "Bash(curl:*)",
       "Bash(git reset:*)",
       "Bash(del .gitindex.lock)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(node:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm start)",
+      "Bash(sqlite3:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "C:\\"
+      "C:\\",
+      "C:\\c\\Users\\gaberscekl\\rankme"
     ]
   }
 }

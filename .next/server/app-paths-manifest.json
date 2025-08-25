@@ -1,6 +1,9 @@
 {
   "/not-found": "app/not-found.js",
-  "/page": "app/page.js",
-  "/auth/signin/page": "app/auth/signin/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
+  "/api/progress/route": "app/api/progress/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/user-progress/route": "app/api/user-progress/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/coach/[id]/page": "app/coach/[id]/page.js",
+  "/api/coach/[id]/route": "app/api/coach/[id]/route.js"
 }

@@ -77,9 +77,18 @@ export async function POST(request: Request) {
       }
     })
 
+    // Calculate completion time
+    const completedAt = new Date()
+    const startedAt = assessment.startedAt || assessment.createdAt
+    const completionTimeInSeconds = Math.floor((completedAt.getTime() - startedAt.getTime()) / 1000)
+
     await prisma.assessment.update({
       where: { id: assessmentId },
-      data: { status: 'completed' }
+      data: { 
+        status: 'completed',
+        completedAt,
+        completionTime: completionTimeInSeconds
+      }
     })
 
     return NextResponse.json({

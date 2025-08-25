@@ -2,15 +2,23 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import nodemailer from 'nodemailer'
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-})
+// Only create transporter if email is properly configured
+const createTransporter = () => {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS ||
+      process.env.SMTP_USER === 'your-email@gmail.com') {
+    return null
+  }
+  
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  })
+}
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +30,16 @@ export async function POST(request: Request) {
         { error: 'Email is required' },
         { status: 400 }
       )
+    }
+
+    // Check if email configuration is properly set
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS || 
+        process.env.SMTP_USER === 'your-email@gmail.com') {
+      console.log('Email not configured - skipping email send')
+      return NextResponse.json({
+        success: false,
+        message: 'Email service not configured. Please configure SMTP settings in .env.local to enable email sending.'
+      })
     }
 
     const assessment = await prisma.assessment.findUnique({
@@ -222,6 +240,21 @@ export async function POST(request: Request) {
       to: email,
       subject: `Your Life Score: ${Math.round(assessment.scoreOverall.overall)}/100 (${Math.round(assessment.scoreOverall.percentileOverall)}th percentile)`,
       html: htmlContent,
+    }
+
+    const transporter = createTransporter()
+    
+    if (!transporter) {
+      // Return a success response with a note that email wasn't actually sent
+      return NextResponse.json({
+        success: true,
+        message: 'Email service not configured. In production, your results would be sent to: ' + email,
+        emailPreview: {
+          to: email,
+          subject: mailOptions.subject,
+          note: 'Configure SMTP settings in .env.local to enable actual email sending'
+        }
+      })
     }
 
     await transporter.sendMail(mailOptions)

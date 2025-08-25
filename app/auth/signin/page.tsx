@@ -15,7 +15,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/'
+  const assessmentId = searchParams.get('assessmentId')
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -43,6 +44,18 @@ export default function SignInPage() {
       if (result?.error) {
         setError('Invalid email or password')
       } else if (result?.ok) {
+        // If an assessment ID was provided, connect it to the user
+        if (assessmentId) {
+          try {
+            await fetch('/api/assessment/connect', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ assessmentId })
+            })
+          } catch (error) {
+            console.error('Failed to connect assessment:', error)
+          }
+        }
         router.push(callbackUrl)
       }
     } catch (error) {
@@ -69,7 +82,11 @@ export default function SignInPage() {
             Back to Home
           </Link>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h1>
-          <p className="text-gray-600">Sign in to your RankMe account</p>
+          <p className="text-gray-600">
+            {assessmentId 
+              ? 'Sign in to save your assessment results' 
+              : 'Sign in to your RankMe account'}
+          </p>
         </div>
 
         {/* Error Message */}

@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { formatPercentile } from '@/lib/utils'
-import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3, Mail } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3, Mail, UserPlus } from 'lucide-react'
 
 interface ScoreData {
   cohort: {
@@ -19,11 +20,13 @@ interface ScoreData {
     id: string
     percentile: number
   }>
+  completionTime?: number // Time in seconds
 }
 
 export default function ScorecardPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [scoreData, setScoreData] = useState<ScoreData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,10 +36,21 @@ export default function ScorecardPage() {
   const [email, setEmail] = useState('')
   const [emailLoading, setEmailLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false)
 
   useEffect(() => {
     fetchScoreData()
   }, [params.id])
+
+  useEffect(() => {
+    // Show account prompt after 3 seconds if user is not logged in
+    if (!session && scoreData) {
+      const timer = setTimeout(() => {
+        setShowAccountPrompt(true)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [session, scoreData])
 
   const fetchScoreData = async () => {
     try {
@@ -116,8 +130,14 @@ export default function ScorecardPage() {
       })
 
       if (response.ok) {
+        const data = await response.json()
         setEmailSent(true)
         setEmail('')
+        
+        // If email service is not configured, show a different message
+        if (data.emailPreview) {
+          console.log('Email preview:', data.emailPreview)
+        }
       } else {
         const errorData = await response.json()
         alert(`Failed to send email: ${errorData.error}`)
@@ -318,6 +338,31 @@ export default function ScorecardPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Account Creation Prompt for Non-logged in Users */}
+            {!session && (
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200 animate-fade-scale">
+                <div className="text-center mb-4">
+                  <UserPlus className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <h3 className="font-bold text-gray-900 mb-2">Save Your Results</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Create a free account to track your progress and access your results anytime.
+                  </p>
+                  <button
+                    onClick={() => router.push(`/auth/signup?assessmentId=${params.id}&redirect=/dashboard`)}
+                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold shadow-sm mb-2"
+                  >
+                    Create Free Account
+                  </button>
+                  <button
+                    onClick={() => router.push(`/auth/signin?assessmentId=${params.id}&redirect=/dashboard`)}
+                    className="w-full px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all border border-gray-300"
+                  >
+                    Sign In to Existing Account
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Free Version Notice */}
             <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-6 border">
               <div className="text-center mb-4">
@@ -430,7 +475,13 @@ export default function ScorecardPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Completion Time</span>
-                  <span className="font-semibold text-gray-900">~8 mins</span>
+                  <span className="font-semibold text-gray-900">
+                    {scoreData.completionTime ? (
+                      scoreData.completionTime < 60 
+                        ? `${scoreData.completionTime} seconds`
+                        : `${Math.floor(scoreData.completionTime / 60)} min ${scoreData.completionTime % 60} sec`
+                    ) : '~8 mins'}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Peer Group</span>
@@ -466,6 +517,61 @@ export default function ScorecardPage() {
             </div>
           </div>
         </div>
+
+        {/* Account Creation Modal for Non-logged in Users */}
+        {showAccountPrompt && !session && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 animate-fade-scale">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserPlus className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  Great Job! Save Your Results
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Create a free account to:
+                </p>
+                <ul className="text-left text-sm text-gray-600 mb-6 space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    Track your progress over time
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    Access your results from any device
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    Compare improvements between assessments
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    Get personalized recommendations
+                  </li>
+                </ul>
+                <button
+                  onClick={() => router.push(`/auth/signup?assessmentId=${params.id}&redirect=/dashboard`)}
+                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold shadow-sm mb-3"
+                >
+                  Create Free Account
+                </button>
+                <button
+                  onClick={() => router.push(`/auth/signin?assessmentId=${params.id}&redirect=/dashboard`)}
+                  className="w-full px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all border border-gray-300 mb-3"
+                >
+                  I Have an Account
+                </button>
+                <button
+                  onClick={() => setShowAccountPrompt(false)}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Continue without account
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Share Modal */}
         {showShareModal && (

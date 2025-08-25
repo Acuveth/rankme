@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Settings,
   Mail,
-  Star
+  Star,
+  Brain
 } from 'lucide-react'
 
 interface Assessment {
@@ -27,10 +28,17 @@ interface Assessment {
   }
 }
 
+interface UserSubscription {
+  status: string
+  product: string
+  periodEnd: string
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,6 +50,7 @@ export default function DashboardPage() {
     }
 
     fetchUserAssessments()
+    fetchUserSubscription()
   }, [session, status, router])
 
   const fetchUserAssessments = async () => {
@@ -55,6 +64,33 @@ export default function DashboardPage() {
       console.error('Error fetching assessments:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchUserSubscription = async () => {
+    try {
+      // Check if user has any subscription by finding their most recent assessment
+      const response = await fetch('/api/user/assessments')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.assessments && data.assessments.length > 0) {
+          const latestAssessment = data.assessments[0]
+          // Try to check if this assessment has AI coach access
+          const coachResponse = await fetch(`/api/coach/${latestAssessment.id}`)
+          if (coachResponse.ok) {
+            const coachData = await coachResponse.json()
+            if (coachData.subscription && coachData.subscription.status === 'active') {
+              setSubscription({
+                status: 'active',
+                product: 'ai_coach_monthly',
+                periodEnd: coachData.subscription.periodEnd
+              })
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching subscription:', error)
     }
   }
 
@@ -180,7 +216,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Your Assessments</h2>
                 <Link
-                  href="/"
+                  href="/assessment"
                   className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <span className="text-sm font-medium">Take New Assessment</span>
@@ -234,7 +270,7 @@ export default function DashboardPage() {
                     Take your first life assessment to get started with tracking your performance.
                   </p>
                   <Link
-                    href="/"
+                    href="/assessment"
                     className="inline-flex items-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
                   >
                     Take Assessment
@@ -252,19 +288,29 @@ export default function DashboardPage() {
               <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link
-                  href="/"
+                  href="/assessment"
                   className="w-full flex items-center justify-center px-4 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all"
                 >
                   <BarChart3 className="h-5 w-5 mr-2" />
                   New Assessment
                 </Link>
-                <Link
-                  href="/pricing"
-                  className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
-                >
-                  <Star className="h-5 w-5 mr-2" />
-                  Upgrade Account
-                </Link>
+                {subscription?.status === 'active' && completedAssessments.length > 0 ? (
+                  <Link
+                    href={`/coach/${completedAssessments[0].id}`}
+                    className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all"
+                  >
+                    <Brain className="h-5 w-5 mr-2" />
+                    AI Coach Dashboard
+                  </Link>
+                ) : (
+                  <Link
+                    href="/pricing"
+                    className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                  >
+                    <Star className="h-5 w-5 mr-2" />
+                    Upgrade Account
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -278,7 +324,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-gray-600">Plan</span>
-                  <span className="text-sm font-medium text-gray-900">Free</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {subscription?.status === 'active' ? 'AI Coach Pro' : 'Free'}
+                  </span>
                 </div>
                 <button className="w-full flex items-center justify-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors">
                   <Settings className="h-4 w-4 mr-2" />

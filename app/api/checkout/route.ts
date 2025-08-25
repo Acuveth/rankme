@@ -21,7 +21,7 @@ export async function POST(request: Request) {
               description: productInfo.description,
             },
             unit_amount: productInfo.price,
-            ...(productInfo.type === 'subscription' && {
+            ...(productInfo.type === 'subscription' && 'interval' in productInfo && {
               recurring: {
                 interval: productInfo.interval
               }
@@ -37,6 +37,18 @@ export async function POST(request: Request) {
         assessmentId,
         userId: userId || 'anonymous',
         product: product
+      }
+    }
+
+    // Add 7-day free trial for AI Coach subscription
+    if (product === 'ai_coach_monthly' && productInfo.type === 'subscription') {
+      sessionConfig.subscription_data = {
+        trial_period_days: 7,
+        metadata: {
+          assessmentId,
+          userId: userId || 'anonymous',
+          product: product
+        }
       }
     }
 
