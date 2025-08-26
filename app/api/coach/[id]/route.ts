@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generatePersonalizedCoaching, generateCoachResponse } from '@/lib/openai'
+import { enhancedCoachingEngine } from '@/lib/enhanced-coaching'
 
 export async function GET(
   request: Request,
@@ -209,11 +210,52 @@ export async function POST(
         })
 
       case 'chat':
-        const { message, conversationHistory, additionalContext } = data
-        const coachResponse = await generateCoachResponse(message, assessmentData, conversationHistory, additionalContext)
+        const startTime = Date.now()
+        const { message } = data
+        
+        // Save user message
+        await enhancedCoachingEngine.saveChatMessage(
+          user.id,
+          'user',
+          message,
+          assessment.id
+        )
+        
+        // Gather comprehensive user context
+        const context = await enhancedCoachingEngine.gatherUserContext(user.id, assessment.id)
+        
+        // Generate enhanced response with proactive insights
+        const enhancedResponse = await enhancedCoachingEngine.generateEnhancedCoachResponse(
+          message,
+          assessmentData,
+          context
+        )
+        
+        const responseTime = Date.now() - startTime
+        
+        // Save assistant message
+        await enhancedCoachingEngine.saveChatMessage(
+          user.id,
+          'assistant',
+          enhancedResponse.message,
+          assessment.id,
+          context.userSettings.coachingStyle,
+          responseTime
+        )
+        
         return NextResponse.json({ 
           success: true, 
-          response: coachResponse
+          response: {
+            message: enhancedResponse.message,
+            suggestions: enhancedResponse.suggestions
+          },
+          insights: enhancedResponse.insights,
+          context: {
+            streak: context.weeklyProgress.currentStreak,
+            completionRate: context.weeklyProgress.weeklyCompletionRate,
+            activeGoals: context.goalProgress.length,
+            recentAchievements: context.achievements.length
+          }
         })
 
       case 'generate_weekly_plan':
@@ -235,6 +277,46 @@ export async function POST(
           success: true, 
           message: `Focus area updated to ${focusArea}. New weekly plan generated!`,
           coachingData: updatedCoachingData
+        })
+
+      case 'adapt_tasks':
+        const { category } = data
+        const adaptations = await enhancedCoachingEngine.adaptTaskDifficulty(user.id, category)
+        return NextResponse.json({
+          success: true,
+          adaptations,
+          message: `Task difficulty adapted based on your ${category} performance patterns.`
+        })
+
+      case 'get_proactive_insights':
+        const userContext = await enhancedCoachingEngine.gatherUserContext(user.id, assessment.id)
+        const insights = await enhancedCoachingEngine.generateProactiveInsights(userContext, assessmentData)
+        return NextResponse.json({
+          success: true,
+          insights,
+          contextSummary: {
+            streak: userContext.weeklyProgress.currentStreak,
+            completionRate: userContext.weeklyProgress.completionRate,
+            activeGoals: userContext.goalProgress.length,
+            recentJournalEntries: userContext.recentJournalEntries.length
+          }
+        })
+
+      case 'update_coaching_style':
+        const { style } = data
+        await prisma.coachSettings.upsert({
+          where: { userId: user.id },
+          create: {
+            userId: user.id,
+            coachingStyle: style
+          },
+          update: {
+            coachingStyle: style
+          }
+        })
+        return NextResponse.json({
+          success: true,
+          message: `Coaching style updated to ${style}. I'll adjust my communication approach accordingly.`
         })
       
       default:

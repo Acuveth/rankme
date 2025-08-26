@@ -118,33 +118,33 @@ export default function ReportPaywallPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Sample Insights You'll Receive</h2>
               <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                   <div className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="h-5 w-5 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-green-800 font-medium mb-1">Top Strength Identified</p>
-                      <p className="text-green-700 text-sm">
+                      <p className="text-gray-800 font-medium mb-1">Top Strength Identified</p>
+                      <p className="text-gray-700 text-sm">
                         "Your savings rate is in the 85th percentile - this financial discipline is your strongest asset and foundation for wealth building."
                       </p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                   <div className="flex items-start">
-                    <Target className="h-5 w-5 text-orange-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <Target className="h-5 w-5 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-orange-800 font-medium mb-1">Growth Opportunity</p>
-                      <p className="text-orange-700 text-sm">
+                      <p className="text-gray-800 font-medium mb-1">Growth Opportunity</p>
+                      <p className="text-gray-700 text-sm">
                         "Increasing weekly exercise by 90 minutes could boost your health score by 15 points and move you from 60th to 75th percentile."
                       </p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                   <div className="flex items-start">
-                    <Users className="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <Users className="h-5 w-5 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-blue-800 font-medium mb-1">Peer Comparison</p>
                       <p className="text-blue-700 text-sm">

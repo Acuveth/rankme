@@ -114,8 +114,8 @@ export default function SignUpPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-            <p className="text-red-700 text-sm">{error}</p>
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+            <p className="text-gray-700 text-sm">{error}</p>
           </div>
         )}
 

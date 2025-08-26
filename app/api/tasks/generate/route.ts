@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateDailyTasks, generateWeeklyTasks } from '@/lib/openai'
+import { enhancedCoachingEngine } from '@/lib/enhanced-coaching'
 
 export async function POST(request: Request) {
   try {
@@ -97,9 +98,30 @@ export async function POST(request: Request) {
       const existingTaskTitles = existingTasks.map(task => task.title)
       const generatedTasks = await generateDailyTasks(assessmentData, date, existingTaskTitles)
 
+      // Get task adaptations for better personalization
+      const adaptations = await Promise.all(
+        ['financial', 'health', 'social', 'romantic'].map(category =>
+          enhancedCoachingEngine.adaptTaskDifficulty(user.id, category)
+        )
+      )
+      const allAdaptations = adaptations.flat()
+
+      // Apply adaptations to generated tasks
+      const adaptedTasks = generatedTasks.tasks.map(task => {
+        const adaptation = allAdaptations.find(a => a.originalTask.toLowerCase().includes(task.title.toLowerCase().split(' ')[0]))
+        if (adaptation) {
+          return {
+            ...task,
+            title: adaptation.adaptedTask,
+            description: `${task.description} (Adapted: ${adaptation.explanation})`
+          }
+        }
+        return task
+      })
+
       // Save generated tasks to database
       const savedTasks = []
-      for (const task of generatedTasks.tasks) {
+      for (const task of adaptedTasks) {
         const savedTask = await prisma.dailyTask.create({
           data: {
             userId: user.id,

@@ -104,10 +104,10 @@ export default function DetailedReportPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8 bg-white rounded-xl shadow-lg max-w-md">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Target className="h-8 w-8 text-red-600" />
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Target className="h-8 w-8 text-gray-600" />
           </div>
-          <p className="text-red-600 mb-4 font-medium">{error}</p>
+          <p className="text-gray-600 mb-4 font-medium">{error}</p>
           <button 
             onClick={() => router.push('/')}
             className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
@@ -218,9 +218,9 @@ export default function DetailedReportPage() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-                <h3 className="font-semibold text-blue-800 mb-3">Peer Comparison</h3>
-                <p className="text-blue-700">
+              <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <h3 className="font-semibold text-gray-800 mb-3">Peer Comparison</h3>
+                <p className="text-gray-700">
                   Your overall life score ranks higher than <strong>{reportData.peerComparison.betterThan}%</strong> of people in your demographic ({reportData.cohort.sex}, {reportData.cohort.age_band}, {reportData.cohort.region}). 
                   You're most similar to individuals in the {reportData.peerComparison.category} category.
                 </p>
@@ -259,27 +259,27 @@ export default function DetailedReportPage() {
                       </div>
 
                       <div className="grid md:grid-cols-3 gap-6">
-                        <div className="bg-green-50 p-4 rounded-xl border border-green-100">
-                          <h4 className="font-semibold text-green-800 mb-2">Strengths</h4>
-                          <ul className="text-sm text-green-700 space-y-1">
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                          <h4 className="font-semibold text-gray-800 mb-2">Strengths</h4>
+                          <ul className="text-sm text-gray-700 space-y-1">
                             {category.strengths.map((strength, index) => (
                               <li key={index}>• {strength}</li>
                             ))}
                           </ul>
                         </div>
 
-                        <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                          <h4 className="font-semibold text-orange-800 mb-2">Opportunities</h4>
-                          <ul className="text-sm text-orange-700 space-y-1">
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                          <h4 className="font-semibold text-gray-800 mb-2">Opportunities</h4>
+                          <ul className="text-sm text-gray-700 space-y-1">
                             {category.opportunities.map((opportunity, index) => (
                               <li key={index}>• {opportunity}</li>
                             ))}
                           </ul>
                         </div>
 
-                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                          <h4 className="font-semibold text-blue-800 mb-2">Quick Wins</h4>
-                          <ul className="text-sm text-blue-700 space-y-1">
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                          <h4 className="font-semibold text-gray-800 mb-2">Quick Wins</h4>
+                          <ul className="text-sm text-gray-700 space-y-1">
                             {category.recommendations.map((recommendation, index) => (
                               <li key={index}>• {recommendation}</li>
                             ))}
@@ -357,7 +357,7 @@ export default function DetailedReportPage() {
               <div className="space-y-4">
                 <div className="bg-white p-4 rounded-xl">
                   <div className="flex items-center mb-2">
-                    <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                    <Star className="h-4 w-4 text-gray-600 mr-2" />
                     <span className="font-semibold text-gray-900 text-sm">Top Performer</span>
                   </div>
                   <p className="text-xs text-gray-600">
@@ -369,7 +369,7 @@ export default function DetailedReportPage() {
 
                 <div className="bg-white p-4 rounded-xl">
                   <div className="flex items-center mb-2">
-                    <Target className="h-4 w-4 text-orange-500 mr-2" />
+                    <Target className="h-4 w-4 text-gray-600 mr-2" />
                     <span className="font-semibold text-gray-900 text-sm">Focus Area</span>
                   </div>
                   <p className="text-xs text-gray-600">
@@ -381,7 +381,7 @@ export default function DetailedReportPage() {
 
                 <div className="bg-white p-4 rounded-xl">
                   <div className="flex items-center mb-2">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-2" />
+                    <TrendingUp className="h-4 w-4 text-gray-600 mr-2" />
                     <span className="font-semibold text-gray-900 text-sm">Growth Potential</span>
                   </div>
                   <p className="text-xs text-gray-600">

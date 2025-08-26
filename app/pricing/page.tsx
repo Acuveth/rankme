@@ -73,19 +73,19 @@ export default function PricingPage() {
 
             <div className="space-y-3 mb-8">
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Complete 32-question assessment</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Basic percentile rankings</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Category performance breakdown</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Top strengths & opportunities</span>
               </div>
             </div>
@@ -107,8 +107,8 @@ export default function PricingPage() {
             </div>
 
             <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="h-6 w-6 text-gray-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Deep Analysis Report</h3>
               <p className="text-gray-600">Comprehensive insights & action plan</p>
@@ -121,27 +121,27 @@ export default function PricingPage() {
 
             <div className="space-y-3 mb-8">
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Everything in Free Assessment</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Detailed category analysis</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Personalized 30-day action plan</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Peer comparison insights</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Professional PDF download</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">30-day money-back guarantee</span>
               </div>
             </div>
@@ -178,27 +178,27 @@ export default function PricingPage() {
 
             <div className="space-y-3 mb-8">
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Everything in Deep Report</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Weekly personalized plans</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Daily AI coach check-ins</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Progress tracking & analytics</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Monthly re-assessments</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-green-600 mr-3 flex-shrink-0" />
+                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Cancel anytime</span>
               </div>
             </div>
@@ -296,8 +296,8 @@ export default function PricingPage() {
           </div>
 
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Star className="h-8 w-8 text-blue-600" />
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Star className="h-8 w-8 text-gray-600" />
             </div>
             <h3 className="font-bold text-gray-900 mb-2">4.8/5 Rating</h3>
             <p className="text-sm text-gray-600">

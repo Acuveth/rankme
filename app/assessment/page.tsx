@@ -398,7 +398,7 @@ export default function AssessmentPage() {
                     {answeredCounts[category] || 0} / {total}
                   </span>
                   {(answeredCounts[category] || 0) === total ? (
-                    <Check className="h-4 w-4 text-green-600" />
+                    <Check className="h-4 w-4 text-gray-600" />
                   ) : (
                     <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
                   )}

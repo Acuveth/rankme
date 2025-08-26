@@ -202,23 +202,23 @@ export default function CoachPaywallPage() {
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-3" />
+                  <CheckCircle className="h-4 w-4 text-gray-600 mr-3" />
                   <span className="text-gray-700">Personalized weekly action plans</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-3" />
+                  <CheckCircle className="h-4 w-4 text-gray-600 mr-3" />
                   <span className="text-gray-700">Daily AI coach check-ins</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-3" />
+                  <CheckCircle className="h-4 w-4 text-gray-600 mr-3" />
                   <span className="text-gray-700">Progress tracking & analytics</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-3" />
+                  <CheckCircle className="h-4 w-4 text-gray-600 mr-3" />
                   <span className="text-gray-700">Monthly re-assessments</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-3" />
+                  <CheckCircle className="h-4 w-4 text-gray-600 mr-3" />
                   <span className="text-gray-700">24/7 motivation & support</span>
                 </div>
               </div>

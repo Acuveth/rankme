@@ -162,10 +162,10 @@ export default function ScorecardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8 bg-white rounded-xl shadow-lg max-w-md">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Target className="h-8 w-8 text-red-600" />
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Target className="h-8 w-8 text-gray-600" />
           </div>
-          <p className="text-red-600 mb-4 font-medium">{error}</p>
+          <p className="text-gray-600 mb-4 font-medium">{error}</p>
           <button 
             onClick={() => router.push('/')}
             className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
@@ -309,26 +309,26 @@ export default function ScorecardPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Insights</h2>
               
               <div className="grid sm:grid-cols-2 gap-6">
-                <div className="bg-green-50 p-6 rounded-xl border border-green-100">
-                  <h3 className="text-lg font-semibold text-green-800 mb-2">Top Strength</h3>
-                  <p className="text-green-700">
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Top Strength</h3>
+                  <p className="text-gray-700">
                     {categoryNames[scoreData.categories.reduce((max, cat) => 
                       cat.percentile > max.percentile ? cat : max
                     ).id]}
                   </p>
-                  <div className="text-2xl font-bold text-green-800 mt-2">
+                  <div className="text-2xl font-bold text-gray-800 mt-2">
                     {formatPercentile(Math.max(...scoreData.categories.map(c => c.percentile)))}
                   </div>
                 </div>
                 
-                <div className="bg-orange-50 p-6 rounded-xl border border-orange-100">
-                  <h3 className="text-lg font-semibold text-orange-800 mb-2">Growth Area</h3>
-                  <p className="text-orange-700">
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Growth Area</h3>
+                  <p className="text-gray-700">
                     {categoryNames[scoreData.categories.reduce((min, cat) => 
                       cat.percentile < min.percentile ? cat : min
                     ).id]}
                   </p>
-                  <div className="text-2xl font-bold text-orange-800 mt-2">
+                  <div className="text-2xl font-bold text-gray-800 mt-2">
                     {formatPercentile(Math.min(...scoreData.categories.map(c => c.percentile)))}
                   </div>
                 </div>
@@ -340,16 +340,16 @@ export default function ScorecardPage() {
           <div className="space-y-6">
             {/* Account Creation Prompt for Non-logged in Users */}
             {!session && (
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200 animate-fade-scale">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 animate-fade-scale">
                 <div className="text-center mb-4">
-                  <UserPlus className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <UserPlus className="h-8 w-8 text-gray-600 mx-auto mb-2" />
                   <h3 className="font-bold text-gray-900 mb-2">Save Your Results</h3>
                   <p className="text-sm text-gray-600 mb-4">
                     Create a free account to track your progress and access your results anytime.
                   </p>
                   <button
                     onClick={() => router.push(`/auth/signup?assessmentId=${params.id}&redirect=/dashboard`)}
-                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold shadow-sm mb-2"
+                    className="w-full px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm mb-2"
                   >
                     Create Free Account
                   </button>
@@ -383,12 +383,12 @@ export default function ScorecardPage() {
               
               {emailSent ? (
                 <div className="text-center py-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="text-green-700 font-medium">Results sent successfully!</p>
+                  <p className="text-gray-700 font-medium">Results sent successfully!</p>
                   <p className="text-sm text-gray-600 mt-1">Check your inbox for your detailed life score.</p>
                   <button
                     onClick={() => setEmailSent(false)}
@@ -523,8 +523,8 @@ export default function ScorecardPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 animate-fade-scale">
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserPlus className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserPlus className="h-8 w-8 text-gray-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">
                   Great Job! Save Your Results
@@ -534,25 +534,25 @@ export default function ScorecardPage() {
                 </p>
                 <ul className="text-left text-sm text-gray-600 mb-6 space-y-2">
                   <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
+                    <span className="text-gray-600 mr-2">✓</span>
                     Track your progress over time
                   </li>
                   <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
+                    <span className="text-gray-600 mr-2">✓</span>
                     Access your results from any device
                   </li>
                   <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
+                    <span className="text-gray-600 mr-2">✓</span>
                     Compare improvements between assessments
                   </li>
                   <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
+                    <span className="text-gray-600 mr-2">✓</span>
                     Get personalized recommendations
                   </li>
                 </ul>
                 <button
                   onClick={() => router.push(`/auth/signup?assessmentId=${params.id}&redirect=/dashboard`)}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold shadow-sm mb-3"
+                  className="w-full px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm mb-3"
                 >
                   Create Free Account
                 </button>

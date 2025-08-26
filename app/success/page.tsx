@@ -39,7 +39,7 @@ export default function SuccessPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600"></div>
       </div>
     )
   }
@@ -47,8 +47,8 @@ export default function SuccessPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
-        <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-          <CheckCircle className="h-12 w-12 text-green-600" />
+        <div className="bg-gray-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+          <CheckCircle className="h-12 w-12 text-gray-600" />
         </div>
         
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Purchase Successful!</h1>

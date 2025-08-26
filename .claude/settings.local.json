@@ -16,7 +16,14 @@
       "Bash(npm run build:*)",
       "Bash(npm start)",
       "Bash(sqlite3:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(start http://localhost:3000)",
+      "Bash(start http://localhost:3003)",
+      "Bash(if exist .next rmdir /s /q .next)",
+      "Bash(start http://localhost:3004)",
+      "Bash(cls)",
+      "Bash(clear)"
     ],
     "deny": [],
     "ask": [],

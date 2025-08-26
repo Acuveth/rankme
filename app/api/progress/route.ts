@@ -246,6 +246,44 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, settings })
     }
 
+    if (type === 'settings') {
+      const { 
+        primaryFocus, 
+        coachingStyle, 
+        goalFrequency, 
+        dailyReminders,
+        checkInFrequency,
+        checkInTime,
+        checkInDays
+      } = data
+      
+      const settings = await prisma.coachSettings.upsert({
+        where: {
+          userId: user.id
+        },
+        update: {
+          ...(primaryFocus && { primaryFocus }),
+          ...(coachingStyle && { coachingStyle }),
+          ...(goalFrequency && { goalFrequency }),
+          ...(dailyReminders !== undefined && { dailyReminders }),
+          ...(checkInFrequency && { checkInFrequency }),
+          ...(checkInTime && { checkInTime }),
+          ...(checkInDays && { checkInDays })
+        },
+        create: {
+          userId: user.id,
+          primaryFocus: primaryFocus || 'financial',
+          coachingStyle: coachingStyle || 'supportive',
+          goalFrequency: goalFrequency || 'daily',
+          dailyReminders: dailyReminders !== undefined ? dailyReminders : true,
+          checkInFrequency: checkInFrequency || 'daily',
+          checkInTime: checkInTime || '09:00',
+          checkInDays: checkInDays || null
+        }
+      })
+      return NextResponse.json({ success: true, settings })
+    }
+
     return NextResponse.json(
       { error: 'Invalid type' },
       { status: 400 }

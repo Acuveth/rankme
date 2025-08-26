@@ -156,7 +156,7 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <div className="flex items-center mb-4">
-              <BarChart3 className="h-8 w-8 text-blue-600" />
+              <BarChart3 className="h-8 w-8 text-gray-600" />
               <div className="ml-3">
                 <h3 className="font-bold text-gray-900">Assessments</h3>
                 <p className="text-2xl font-bold text-gray-900">{completedAssessments.length}</p>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           {latestAssessment && (
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center mb-4">
-                <Trophy className="h-8 w-8 text-yellow-600" />
+                <Trophy className="h-8 w-8 text-gray-600" />
                 <div className="ml-3">
                   <h3 className="font-bold text-gray-900">Latest Score</h3>
                   <p className="text-2xl font-bold text-gray-900">
@@ -183,7 +183,7 @@ export default function DashboardPage() {
           {latestAssessment && (
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center mb-4">
-                <TrendingUp className="h-8 w-8 text-green-600" />
+                <TrendingUp className="h-8 w-8 text-gray-600" />
                 <div className="ml-3">
                   <h3 className="font-bold text-gray-900">Percentile</h3>
                   <p className="text-2xl font-bold text-gray-900">
@@ -197,7 +197,7 @@ export default function DashboardPage() {
 
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <div className="flex items-center mb-4">
-              <Calendar className="h-8 w-8 text-purple-600" />
+              <Calendar className="h-8 w-8 text-gray-600" />
               <div className="ml-3">
                 <h3 className="font-bold text-gray-900">Member Since</h3>
                 <p className="text-2xl font-bold text-gray-900">

@@ -8,155 +8,150 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  country       String?
-  birthYear     Int?
-  sexGender     String?
-  consentFlags  String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  assessments   Assessment[]
-  purchases     Purchase[]
-  subscriptions Subscription[]
-  events        Event[]
-  accounts      Account[]
-  sessions      Session[]
-  dailyTasks    DailyTask[]
-  weeklyTasks   WeeklyTask[]
-  journalEntries JournalEntry[]
-  coachSettings CoachSettings?
-  progressStats UserProgressStats?
-  dailySnapshots DailyProgressSnapshot[]
+  id              String                   @id @default(cuid())
+  name            String?
+  email           String?                  @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  country         String?
+  birthYear       Int?
+  sexGender       String?
+  consentFlags    String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  accounts        Account[]
+  achievements    Achievement[]
+  assessments     Assessment[]
+  chatMessages    ChatMessage[]
+  checkIns        CheckIn[]
+  coachSettings   CoachSettings?
+  dailySnapshots  DailyProgressSnapshot[]
+  dailyTasks      DailyTask[]
+  events          Event[]
+  goals           Goal[]
+  journalEntries  JournalEntry[]
+  purchases       Purchase[]
+  sessions        Session[]
+  subscriptions   Subscription[]
+  progressStats   UserProgressStats?
   weeklySnapshots WeeklyProgressSnapshot[]
+  weeklyTasks     WeeklyTask[]
 }
 
 model Assessment {
-  id            String        @id @default(cuid())
-  userId        String?
-  anonId        String?
-  version       String        @default("1.0")
-  cohortAge     String
-  cohortSex     String
-  cohortRegion  String
-  status        String        @default("in_progress")
-  startedAt     DateTime      @default(now())
-  completedAt   DateTime?
-  completionTime Int?          // Time in seconds
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  user          User?         @relation(fields: [userId], references: [id])
-  answers       Answer[]
-  scoreCategory ScoreCategory?
-  scoreOverall  ScoreOverall?
-  purchases     Purchase[]
-  shareTokens   ShareToken[]
-  weeklyTasks   WeeklyTask[]
+  id             String         @id @default(cuid())
+  userId         String?
+  anonId         String?
+  version        String         @default("1.0")
+  cohortAge      String
+  cohortSex      String
+  cohortRegion   String
+  status         String         @default("in_progress")
+  startedAt      DateTime       @default(now())
+  completedAt    DateTime?
+  completionTime Int?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  answers        Answer[]
+  user           User?          @relation(fields: [userId], references: [id])
+  purchases      Purchase[]
+  scoreCategory  ScoreCategory?
+  scoreOverall   ScoreOverall?
+  shareTokens    ShareToken[]
+  weeklyTasks    WeeklyTask[]
 }
 
 model Answer {
-  id            String        @id @default(cuid())
-  assessmentId  String
-  questionId    String
-  valueRaw      String
-  valueNorm     Float?
-  createdAt     DateTime      @default(now())
-  
-  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  
+  id           String     @id @default(cuid())
+  assessmentId String
+  questionId   String
+  valueRaw     String
+  valueNorm    Float?
+  createdAt    DateTime   @default(now())
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
   @@unique([assessmentId, questionId])
 }
 
 model ScoreCategory {
-  id            String        @id @default(cuid())
-  assessmentId  String        @unique
+  id            String     @id @default(cuid())
+  assessmentId  String     @unique
   financial     Float
   healthFitness Float
   social        Float
   romantic      Float
-  
-  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 }
 
 model ScoreOverall {
-  id                String        @id @default(cuid())
-  assessmentId      String        @unique
-  overall           Float
-  percentileOverall Float
+  id                  String     @id @default(cuid())
+  assessmentId        String     @unique
+  overall             Float
+  percentileOverall   Float
   percentileFinancial Float
-  percentileHealth  Float
-  percentileSocial  Float
-  percentileRomantic Float
-  
-  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  percentileHealth    Float
+  percentileSocial    Float
+  percentileRomantic  Float
+  assessment          Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 }
 
 model CohortStats {
-  id            String        @id @default(cuid())
-  cohortKey     String        @unique
-  category      String
-  mean          Float
-  stddev        Float
-  p1            Float
-  p99           Float
-  n             Int
-  updatedAt     DateTime      @updatedAt
+  id        String   @id @default(cuid())
+  cohortKey String   @unique
+  category  String
+  mean      Float
+  stddev    Float
+  p1        Float
+  p99       Float
+  n         Int
+  updatedAt DateTime @updatedAt
 }
 
 model Purchase {
-  id            String        @id @default(cuid())
-  userId        String
-  assessmentId  String
-  product       String
-  price         Float
-  currency      String
-  status        String
-  stripeId      String?
-  createdAt     DateTime      @default(now())
-  
-  user          User          @relation(fields: [userId], references: [id])
-  assessment    Assessment    @relation(fields: [assessmentId], references: [id])
+  id           String     @id @default(cuid())
+  userId       String
+  assessmentId String
+  product      String
+  price        Float
+  currency     String
+  status       String
+  stripeId     String?
+  createdAt    DateTime   @default(now())
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
 }
 
 model Subscription {
-  id            String        @id @default(cuid())
-  userId        String
-  product       String
-  status        String
-  periodEnd     DateTime
-  cancelAt      DateTime?
-  stripeId      String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  user          User          @relation(fields: [userId], references: [id])
+  id        String    @id @default(cuid())
+  userId    String
+  product   String
+  status    String
+  periodEnd DateTime
+  cancelAt  DateTime?
+  stripeId  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id])
 }
 
 model ShareToken {
-  id            String        @id @default(cuid())
-  assessmentId  String
-  token         String        @unique
-  expiresAt     DateTime
-  createdAt     DateTime      @default(now())
-  
-  assessment    Assessment    @relation(fields: [assessmentId], references: [id])
+  id           String     @id @default(cuid())
+  assessmentId String
+  token        String     @unique
+  expiresAt    DateTime
+  createdAt    DateTime   @default(now())
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
 }
 
 model Event {
-  id            String        @id @default(cuid())
-  userId        String?
-  anonId        String?
-  name          String
-  props         String
-  createdAt     DateTime      @default(now())
-  
-  user          User?         @relation(fields: [userId], references: [id])
+  id        String   @id @default(cuid())
+  userId    String?
+  anonId    String?
+  name      String
+  props     String
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 }
 
 model Account {
@@ -172,8 +167,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -195,127 +189,197 @@ model VerificationToken {
 }
 
 model CoachSettings {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  primaryFocus    String   @default("financial") // financial, health, social, romantic
-  coachingStyle   String   @default("supportive") // supportive, direct, motivational
-  goalFrequency   String   @default("daily") // daily, weekly
-  dailyReminders  Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  primaryFocus     String    @default("financial")
+  coachingStyle    String    @default("supportive")
+  goalFrequency    String    @default("daily")
+  dailyReminders   Boolean   @default(true)
+  checkInFrequency String    @default("daily")
+  checkInTime      String    @default("09:00")
+  checkInDays      String?
+  nextCheckIn      DateTime?
+  lastCheckIn      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DailyTask {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  description String?
-  category    String   // financial, health, social, romantic
-  source      String   @default("user") // "user", "llm", "coach"
-  priority    String?  // "high", "medium", "low"
-  estimatedMinutes Int? // Estimated time to complete
-  completed   Boolean  @default(false)
-  completedAt DateTime?
-  date        DateTime // Date this task is for
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id               String    @id @default(cuid())
+  userId           String
+  title            String
+  description      String?
+  category         String
+  source           String    @default("user")
+  priority         String?
+  estimatedMinutes Int?
+  completed        Boolean   @default(false)
+  completedAt      DateTime?
+  date             DateTime
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, title, date])
 }
 
 model WeeklyTask {
-  id            String   @id @default(cuid())
-  userId        String
-  assessmentId  String?  // Link to assessment for context
-  title         String
-  description   String?
-  category      String   // financial, health, social, romantic
-  source        String   @default("user") // "user", "llm", "coach"
-  priority      String?  // "high", "medium", "low"
-  estimatedMinutes Int? // Estimated time to complete
-  week          Int      // Week number
-  completed     Boolean  @default(false)
-  completedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assessment    Assessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
-  
+  id               String      @id @default(cuid())
+  userId           String
+  assessmentId     String?
+  title            String
+  description      String?
+  category         String
+  source           String      @default("user")
+  priority         String?
+  estimatedMinutes Int?
+  week             Int
+  completed        Boolean     @default(false)
+  completedAt      DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  assessment       Assessment? @relation(fields: [assessmentId], references: [id])
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, title, week, category])
 }
 
 model JournalEntry {
-  id          String   @id @default(cuid())
-  userId      String
-  entry       String
-  question    String?  // The question that prompted this entry
-  mood        String?  // Optional mood tracking
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  entry     String
+  question  String?
+  mood      String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserProgressStats {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  currentStreak         Int      @default(0)
-  longestStreak         Int      @default(0)
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  currentStreak         Int       @default(0)
+  longestStreak         Int       @default(0)
   lastActiveDate        DateTime?
-  totalTasksCompleted   Int      @default(0)
-  totalTasksAssigned    Int      @default(0)
-  completionRate        Float    @default(0.0) // Percentage 0-100
-  weeklyCompletionRate  Float    @default(0.0) // Last 7 days
-  monthlyCompletionRate Float    @default(0.0) // Last 30 days
-  lastCalculated        DateTime @default(now())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalTasksCompleted   Int       @default(0)
+  totalTasksAssigned    Int       @default(0)
+  completionRate        Float     @default(0.0)
+  weeklyCompletionRate  Float     @default(0.0)
+  monthlyCompletionRate Float     @default(0.0)
+  lastCalculated        DateTime  @default(now())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DailyProgressSnapshot {
-  id                String   @id @default(cuid())
-  userId            String
-  date              DateTime // Date for this snapshot (start of day)
-  tasksCompleted    Int      @default(0)
-  tasksTotal        Int      @default(0)
-  journalEntries    Int      @default(0)
-  completionRate    Float    @default(0.0)
-  streakDay         Int      @default(0) // What day of the streak this was (0 if streak broken)
-  hasActivity       Boolean  @default(false) // Any task completion or journal entry
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime
+  tasksCompleted Int      @default(0)
+  tasksTotal     Int      @default(0)
+  journalEntries Int      @default(0)
+  completionRate Float    @default(0.0)
+  streakDay      Int      @default(0)
+  hasActivity    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, date])
 }
 
 model WeeklyProgressSnapshot {
-  id                String   @id @default(cuid())
-  userId            String
-  weekStart         DateTime // Start of the week
-  weekEnd           DateTime // End of the week
-  weekNumber        Int      // Week number in the year
-  year              Int      // Year
-  dailyTasksCompleted   Int  @default(0)
-  dailyTasksTotal       Int  @default(0)
-  weeklyTasksCompleted  Int  @default(0)
-  weeklyTasksTotal      Int  @default(0)
-  journalEntries        Int  @default(0)
-  completionRate        Float @default(0.0)
-  daysActive            Int  @default(0) // How many days had activity
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id                   String   @id @default(cuid())
+  userId               String
+  weekStart            DateTime
+  weekEnd              DateTime
+  weekNumber           Int
+  year                 Int
+  dailyTasksCompleted  Int      @default(0)
+  dailyTasksTotal      Int      @default(0)
+  weeklyTasksCompleted Int      @default(0)
+  weeklyTasksTotal     Int      @default(0)
+  journalEntries       Int      @default(0)
+  completionRate       Float    @default(0.0)
+  daysActive           Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, year, weekNumber])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  description String
+  icon        String
+  category    String?
+  level       String   @default("bronze")
+  metadata    String?
+  earnedAt    DateTime @default(now())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, title])
+}
+
+model CheckIn {
+  id           String    @id @default(cuid())
+  userId       String
+  type         String
+  status       String    @default("pending")
+  scheduledFor DateTime
+  completedAt  DateTime?
+  mood         String?
+  energy       Int?
+  notes        String?
+  responses    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, scheduledFor])
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  userId         String
+  assessmentId   String?
+  role           String
+  content        String
+  context        String?
+  coaching_style String?
+  response_time  Int?
+  tokens_used    Int?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  category    String
+  target      String
+  deadline    DateTime?
+  status      String    @default("active")
+  priority    String    @default("medium")
+  progress    Float     @default(0.0)
+  milestones  String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
 }
