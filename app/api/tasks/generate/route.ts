@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       const allAdaptations = adaptations.flat()
 
       // Apply adaptations to generated tasks
-      const adaptedTasks = generatedTasks.tasks.map(task => {
+      const adaptedTasks = generatedTasks.tasks.map((task: any) => {
         const adaptation = allAdaptations.find(a => a.originalTask.toLowerCase().includes(task.title.toLowerCase().split(' ')[0]))
         if (adaptation) {
           return {
@@ -125,6 +125,7 @@ export async function POST(request: Request) {
         const savedTask = await prisma.dailyTask.create({
           data: {
             userId: user.id,
+            assessmentId: assessmentId,
             title: task.title,
             description: task.description,
             category: task.category,

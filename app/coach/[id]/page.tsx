@@ -3,16 +3,22 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import ReactMarkdown from 'react-markdown'
 import { formatPercentile } from '@/lib/utils'
 import { AchievementNotification } from '@/components/AchievementNotification'
 import { ContactSupportModal } from '@/components/ContactSupportModal'
 import { CheckInModal, CheckInData } from '@/components/CheckInModal'
 import { CheckInSetup, CheckInSettings } from '@/components/CheckInSetup'
 import WeeklyTaskCreatorModal from '@/components/WeeklyTaskCreatorModal'
+import { LoginTrackerComponent } from '@/components/LoginTracker'
+import CoachPreferenceSetup from '@/components/CoachPreferenceSetup'
+import { useLanguage } from '@/lib/language-context'
+import LanguageSelector from '@/components/LanguageSelector'
 import { 
   Calendar, MessageSquare, TrendingUp, Target, Award, Clock, 
   ArrowLeft, Settings, Star, CheckCircle, Play, Users,
-  DollarSign, Heart, BarChart3, Zap, Trophy, ChevronDown, ChevronUp
+  DollarSign, Heart, BarChart3, Zap, Trophy, ChevronDown, ChevronUp,
+  Trash2, X, Folder
 } from 'lucide-react'
 
 interface CoachData {
@@ -60,17 +66,41 @@ export default function CoachDashboard() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
+  const { t } = useLanguage()
   const [coachData, setCoachData] = useState<CoachData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const [showChat, setShowChat] = useState(false)
   const [chatMessages, setChatMessages] = useState<Array<{id: string, type: 'user' | 'coach', message: string, timestamp: Date}>>([])
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
+  const [taskPreferences, setTaskPreferences] = useState<{
+    dailyCount?: number;
+    weeklyCount?: number;
+    focusAreas?: string[];
+    specificGoals?: string;
+    confirmTasks?: boolean;
+    previewedTasks?: {
+      daily: Array<{title: string; description: string; category: string; estimatedMinutes: number}>;
+      weekly: Array<{title: string; description: string; category: string; estimatedMinutes: number}>;
+    };
+  } | null>(null)
+  const [waitingForTaskPreferences, setWaitingForTaskPreferences] = useState(false)
+  const [taskPreview, setTaskPreview] = useState<{
+    daily: Array<{title: string; description: string; category: string; estimatedMinutes: number}>;
+    weekly: Array<{title: string; description: string; category: string; estimatedMinutes: number}>;
+  } | null>(null)
+  const [awaitingTaskConfirmation, setAwaitingTaskConfirmation] = useState(false)
   const [showJournal, setShowJournal] = useState(false)
   const [journalEntry, setJournalEntry] = useState('')
   const [journalQuestion, setJournalQuestion] = useState('')
   const [showGoals, setShowGoals] = useState(false)
+  const [coachPreferences, setCoachPreferences] = useState<any>(null)
+  const [showPreferenceSetup, setShowPreferenceSetup] = useState(false)
+  const [preferencesLoading, setPreferencesLoading] = useState(true)
+  const [showCoachConfig, setShowCoachConfig] = useState(false)
+  const [editingCoachConfig, setEditingCoachConfig] = useState(false)
   const [goals, setGoals] = useState<Array<{id: string, category: string, title: string, description: string, target: string, deadline: string}>>([])
   const [newGoal, setNewGoal] = useState({category: '', title: '', description: '', target: '', deadline: ''})
   const [showSettings, setShowSettings] = useState(false)
@@ -94,10 +124,12 @@ export default function CoachDashboard() {
     financial: false,
     health: false,
     social: false,
-    personal: false
+    personal: false,
+    other: false
   })
   const [combinedWeeklyProgress, setCombinedWeeklyProgress] = useState(0)
-  const [currentWeek, setCurrentWeek] = useState(1)
+  const [weeklyDailyGoalsProgress, setWeeklyDailyGoalsProgress] = useState(0)
+  const [currentWeek, setCurrentWeek] = useState(1) // Default to week 1, will be updated when coach data loads
   const [weeklyProgressByDay, setWeeklyProgressByDay] = useState<{[key: string]: number}>({
     Monday: 0,
     Tuesday: 0,
@@ -121,32 +153,107 @@ export default function CoachDashboard() {
   const [currentCheckInId, setCurrentCheckInId] = useState<string | null>(null)
   const [upcomingCheckIns, setUpcomingCheckIns] = useState<any[]>([])
   const [showCheckInSetup, setShowCheckInSetup] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(new Date())
   
-  const focusAreas = ['financial', 'health', 'social', 'personal']
+  const focusAreas = ['financial', 'health', 'social', 'personal', 'other']
   const focusAreaNames = {
-    financial: 'Financial Health',
-    health: 'Physical Wellness', 
-    social: 'Social Network',
-    personal: 'Personal Development'
+    financial: t('coach.financialHealth'),
+    health: t('coach.physicalWellness'), 
+    social: t('coach.socialNetwork'),
+    personal: t('coach.personalDevelopment'),
+    other: t('coach.otherTasks')
   }
 
+  // Date navigation functions
+  const navigateToYesterday = () => {
+    const yesterday = new Date(selectedDate)
+    yesterday.setDate(selectedDate.getDate() - 1)
+    setSelectedDate(yesterday)
+  }
+
+  const navigateToTomorrow = () => {
+    const tomorrow = new Date(selectedDate)
+    tomorrow.setDate(selectedDate.getDate() + 1)
+    setSelectedDate(tomorrow)
+  }
+
+  const navigateToToday = () => {
+    setSelectedDate(new Date())
+  }
+
+  // Helper to format date for display
+  const formatDateForDisplay = (date: Date) => {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(today.getDate() - 1)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    if (date.toDateString() === today.toDateString()) {
+      return t('coach.todaysGoals')
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return t('coach.yesterdaysGoals')
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return t('coach.tomorrowsGoals')
+    } else {
+      return `${t('coach.goalsFor')} ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+    }
+  }
+
+  // Check if selected date is tomorrow
+  const isTomorrow = () => {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+    return selectedDate.toDateString() === tomorrow.toDateString()
+  }
+
+  // Separate effect for assessment changes only
   useEffect(() => {
+    // CLEAR ALL STATE when assessment changes
+    console.log('COACH DASHBOARD: Assessment changed to', params.id)
+    setCoachData(null)
+    setLoading(true)
+    setError(null)
+    setDailyGoals([])
+    setChatMessages([])
+    
+    // Load new data (fetchCoachData will set the current week)
     fetchCoachData()
     loadProgressData()
     loadUserProgress()
-    loadWeeklyTasks()
     loadSettings()
     loadCheckIns()
-  }, [params.id, currentWeek])
+    loadCoachPreferences()
+    refreshWeeklyProgress() // Load initial weekly progress charts
+  }, [params.id])
+  
+  // Separate effect for week changes only
+  useEffect(() => {
+    // Only load weekly tasks if we have the assessment ID
+    if (params.id && currentWeek > 0) {
+      console.log(`COACH DASHBOARD: Week changed to ${currentWeek}, loading tasks...`)
+      loadWeeklyTasks()
+    }
+  }, [currentWeek, params.id])
 
-  const loadProgressData = async () => {
+  // Effect for selected date changes
+  useEffect(() => {
+    if (params.id) {
+      loadProgressData(selectedDate)
+    }
+  }, [selectedDate, params.id])
+
+  const loadProgressData = async (date?: Date) => {
     try {
       // Load daily goals
-      const today = new Date().toISOString().split('T')[0]
-      const dailyResponse = await fetch(`/api/progress?type=daily&date=${today}`)
+      const targetDate = date || selectedDate
+      const dateString = targetDate.toISOString().split('T')[0]
+      const dailyResponse = await fetch(`/api/progress?type=daily&date=${dateString}&assessmentId=${params.id}`)
       if (dailyResponse.ok) {
         const dailyData = await dailyResponse.json()
-        if (dailyData.tasks && dailyData.tasks.length > 0) {
+        // Always sync with database state - this ensures consistency after refresh
+        if (dailyData.tasks) {
           const dbDailyGoals = dailyData.tasks.map((task: any) => ({
             id: task.id,
             title: task.title,
@@ -154,30 +261,20 @@ export default function CoachDashboard() {
             category: task.category
           }))
           setDailyGoals(dbDailyGoals)
+        } else {
+          // If no DB tasks, clear local state to prevent stale data
+          setDailyGoals([])
         }
+      } else {
+        console.error('Failed to load daily tasks')
+        // On error, clear state to prevent showing stale data
+        setDailyGoals([])
       }
 
-      // Load weekly tasks progress
-      const weeklyResponse = await fetch(`/api/progress?type=weekly`)
-      if (weeklyResponse.ok) {
-        const weeklyData = await weeklyResponse.json()
-        if (weeklyData.tasks && weeklyData.tasks.length > 0) {
-          const weeklyProgressMap: {[key: string]: boolean} = {}
-          weeklyData.tasks.forEach((task: any) => {
-            const taskKey = `${task.category}-week-${task.week}-task-${task.id}`
-            weeklyProgressMap[taskKey] = task.completed
-          })
-          setWeeklyProgress(weeklyProgressMap)
-          
-          // Calculate actual weekly progress
-          const completedTasks = weeklyData.tasks.filter((task: any) => task.completed).length
-          const totalTasks = weeklyData.tasks.length
-          setActualWeeklyProgress(totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0)
-        }
-      }
+      // Weekly task progress is now handled in loadWeeklyTasks() to avoid conflicts
 
       // Load journal entries
-      const journalResponse = await fetch('/api/progress?type=journal&limit=5')
+      const journalResponse = await fetch(`/api/progress?type=journal&limit=5&assessmentId=${params.id}`)
       if (journalResponse.ok) {
         const journalData = await journalResponse.json()
         if (journalData.entries) {
@@ -196,9 +293,11 @@ export default function CoachDashboard() {
 
   const loadUserProgress = async () => {
     try {
-      const response = await fetch('/api/user-progress')
+      console.log('LOADING USER PROGRESS for assessment:', params.id)
+      const response = await fetch(`/api/user-progress?assessmentId=${params.id}`)
       if (response.ok) {
         const progressData = await response.json()
+        console.log('RECEIVED PROGRESS DATA:', progressData)
         setUserProgress(progressData)
       }
     } catch (error) {
@@ -214,254 +313,34 @@ export default function CoachDashboard() {
         focusArea: coachData.user.focus_area
       }))
       
-      // Initialize weekly progress tracking for current week, but don't overwrite existing progress
-      const currentFocusArea = focusAreas[(currentWeek - 1) % focusAreas.length]
-      const currentWeekTaskIds = getWeeklyTasksForArea(currentFocusArea).map((_, index) => 
-        `${currentFocusArea}-week-${currentWeek}-task-${index}`
-      )
+      // Weekly progress is now loaded in loadWeeklyTasks() which will set the correct percentage
+      // Don't reset to 0 here as it would override the correct calculation
       
-      // Load existing weekly progress from database
-      const loadWeeklyProgress = async () => {
-        try {
-          const response = await fetch(`/api/progress?type=weekly&week=${currentWeek}&category=${currentFocusArea}`)
-          if (response.ok) {
-            const data = await response.json()
-            const weeklyProgressMap: {[key: string]: boolean} = {}
-            
-            // Get frontend task definitions to match by title
-            const frontendTasks = getWeeklyTasksForArea(currentFocusArea)
-            
-            // Map database tasks to UI task IDs by matching titles
-            if (data.tasks && Array.isArray(data.tasks)) {
-              frontendTasks.forEach((frontendTitle: string, frontendIndex: number) => {
-                const taskId = `${currentFocusArea}-week-${currentWeek}-task-${frontendIndex}`
-                
-                // Find matching database task by title
-                const matchingDbTask = data.tasks.find((dbTask: any) => dbTask.title === frontendTitle)
-                
-                if (matchingDbTask) {
-                  weeklyProgressMap[taskId] = matchingDbTask.completed
-                } else {
-                  // If no matching task found, default to false
-                  weeklyProgressMap[taskId] = false
-                }
-              })
-            }
-            
-            setWeeklyProgress(prev => ({ ...prev, ...weeklyProgressMap }))
-          }
-        } catch (error) {
-          console.error('Error loading weekly progress:', error)
-        }
-      }
-      
-      loadWeeklyProgress()
-      
-      // Initialize any missing tasks to false
-      setWeeklyProgress(prev => {
-        const newProgress = { ...prev }
-        currentWeekTaskIds.forEach(taskId => {
-          if (newProgress[taskId] === undefined) {
-            newProgress[taskId] = false
-          }
-        })
-        return newProgress
-      })
-      
-      // Calculate actual weekly progress (0% initially)
-      setActualWeeklyProgress(0)
-      
-      // Initialize daily goals based on focus area
-      const focusArea = coachData.user.focus_area
-      const todayGoals = [
-        {
-          id: `daily-${Date.now()}-1`,
-          title: getTodayGoalForArea(focusArea, 1),
-          completed: false,
-          category: focusArea
-        },
-        {
-          id: `daily-${Date.now()}-2`, 
-          title: getTodayGoalForArea(focusArea, 2),
-          completed: false,
-          category: focusArea
-        }
-      ]
-      setDailyGoals(todayGoals)
+      // Don't initialize mock daily goals - they should come from database only
     }
   }, [coachData, currentWeek])
 
-  // Update completion percentage when weeklyProgress changes
+  // Auto-update progress when weekly tasks change
   useEffect(() => {
-    if (coachData) {
-      const currentWeekTasks = getCurrentWeekTasks()
-      const completedCount = currentWeekTasks.filter(task => weeklyProgress[task.id] ?? false).length
-      const totalCount = currentWeekTasks.length
-      const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+    if (coachWeeklyTasks.length > 0) {
+      // Recalculate weekly progress
+      const completedTasks = coachWeeklyTasks.filter(task => task.completed).length
+      const totalTasks = coachWeeklyTasks.length
+      const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
+      setActualWeeklyProgress(progressPercentage)
       
-      setActualWeeklyProgress(completionPercentage)
-      
-      // Only update progress numbers if they've actually changed to avoid loops
-      if (coachData.progress.completedActions !== completedCount || coachData.progress.totalActions !== totalCount) {
-        setCoachData(prev => prev ? {
-          ...prev,
-          progress: {
-            ...prev.progress,
-            completedActions: completedCount,
-            totalActions: totalCount
-          }
-        } : prev)
-      }
+      // Also refresh combined weekly progress
+      refreshWeeklyProgress()
     }
-  }, [weeklyProgress, currentWeek])
+  }, [coachWeeklyTasks])
 
-  // Load daily goal completion for each day of the current week
+  // Auto-update progress when daily goals change
   useEffect(() => {
-    const loadWeeklyDailyProgress = async () => {
-      try {
-        const today = new Date()
-        const progressByDay: {[key: string]: number} = {}
-        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        
-        // Calculate the start of the current week (Monday)
-        const currentDayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
-        const mondayOffset = currentDayOfWeek === 0 ? -6 : -(currentDayOfWeek - 1) // Convert to Monday-based
-        const weekStart = new Date(today)
-        weekStart.setDate(today.getDate() + mondayOffset)
-        
-        await Promise.all(daysOfWeek.map(async (day, index) => {
-          const dayDate = new Date(weekStart)
-          dayDate.setDate(weekStart.getDate() + index)
-          const dateString = dayDate.toISOString().split('T')[0]
-          
-          const currentDayIndex = (today.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
-          
-          if (index < currentDayIndex) {
-            // Past days - load actual completion from database
-            try {
-              const response = await fetch(`/api/progress?type=daily&date=${dateString}`)
-              if (response.ok) {
-                const data = await response.json()
-                if (data.tasks && data.tasks.length > 0) {
-                  const completed = data.tasks.filter((t: any) => t.completed).length
-                  const total = data.tasks.length
-                  progressByDay[day] = total > 0 ? Math.round((completed / total) * 100) : 0
-                } else {
-                  progressByDay[day] = 0 // No tasks for this day
-                }
-              } else {
-                progressByDay[day] = 0
-              }
-            } catch (error) {
-              console.error(`Error loading daily progress for ${day}:`, error)
-              progressByDay[day] = 0
-            }
-          } else if (index === currentDayIndex) {
-            // Today - use current daily goals state
-            const dailyGoalCompletion = Array.isArray(dailyGoals) && dailyGoals.length > 0 ? 
-              (dailyGoals.filter(g => g && g.completed).length / dailyGoals.length) : 0
-            progressByDay[day] = Math.round(dailyGoalCompletion * 100)
-          } else {
-            // Future days
-            progressByDay[day] = 0
-          }
-        }))
-        
-        setWeeklyProgressByDay(progressByDay)
-      } catch (error) {
-        console.error('Error calculating weekly progress:', error)
-        setWeeklyProgressByDay({
-          Monday: 0,
-          Tuesday: 0, 
-          Wednesday: 0,
-          Thursday: 0,
-          Friday: 0,
-          Saturday: 0,
-          Sunday: 0
-        })
-      }
+    if (dailyGoals.length > 0) {
+      // Refresh combined weekly progress when daily tasks change
+      refreshWeeklyProgress()
     }
-
-    loadWeeklyDailyProgress()
   }, [dailyGoals])
-
-  // Calculate combined weekly progress (weekly tasks + all daily tasks for the week)
-  useEffect(() => {
-    const calculateCombinedProgress = async () => {
-      try {
-        const today = new Date()
-        
-        // Calculate the start of the current week (Monday)
-        const currentDayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
-        const mondayOffset = currentDayOfWeek === 0 ? -6 : -(currentDayOfWeek - 1)
-        const weekStart = new Date(today)
-        weekStart.setDate(today.getDate() + mondayOffset)
-        
-        const weekEnd = new Date(weekStart)
-        weekEnd.setDate(weekStart.getDate() + 6) // Sunday
-        
-        // Get all weekly tasks for current week
-        const currentWeekTasks = getCurrentWeekTasks()
-        const weeklyTasksCompleted = currentWeekTasks.filter(task => weeklyProgress[task.id] ?? false).length
-        const weeklyTasksTotal = currentWeekTasks.length
-        
-        // Get all daily tasks for the entire week
-        let dailyTasksCompleted = 0
-        let dailyTasksTotal = 0
-        
-        // Check each day of the current week
-        for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
-          const dayDate = new Date(weekStart)
-          dayDate.setDate(weekStart.getDate() + dayOffset)
-          const dateString = dayDate.toISOString().split('T')[0]
-          
-          try {
-            const response = await fetch(`/api/progress?type=daily&date=${dateString}`)
-            if (response.ok) {
-              const data = await response.json()
-              if (data.tasks && data.tasks.length > 0) {
-                dailyTasksTotal += data.tasks.length
-                dailyTasksCompleted += data.tasks.filter((t: any) => t.completed).length
-              }
-            }
-          } catch (error) {
-            console.error(`Error loading daily tasks for ${dateString}:`, error)
-          }
-        }
-        
-        // Include today's daily goals in the count (might overlap with API data, but we'll handle that)
-        if (Array.isArray(dailyGoals) && dailyGoals.length > 0) {
-          // Add today's goals to the total (these might already be in the API data, but this ensures live updates)
-          const todayCompleted = dailyGoals.filter(g => g && g.completed).length
-          const todayTotal = dailyGoals.length
-          
-          // We'll use today's live data instead of API data for today
-          const todayString = today.toISOString().split('T')[0]
-          dailyTasksCompleted += todayCompleted
-          dailyTasksTotal += todayTotal
-        }
-        
-        // Calculate combined completion percentage
-        const totalCompleted = weeklyTasksCompleted + dailyTasksCompleted
-        const totalTasks = weeklyTasksTotal + dailyTasksTotal
-        const combinedPercentage = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0
-        
-        setCombinedWeeklyProgress(combinedPercentage)
-        
-        console.log('Combined Progress Calculation:', {
-          weeklyTasks: `${weeklyTasksCompleted}/${weeklyTasksTotal}`,
-          dailyTasks: `${dailyTasksCompleted}/${dailyTasksTotal}`,
-          combined: `${totalCompleted}/${totalTasks} = ${Math.round(combinedPercentage)}%`
-        })
-        
-      } catch (error) {
-        console.error('Error calculating combined weekly progress:', error)
-        setCombinedWeeklyProgress(0)
-      }
-    }
-
-    calculateCombinedProgress()
-  }, [weeklyProgress, dailyGoals, currentWeek])
 
   useEffect(() => {
     if (coachData && showJournal && !journalQuestion) {
@@ -477,10 +356,10 @@ export default function CoachDashboard() {
       } else {
         // Fallback question based on focus area
         const questions = {
-          financial: "How did you manage your finances today? What progress did you make toward your financial goals?",
-          health: "How did you take care of your health today? What healthy choices did you make?", 
-          social: "How did you connect with others today? What social interactions brought you joy?",
-          personal: "What did you learn about yourself today? How did you grow personally?"
+          financial: t('coach.financialJournalPrompt'),
+          health: t('coach.healthJournalPrompt'), 
+          social: t('coach.socialJournalPrompt'),
+          personal: t('coach.personalJournalPrompt')
         }
         setJournalQuestion(questions[coachData.user.focus_area])
       }
@@ -489,16 +368,26 @@ export default function CoachDashboard() {
 
   const fetchCoachData = async () => {
     try {
-      const response = await fetch(`/api/coach/${params.id}`)
+      console.log('🔍 FETCHING COACH DATA for assessment:', params.id)
+      console.log('📍 Current URL:', window.location.href)
+      const response = await fetch(`/api/coach/${params.id}?skipOpenAI=true`)
+      console.log('📊 Response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ RECEIVED COACH DATA:', {
+          assessmentId: params.id,
+          focusArea: data.user?.focus_area,
+          subscriptionStatus: data.user?.subscription_status
+        })
         
-        // Load user settings to get focus area
-        const settingsResponse = await fetch('/api/progress?type=settings')
+        // Load user settings specific to this assessment
+        const settingsResponse = await fetch(`/api/progress?type=settings&assessmentId=${params.id}`)
         let userSettings = null
         if (settingsResponse.ok) {
           const settingsData = await settingsResponse.json()
           userSettings = settingsData.settings
+          console.log('RECEIVED SETTINGS DATA:', userSettings?.primaryFocus)
         }
         
         // Fetch real achievements from API
@@ -513,6 +402,18 @@ export default function CoachDashboard() {
           console.error('Error fetching achievements:', error)
         }
         
+        // Fetch user goals from API
+        let userGoals = []
+        try {
+          const goalsResponse = await fetch('/api/goals')
+          if (goalsResponse.ok) {
+            const goalsData = await goalsResponse.json()
+            userGoals = goalsData.goals || []
+          }
+        } catch (error) {
+          console.error('Error fetching goals:', error)
+        }
+        
         // Transform API data to match component interface
         const transformedData = {
           user: {
@@ -521,7 +422,7 @@ export default function CoachDashboard() {
             focus_area: userSettings?.primaryFocus || getLowestCategory(data.assessment.categories),
             trial_days_left: Math.max(0, Math.floor((new Date(data.subscription.periodEnd).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
           },
-          currentWeekPlan: {
+          currentWeekPlan: data.coaching ? {
             week: data.coaching.weeklyPlan.week,
             focus: data.coaching.weeklyPlan.focus,
             actions: data.coaching.weeklyPlan.tasks.map((task: string, index: number) => ({
@@ -532,6 +433,11 @@ export default function CoachDashboard() {
               timeEstimate: '15-30 min'
             })),
             completionRate: 0.4 // Demo value
+          } : {
+            week: 1,
+            focus: 'Getting Started',
+            actions: [],
+            completionRate: 0
           },
           progress: {
             currentStreak: 0,
@@ -540,12 +446,12 @@ export default function CoachDashboard() {
             thisWeekScore: Math.round(data.assessment.overall.percentile),
             improvement: 0
           },
-          upcomingCheckins: data.coaching.dailyCheckins.slice(0, 3).map((checkin: any, index: number) => ({
+          upcomingCheckins: data.coaching?.dailyCheckins ? data.coaching.dailyCheckins.slice(0, 3).map((checkin: any, index: number) => ({
             id: `checkin-${index}`,
             type: 'daily',
             scheduledFor: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString(),
             topic: checkin.question
-          })),
+          })) : [],
           recentAchievements: achievements.length > 0 ? achievements.slice(0, 5).map((achievement: any) => ({
             id: achievement.id,
             title: achievement.title,
@@ -555,20 +461,44 @@ export default function CoachDashboard() {
           })) : []
         }
         setCoachData(transformedData)
+        
+        // Calculate current week based on assessment creation date
+        const assessmentDate = new Date(data.assessment.createdAt)
+        const currentDate = new Date()
+        const daysDifference = Math.floor((currentDate.getTime() - assessmentDate.getTime()) / (1000 * 60 * 60 * 24))
+        const calculatedWeek = Math.max(1, Math.floor(daysDifference / 7) + 1)
+        setCurrentWeek(calculatedWeek)
+        console.log(`Assessment created: ${assessmentDate.toDateString()}, Current week: ${calculatedWeek}`)
+        
+        // Set the goals state with fetched data
+        setGoals(userGoals.map((goal: any) => ({
+          id: goal.id,
+          category: goal.category,
+          title: goal.title,
+          description: goal.description || '',
+          target: goal.target,
+          deadline: goal.deadline || ''
+        })))
       } else if (response.status === 403) {
-        // No subscription - redirect to paywall
+        console.log('❌ No subscription - redirecting to paywall')
         router.push(`/paywall/coach/${params.id}`)
         return
       } else if (response.status === 401) {
-        // Not logged in - redirect to login
+        console.log('❌ Not logged in - redirecting to login')
         router.push(`/auth/signin?callbackUrl=/coach/${params.id}`)
+        return
+      } else if (response.status === 404) {
+        console.log('⚠️ Coach data not found - showing onboarding screen')
+        console.log('🎯 This happens when user just purchased and needs to complete setup')
+        setShowOnboarding(true)
+        setLoading(false)
         return
       } else {
         setError(`Failed to load coach data: ${response.status}`)
       }
     } catch (error) {
       console.error('Error fetching coach data:', error)
-      setError('Error fetching coach data')
+      setError(t('coach.coachingDataError'))
     } finally {
       setLoading(false)
     }
@@ -587,96 +517,21 @@ export default function CoachDashboard() {
     , 'financial' as keyof typeof categoryMap) as 'financial' | 'health' | 'social' | 'personal'
   }
 
+  // Remove mock data - daily tasks should come from database
   const getTodayGoalForArea = (area: string, goalNumber: number) => {
-    const goalsByArea = {
-      financial: [
-        "Track one expense and categorize it",
-        "Review your bank account balance",
-        "Research one money-saving tip online"
-      ],
-      health: [
-        "Take a 10-minute walk or stretch",
-        "Drink an extra glass of water",
-        "Plan one healthy meal for tomorrow"
-      ],
-      social: [
-        "Send a message to check in on a friend",
-        "Make eye contact and smile at 3 people today",
-        "Share something positive on social media"
-      ],
-      personal: [
-        "Spend 5 minutes in mindfulness or reflection",
-        "Learn one new fact or skill",
-        "Practice gratitude by listing 3 things you're thankful for"
-      ]
-    }
-    
-    const goals = goalsByArea[area as keyof typeof goalsByArea] || goalsByArea.personal
-    return goals[(goalNumber - 1) % goals.length]
+    // This function is now deprecated - tasks should be created through the UI
+    return ''
   }
 
+  // Remove mock data - weekly tasks should come from database
   const getWeeklyTasksForArea = (area: string) => {
-    const tasksByArea = {
-      financial: [
-        "Set up automatic savings transfer of $50/week",
-        "Track all expenses for one week using an app", 
-        "Research one investment option (index funds, ETFs, etc.)",
-        "Calculate your net worth and create a simple spreadsheet",
-        "Read one article about personal finance or budgeting"
-      ],
-      health: [
-        "Take a 20-minute walk every day this week",
-        "Prep healthy meals for 3 days in advance",
-        "Drink 8 glasses of water daily and track it",
-        "Go to bed 30 minutes earlier than usual",
-        "Schedule one health checkup you've been postponing"
-      ],
-      social: [
-        "Reach out to one old friend you haven't spoken to in months",
-        "Join one new group or community (online or offline)",
-        "Have one meaningful conversation with someone new",
-        "Express gratitude to someone who has helped you recently",
-        "Attend one social event or gathering this week"
-      ],
-      personal: [
-        "Journal for 15 minutes daily about your goals and feelings",
-        "Set one personal boundary and practice maintaining it",
-        "Learn something new about yourself through reflection",
-        "Practice one stress-management technique daily",
-        "Identify and work toward one personal goal this week"
-      ]
-    }
-    
-    return tasksByArea[area as keyof typeof tasksByArea] || tasksByArea.personal
+    // This function is now deprecated - tasks should be created through the UI
+    return []
   }
 
   const getAllWeekTasks = () => {
-    // If coach has created tasks, use those instead of default ones
-    if (coachWeeklyTasks.length > 0) {
-      return coachWeeklyTasks.map(task => ({
-        ...task,
-        completed: weeklyProgress[task.id] ?? false
-      }))
-    }
-    
-    // Otherwise use default tasks (fallback for backwards compatibility)
-    const allTasks: Array<{id: string, title: string, description: string, completed: boolean, timeEstimate: string, category: string}> = []
-    
-    focusAreas.forEach(area => {
-      const tasks = getWeeklyTasksForArea(area)
-      tasks.forEach((task, index) => {
-        allTasks.push({
-          id: `${area}-week-${currentWeek}-task-${index}`,
-          title: task,
-          description: `Focus on improving your ${focusAreaNames[area as keyof typeof focusAreaNames].toLowerCase()} area`,
-          completed: weeklyProgress[`${area}-week-${currentWeek}-task-${index}`] ?? false,
-          timeEstimate: '15-30 min',
-          category: area
-        })
-      })
-    })
-    
-    return allTasks
+    // Always use database tasks - no fallback
+    return coachWeeklyTasks
   }
 
   const getCurrentWeekTasks = () => {
@@ -699,18 +554,27 @@ export default function CoachDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(taskData)
+        body: JSON.stringify({
+          ...taskData,
+          assessmentId: params.id  // Use the current assessment ID from URL
+        })
       })
 
       if (response.ok) {
         const data = await response.json()
-        alert('Task created successfully!')
+        alert(t('coach.taskCreatedSuccessfully'))
         
         // Refresh the data
         if (taskData.type === 'weekly') {
           await loadWeeklyTasks()
         } else {
           await loadProgressData()
+          // Also refresh weekly progress if the new task is for today
+          const today = new Date().toISOString().split('T')[0]
+          const taskDate = new Date(taskData.date).toISOString().split('T')[0]
+          if (taskDate === today) {
+            refreshWeeklyProgress()
+          }
         }
         setShowDailyTaskCreator(false)
         return data.task
@@ -721,30 +585,58 @@ export default function CoachDashboard() {
       }
     } catch (error) {
       console.error('Error creating task:', error)
-      alert('Failed to create task. Please try again.')
+      alert(t('coach.failedToCreateTask'))
       return null
     }
   }
 
   const loadWeeklyTasks = async () => {
     try {
-      const response = await fetch(`/api/progress?type=weekly&week=${currentWeek}`)
+      console.log(`🔄 WEEKLY TASKS: Loading for week ${currentWeek}, assessment ${params.id}`)
+      const response = await fetch(`/api/progress?type=weekly&week=${currentWeek}&assessmentId=${params.id}`)
       if (response.ok) {
         const data = await response.json()
+        console.log(`📦 WEEKLY TASKS: API Response:`, data)
+        console.log(`✅ WEEKLY TASKS: Completion status of tasks:`)
+        data.tasks?.forEach((t: any) => {
+          console.log(`  - ${t.title} (${t.id}): completed=${t.completed}`)
+        })
+        // Always sync with database state for weekly tasks and their progress
         if (data.tasks && data.tasks.length > 0) {
           const formattedTasks = data.tasks.map((task: any) => ({
             id: task.id,
             title: task.title,
             description: task.description || 'Coach-assigned task',
-            completed: task.completed,
+            completed: task.completed || false, // Ensure completed is always boolean
             timeEstimate: '15-30 min',
             category: task.category
           }))
+          console.log('🔄 Setting coachWeeklyTasks to:')
+          formattedTasks.forEach((t: any) => {
+            console.log(`  - ${t.title} (category: "${t.category}", completed: ${t.completed})`)
+          })
           setCoachWeeklyTasks(formattedTasks)
+
+          // Remove weeklyProgress state usage - we're using coachWeeklyTasks directly now
+
+          // Calculate weekly progress percentage
+          const completedTasks = data.tasks.filter((task: any) => task.completed).length
+          const totalTasks = data.tasks.length
+          const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
+          console.log(`📊 LOAD PROGRESS: ${completedTasks}/${totalTasks} = ${progressPercentage}%`)
+          setActualWeeklyProgress(progressPercentage)
         } else {
-          // No coach-assigned tasks for this week
+          // No coach-assigned tasks for this week - but preserve existing progress
+          console.log(`WEEKLY TASKS: No tasks found for week ${currentWeek}`)
           setCoachWeeklyTasks([])
+          // Don't clear weeklyProgress - preserve completed states
+          setActualWeeklyProgress(0)
         }
+      } else {
+        console.error('Failed to load weekly tasks')
+        // On error, don't clear existing progress - preserve user's completed tasks
+        setCoachWeeklyTasks([])
+        setActualWeeklyProgress(0)
       }
     } catch (error) {
       console.error('Error loading weekly tasks:', error)
@@ -752,74 +644,134 @@ export default function CoachDashboard() {
   }
 
   const toggleActionComplete = async (actionId: string) => {
-    // Calculate new progress state first (declare outside try block for catch access)
-    const currentCompleted = weeklyProgress[actionId] ?? false
+    // Get the current task from our state
+    const currentTask = coachWeeklyTasks.find(t => t.id === actionId)
+    if (!currentTask) {
+      console.error(`❌ Task not found: ${actionId}`)
+      return
+    }
+    
+    const currentCompleted = currentTask.completed
     const newCompleted = !currentCompleted
+    console.log(`🔄 TOGGLE: Task ${actionId} "${currentTask.title}", current: ${currentCompleted}, new: ${newCompleted}`)
     
     try {
       const currentWeekTasks = getCurrentWeekTasks()
       
-      // Create new progress state with the clicked task updated
-      const newWeeklyProgress = { ...weeklyProgress, [actionId]: newCompleted }
+      // Optimistically update the coachWeeklyTasks array to reflect the new completion state
+      console.log('📝 Optimistically updating task state...')
+      setCoachWeeklyTasks(prev => {
+        const updated = prev.map(task => 
+          task.id === actionId ? { ...task, completed: newCompleted } : task
+        )
+        console.log('📝 Updated tasks:', updated.map(t => ({id: t.id, title: t.title, completed: t.completed})))
+        return updated
+      })
       
-      // Update local state immediately for responsive UI
-      setWeeklyProgress(newWeeklyProgress)
+      // Don't manually calculate progress here - let the useEffect handle it after state updates
+      // The useEffect will recalculate based on the updated coachWeeklyTasks state
       
-      // Recalculate weekly progress based on new state (not old closure)
-      const completedCount = currentWeekTasks.filter(task => {
-        if (task.id === actionId) return newCompleted
-        return newWeeklyProgress[task.id] ?? false
-      }).length
-      const totalCount = currentWeekTasks.length
-      const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
-      
-      setActualWeeklyProgress(completionPercentage)
-      
-      // Update coachData to reflect the change
-      if (coachData) {
-        const updatedCoachData = {
-          ...coachData,
-          currentWeekPlan: {
-            ...coachData.currentWeekPlan,
-            actions: coachData.currentWeekPlan.actions.map(action => 
-              action.id === actionId ? { ...action, completed: newCompleted } : action
-            ),
-            completionRate: completionPercentage / 100
-          },
-          progress: {
-            ...coachData.progress,
-            completedActions: completedCount,
-            totalActions: totalCount
-          }
-        }
-        setCoachData(updatedCoachData)
-      }
+      // Let useEffect handle coachData updates based on the updated coachWeeklyTasks
 
       // Save to database
       const taskInfo = currentWeekTasks.find(task => task.id === actionId)
+      console.log(`📋 Task to save:`, taskInfo)
       if (taskInfo) {
-        const currentFocusArea = focusAreas[(currentWeek - 1) % focusAreas.length]
+        // Check if this task has a database ID format
+        // Database tasks use CUID (starts with 'c') or UUID (36 chars with dashes) format
+        // Non-database tasks would have custom formats like "financial-week-1-task-0"
+        const looksLikeDbId = (
+          // CUID format (Prisma default)
+          (taskInfo.id.startsWith('c') && taskInfo.id.length >= 25 && taskInfo.id.length <= 30) ||
+          // UUID format (if any integrations use it)
+          (taskInfo.id.length === 36 && taskInfo.id.includes('-') && !taskInfo.id.includes('week'))
+        )
+        console.log(`🔍 Looks like DB ID: ${looksLikeDbId}, Task ID: ${taskInfo.id}, Length: ${taskInfo.id.length}`)
         
-        const response = await fetch('/api/progress', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'weekly_task',
-            data: {
-              title: taskInfo.title,
-              description: taskInfo.description,
-              category: currentFocusArea,
-              week: currentWeek,
+        let response
+        if (looksLikeDbId) {
+          // Try direct PUT API first for tasks that look like they're from the database
+          console.log('📌 Using PUT endpoint for existing task')
+          response = await fetch(`/api/tasks/weekly/${actionId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
               completed: newCompleted,
               assessmentId: params.id
-            }
+            })
           })
-        })
+        } else {
+          // Use upsert for generated/non-database tasks
+          console.log('📌 Using UPSERT endpoint for new/generated task')
+          const currentFocusArea = taskInfo.category || focusAreas[(currentWeek - 1) % focusAreas.length]
+          response = await fetch('/api/progress', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              type: 'weekly_task',
+              data: {
+                title: taskInfo.title,
+                description: taskInfo.description,
+                category: currentFocusArea,
+                week: currentWeek,
+                completed: newCompleted,
+                assessmentId: params.id
+              }
+            })
+          })
+          
+          // If PUT fails (task not found), fall back to upsert
+          if (!response.ok && response.status === 404) {
+            console.log('⚠️ Task not found in DB, falling back to UPSERT')
+            const currentFocusArea = taskInfo.category || focusAreas[(currentWeek - 1) % focusAreas.length]
+            response = await fetch('/api/progress', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'weekly_task',
+                data: {
+                  title: taskInfo.title,
+                  description: taskInfo.description,
+                  category: currentFocusArea,
+                  week: currentWeek,
+                  completed: newCompleted,
+                  assessmentId: params.id
+                }
+              })
+            })
+          }
+        }
         
         if (!response.ok) {
+          const errorText = await response.text()
+          console.error('❌ Failed to save task:', errorText)
           throw new Error('Failed to save task to database')
+        }
+        
+        const result = await response.json()
+        console.log(`💾 SAVE RESULT: Task ${actionId} saved to database:`, result)
+        console.log(`📝 Updated task state:`, result.task ? `completed=${result.task.completed}` : 'No task in response')
+        
+        // If we get a task back from the API, update our local state with it
+        if (result.task) {
+          console.log('✅ Updating local task with server response:', result.task)
+          setCoachWeeklyTasks(prev => prev.map(task => 
+            task.id === result.task.id ? {
+              ...task,
+              completed: result.task.completed,
+              completedAt: result.task.completedAt
+            } : task
+          ))
+          // Don't reload - we already have the updated state
+        } else {
+          console.log('⚠️ No task in response, keeping optimistic update')
+          // Keep the optimistic update - don't reload
         }
         
         // Refresh user progress after task completion
@@ -831,7 +783,7 @@ export default function CoachDashboard() {
             const achievementResponse = await fetch('/api/achievements/check', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ trigger: 'task_completion', category: taskInfo?.category || currentFocusArea })
+              body: JSON.stringify({ trigger: 'task_completion', category: taskInfo?.category || 'financial' })
             })
             
             if (achievementResponse.ok) {
@@ -851,12 +803,11 @@ export default function CoachDashboard() {
         }
       }
     } catch (error) {
-      // Revert on error
-      setWeeklyProgress(prev => ({
-        ...prev,
-        [actionId]: currentCompleted
-      }))
-      console.error('Error updating action:', error)
+      // Revert on error - restore the original task state
+      setCoachWeeklyTasks(prev => prev.map(task => 
+        task.id === actionId ? { ...task, completed: currentCompleted } : task
+      ))
+      console.error('❌ Error updating action:', error)
     }
   }
 
@@ -868,6 +819,77 @@ export default function CoachDashboard() {
       type: 'user' as const,
       message: chatInput.trim(),
       timestamp: new Date()
+    }
+
+    // Check if we're providing task preferences or confirming tasks
+    let currentTaskPreferences = null
+    
+    // If user is making a vague request and we have stored preferences, use them
+    const isVagueTaskRequest = /create|make|add|set|generate|give me|suggest|need.*task/i.test(userMessage.message) &&
+                               !/\d+\s*(daily|weekly)/i.test(userMessage.message) &&
+                               !userMessage.message.toLowerCase().includes('focus')
+    
+    if (isVagueTaskRequest && coachPreferences && !waitingForTaskPreferences && !awaitingTaskConfirmation) {
+      // Use stored preferences for vague requests
+      currentTaskPreferences = {
+        dailyCount: coachPreferences.dailyTaskCount,
+        weeklyCount: coachPreferences.weeklyTaskCount,
+        focusAreas: [coachPreferences.primaryFocus, coachPreferences.secondaryFocus].filter(Boolean),
+        specificGoals: coachPreferences.specificGoals,
+        confirmTasks: false
+      }
+      setTaskPreferences(currentTaskPreferences)
+    } else if (waitingForTaskPreferences) {
+      // Parse the user's response for task preferences
+      const message = userMessage.message.toLowerCase()
+      const dailyMatch = message.match(/(\d+)\s*daily/)
+      const weeklyMatch = message.match(/(\d+)\s*weekly/)
+      
+      currentTaskPreferences = {
+        dailyCount: dailyMatch ? parseInt(dailyMatch[1]) : undefined,
+        weeklyCount: weeklyMatch ? parseInt(weeklyMatch[1]) : undefined,
+        specificGoals: userMessage.message,
+        focusAreas: [settings.focusArea],
+        confirmTasks: false
+      }
+      
+      setTaskPreferences(currentTaskPreferences)
+      setWaitingForTaskPreferences(false)
+    } else if (awaitingTaskConfirmation) {
+      // Check if user is confirming, modifying, or regenerating tasks
+      const message = userMessage.message.toLowerCase()
+      
+      if (message.includes('yes') || message.includes('confirm') || message.includes('add them') || message.includes('looks good') || 
+          message.includes('sure') || message.includes('add it') || message.includes('add to') || message.includes('like them')) {
+        // User confirmed tasks - send confirmation with the preview tasks
+        console.log('User confirmed tasks, current preview:', taskPreview)
+        currentTaskPreferences = {
+          ...taskPreferences,
+          confirmTasks: true,
+          // Include the previewed tasks so they get created exactly as shown
+          previewedTasks: taskPreview || undefined
+        }
+        console.log('Sending confirmation with preferences:', currentTaskPreferences)
+        setTaskPreferences(currentTaskPreferences)
+        setAwaitingTaskConfirmation(false)
+        setTaskPreview(null)
+      } else if (message.includes('regenerate') || message.includes('new tasks') || message.includes('different')) {
+        // User wants new tasks - regenerate with same preferences
+        currentTaskPreferences = {
+          ...taskPreferences,
+          confirmTasks: false
+        }
+        setAwaitingTaskConfirmation(false)
+      } else {
+        // User wants to modify tasks - include their feedback
+        currentTaskPreferences = {
+          ...taskPreferences,
+          specificGoals: userMessage.message,
+          confirmTasks: false
+        }
+        setTaskPreferences(currentTaskPreferences)
+        // Keep awaitingTaskConfirmation true so we show the next preview
+      }
     }
 
     setChatMessages(prev => [...prev, userMessage])
@@ -882,6 +904,7 @@ export default function CoachDashboard() {
           action: 'chat',
           data: {
             message: userMessage.message,
+            taskPreferences: currentTaskPreferences || taskPreferences,
             conversationHistory: chatMessages.map(msg => ({
               role: msg.type === 'user' ? 'user' : 'assistant',
               content: msg.message
@@ -896,7 +919,9 @@ export default function CoachDashboard() {
               },
               recentJournalEntries: journalEntries.slice(-3), // Last 3 entries
               dailyGoals: dailyGoals,
-              settings: settings
+              settings: settings,
+              // Keep track if we're in task creation flow
+              isInTaskFlow: waitingForTaskPreferences || awaitingTaskConfirmation || currentTaskPreferences?.confirmTasks
             }
           }
         })
@@ -907,15 +932,76 @@ export default function CoachDashboard() {
         const coachMessage = {
           id: `coach-${Date.now()}`,
           type: 'coach' as const,
-          message: data.response.message,
+          message: data.message || data.response?.message,
           timestamp: new Date()
         }
         setChatMessages(prev => [...prev, coachMessage])
+        
+        // Handle delete responses - refresh tasks if tasks were deleted
+        if (data.deletedTasks) {
+          // Refresh the UI to reflect deleted tasks
+          await loadProgressData()
+          await loadWeeklyTasks()
+        }
+        
+        // Handle focus area task creation - refresh tasks if tasks were created
+        if (data.createdTasks && (data.createdTasks.daily?.length > 0 || data.createdTasks.weekly?.length > 0)) {
+          // Refresh the UI to reflect new tasks
+          await loadProgressData()
+          await loadWeeklyTasks()
+        }
+        
+        // Check if AI needs more information for task creation
+        if (data.response && data.response.needsMoreInfo) {
+          setWaitingForTaskPreferences(true)
+        }
+        
+        // Check if AI is showing task preview
+        if (data.response && data.response.awaitingConfirmation && data.taskPreview) {
+          console.log('Setting task preview:', data.taskPreview)
+          setTaskPreview(data.taskPreview)
+          setAwaitingTaskConfirmation(true)
+        }
+        
+        // If goals were created, refresh the goals list
+        if (data.createdGoals && data.createdGoals.length > 0) {
+          try {
+            const goalsResponse = await fetch('/api/goals')
+            if (goalsResponse.ok) {
+              const goalsData = await goalsResponse.json()
+              setGoals(goalsData.goals.map((goal: any) => ({
+                id: goal.id,
+                category: goal.category,
+                title: goal.title,
+                description: goal.description || '',
+                target: goal.target,
+                deadline: goal.deadline || ''
+              })))
+            }
+          } catch (error) {
+            console.error('Error refreshing goals:', error)
+          }
+        }
+        
+        // If tasks were created, refresh the task lists
+        if (data.createdTasks && (data.createdTasks.daily.length > 0 || data.createdTasks.weekly.length > 0)) {
+          console.log('Tasks created by AI:', data.createdTasks)
+          // Refresh daily tasks
+          if (data.createdTasks.daily.length > 0) {
+            console.log('Refreshing daily tasks...')
+            await loadProgressData()
+          }
+          // Refresh weekly tasks
+          if (data.createdTasks.weekly.length > 0) {
+            console.log('Refreshing weekly tasks...')
+            await loadWeeklyTasks()
+          }
+        }
       } else {
         const errorMessage = {
           id: `coach-error-${Date.now()}`,
           type: 'coach' as const,
-          message: "I'm having trouble connecting right now. Please try again in a moment.",
+          message: t('coach.troubleConnecting'),
           timestamp: new Date()
         }
         setChatMessages(prev => [...prev, errorMessage])
@@ -925,7 +1011,7 @@ export default function CoachDashboard() {
       const errorMessage = {
         id: `coach-error-${Date.now()}`,
         type: 'coach' as const,
-        message: "I'm having trouble connecting right now. Please try again in a moment.",
+        message: t('coach.troubleConnecting'),
         timestamp: new Date()
       }
       setChatMessages(prev => [...prev, errorMessage])
@@ -949,7 +1035,8 @@ export default function CoachDashboard() {
           data: {
             entry: journalEntry.trim(),
             question: journalQuestion,
-            mood: null // Could add mood tracking later
+            mood: null, // Could add mood tracking later
+            assessmentId: params.id
           }
         })
       })
@@ -965,13 +1052,13 @@ export default function CoachDashboard() {
       // Refresh user progress after journal entry
       await loadUserProgress()
       
-      alert('Journal entry saved! Your thoughts have been recorded.')
+      alert(t('coach.journalEntrySaved'))
       setJournalEntry('')
       setJournalQuestion('')
       setShowJournal(false)
     } catch (error) {
       console.error('Error saving journal entry:', error)
-      alert('Error saving journal entry. Please try again.')
+      alert(t('coach.journalEntryError'))
     }
   }
 
@@ -987,12 +1074,59 @@ export default function CoachDashboard() {
     }
   }
 
-  const loadCheckIns = async () => {
+  const loadCoachPreferences = async () => {
+    if (!params.id) return
+    
     try {
-      const response = await fetch('/api/checkins?type=upcoming&limit=5')
+      setPreferencesLoading(true)
+      const response = await fetch(`/api/coach-preferences?assessmentId=${params.id}`)
       if (response.ok) {
         const data = await response.json()
-        console.log('Loaded check-ins:', data.checkIns)
+        console.log('RECEIVED COACH PREFERENCES:', data.settings)
+        setCoachPreferences(data.settings)
+        
+        // Show setup if not completed
+        if (!data.settings.hasCompletedSetup) {
+          setShowPreferenceSetup(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading coach preferences:', error)
+    } finally {
+      setPreferencesLoading(false)
+    }
+  }
+
+  const handlePreferenceSetupComplete = async (preferences: any) => {
+    if (!params.id) return
+    
+    try {
+      const response = await fetch('/api/coach-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferences, assessmentId: params.id })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setCoachPreferences(data.settings)
+        setShowPreferenceSetup(false)
+        
+        // Refresh coach data with new preferences
+        await fetchCoachData()
+      }
+    } catch (error) {
+      console.error('Error saving preferences:', error)
+      alert('Failed to save preferences. Please try again.')
+    }
+  }
+
+  const loadCheckIns = async () => {
+    try {
+      const response = await fetch(`/api/checkins?type=upcoming&limit=5&assessmentId=${params.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Loaded check-ins for assessment:', params.id, data.checkIns)
         setUpcomingCheckIns(data.checkIns || [])
         
         // Check if there's a check-in due now
@@ -1054,7 +1188,11 @@ export default function CoachDashboard() {
           data: {
             checkInFrequency: settings.frequency,
             checkInTime: settings.time,
-            checkInDays: settings.days ? JSON.stringify(settings.days) : null
+            checkInTimes: settings.times ? JSON.stringify(settings.times) : null,
+            checkInDays: settings.days ? JSON.stringify(settings.days) : null,
+            checkInTimeOfDay: settings.timeOfDay,
+            checkInReminderMinutes: settings.reminderMinutesBefore,
+            assessmentId: params.id
           }
         })
       })
@@ -1067,7 +1205,7 @@ export default function CoachDashboard() {
       const scheduleResponse = await fetch('/api/checkins', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'schedule', data: {} })
+        body: JSON.stringify({ action: 'schedule', data: { assessmentId: params.id } })
       })
       
       if (!scheduleResponse.ok) {
@@ -1092,64 +1230,254 @@ export default function CoachDashboard() {
     }
   }
 
+  const generateCoachingData = async () => {
+    try {
+      setLoading(true)
+      console.log('🔄 GENERATING COACHING DATA for assessment:', params.id)
+      
+      // Call API without skipOpenAI parameter to generate coaching data
+      const response = await fetch(`/api/coach/${params.id}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ GENERATED COACHING DATA')
+        
+        // Reload the coach data with the new coaching information
+        await fetchCoachData()
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate coaching data')
+      }
+    } catch (error) {
+      console.error('Error generating coaching data:', error)
+      alert(`Failed to generate coaching data: ${error instanceof Error ? error.message : 'Please try again.'}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteDailyGoal = async (goalId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/daily/${goalId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (response.ok) {
+        // Remove from local state
+        setDailyGoals(prev => prev.filter(goal => goal.id !== goalId))
+        // Update progress after deletion
+        await loadUserProgress()
+      } else {
+        console.error('Failed to delete daily goal')
+        alert('Failed to delete daily goal. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting daily goal:', error)
+      alert('Error deleting daily goal. Please try again.')
+    }
+  }
+
+  const deleteWeeklyTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/weekly/${taskId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (response.ok) {
+        // Remove from local state
+        setCoachWeeklyTasks(prev => prev.filter(task => task.id !== taskId))
+        // Also remove from progress tracking
+        setWeeklyProgress(prev => {
+          const newProgress = { ...prev }
+          delete newProgress[taskId]
+          return newProgress
+        })
+        // Update progress after deletion
+        await loadUserProgress()
+        await loadWeeklyTasks()
+      } else {
+        console.error('Failed to delete weekly task')
+        alert('Failed to delete weekly task. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting weekly task:', error)
+      alert('Error deleting weekly task. Please try again.')
+    }
+  }
+
+  const refreshWeeklyProgress = () => {
+    // Refresh both weekly progress charts AND combined progress - independent of selected date
+    const loadWeeklyDailyProgress = async () => {
+      try {
+        const today = new Date()
+        const progressByDay: {[key: string]: number} = {}
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        
+        // Calculate the start of the current week (Monday)
+        const currentDayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
+        const mondayOffset = currentDayOfWeek === 0 ? -6 : -(currentDayOfWeek - 1) // Convert to Monday-based
+        const weekStart = new Date(today)
+        weekStart.setDate(today.getDate() + mondayOffset)
+        
+        // Variables for combined weekly progress calculation
+        let dailyTasksCompleted = 0
+        let dailyTasksTotal = 0
+        
+        await Promise.all(daysOfWeek.map(async (day, index) => {
+          const dayDate = new Date(weekStart)
+          dayDate.setDate(weekStart.getDate() + index)
+          const dateString = dayDate.toISOString().split('T')[0]
+          
+          const currentDayIndex = (today.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
+          
+          // Always load from database for weekly progress charts
+          try {
+            const response = await fetch(`/api/progress?type=daily&date=${dateString}&assessmentId=${params.id}`)
+            if (response.ok) {
+              const data = await response.json()
+              if (data.tasks && data.tasks.length > 0) {
+                const completed = data.tasks.filter((t: any) => t.completed).length
+                const total = data.tasks.length
+                progressByDay[day] = total > 0 ? Math.round((completed / total) * 100) : 0
+                
+                // Add to combined progress calculation
+                dailyTasksTotal += total
+                dailyTasksCompleted += completed
+              } else {
+                progressByDay[day] = 0 // No tasks for this day
+              }
+            } else {
+              progressByDay[day] = 0
+            }
+          } catch (error) {
+            console.error(`Error loading daily progress for ${day}:`, error)
+            progressByDay[day] = 0
+          }
+        }))
+        
+        setWeeklyProgressByDay(progressByDay)
+        
+        // Calculate combined weekly progress using actual data
+        const currentWeekTasks = getCurrentWeekTasks()
+        const weeklyTasksCompleted = currentWeekTasks.filter(task => task.completed).length
+        const weeklyTasksTotal = currentWeekTasks.length
+        
+        // Calculate individual percentages (rounded)
+        const weeklyTasksPercentage = weeklyTasksTotal > 0 ? Math.round((weeklyTasksCompleted / weeklyTasksTotal) * 100) : 0
+        const dailyTasksPercentage = dailyTasksTotal > 0 ? Math.round((dailyTasksCompleted / dailyTasksTotal) * 100) : 0
+        
+        // Set the weekly daily goals progress for consistent display
+        setWeeklyDailyGoalsProgress(dailyTasksPercentage)
+        
+        // Calculate combined percentage based on individual task counts (total completed / total tasks)
+        const totalCompleted = weeklyTasksCompleted + dailyTasksCompleted
+        const totalTasks = weeklyTasksTotal + dailyTasksTotal
+        const combinedPercentage = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0
+        
+        setCombinedWeeklyProgress(combinedPercentage)
+        
+        console.log('Combined Progress Calculation (Fixed):', {
+          weeklyTasks: `${weeklyTasksCompleted}/${weeklyTasksTotal} = ${weeklyTasksPercentage}%`,
+          dailyTasks: `${dailyTasksCompleted}/${dailyTasksTotal} = ${dailyTasksPercentage}%`,
+          combined: `${totalCompleted}/${totalTasks} = ${Math.round(combinedPercentage)}%`,
+          rawCombined: `${combinedPercentage.toFixed(2)}%`
+        })
+        
+      } catch (error) {
+        console.error('Error calculating weekly progress:', error)
+        setWeeklyProgressByDay({
+          Monday: 0,
+          Tuesday: 0, 
+          Wednesday: 0,
+          Thursday: 0,
+          Friday: 0,
+          Saturday: 0,
+          Sunday: 0
+        })
+        setCombinedWeeklyProgress(0)
+      }
+    }
+    
+    loadWeeklyDailyProgress()
+  }
+
   const toggleDailyGoal = async (goalId: string) => {
+    const goalToToggle = dailyGoals.find(goal => goal.id === goalId)
+    if (!goalToToggle) return
+    
     // Update local state immediately for responsive UI
+    const newCompletedState = !goalToToggle.completed
     const updatedGoals = dailyGoals.map(goal => 
-      goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
+      goal.id === goalId ? { ...goal, completed: newCompletedState } : goal
     )
     setDailyGoals(updatedGoals)
     
-    // Save to database
-    const toggledGoal = updatedGoals.find(goal => goal.id === goalId)
-    if (toggledGoal) {
-      try {
-        await fetch('/api/progress', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'daily_task',
-            data: {
-              title: toggledGoal.title,
-              description: `Daily goal for ${toggledGoal.category}`,
-              category: toggledGoal.category,
-              date: new Date().toISOString().split('T')[0],
-              completed: toggledGoal.completed
-            }
-          })
+    try {
+      // Use PUT method to update existing task directly by ID
+      const response = await fetch(`/api/tasks/daily/${goalId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          completed: newCompletedState,
+          assessmentId: params.id
         })
-        
-        // Refresh user progress after daily goal completion
-        await loadUserProgress()
-        
-        // Check for new achievements after task completion
-        if (toggledGoal.completed) {
-          try {
-            const achievementResponse = await fetch('/api/achievements/check', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ trigger: 'task_completion', category: toggledGoal.category })
-            })
-            
-            if (achievementResponse.ok) {
-              const { newAchievements } = await achievementResponse.json()
-              if (newAchievements && newAchievements.length > 0) {
-                // Show achievement notification
-                const latestAchievement = newAchievements[0]
-                setNewAchievement(latestAchievement)
-                
-                // Refresh coach data to show new achievements
-                await fetchCoachData()
-              }
-            }
-          } catch (error) {
-            console.error('Error checking achievements:', error)
-          }
-        }
-      } catch (error) {
-        console.error('Error saving daily goal:', error)
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to update task')
       }
+      
+      // Update user progress after successful save
+      await loadUserProgress()
+      
+      // Refresh weekly progress charts only if this task is for today
+      const today = new Date().toISOString().split('T')[0]
+      const selectedDateString = selectedDate.toISOString().split('T')[0]
+      if (selectedDateString === today) {
+        refreshWeeklyProgress()
+      }
+      
+      // Check for new achievements after task completion
+      if (newCompletedState) {
+        try {
+          const achievementResponse = await fetch('/api/achievements/check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trigger: 'task_completion', category: goalToToggle.category })
+          })
+          
+          if (achievementResponse.ok) {
+            const { newAchievements } = await achievementResponse.json()
+            if (newAchievements && newAchievements.length > 0) {
+              // Show achievement notification
+              const latestAchievement = newAchievements[0]
+              setNewAchievement(latestAchievement)
+              
+              // Refresh coach data to show new achievements
+              await fetchCoachData()
+            }
+          }
+        } catch (error) {
+          console.error('Error checking achievements:', error)
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error updating daily goal:', error)
+      // Revert local state on error
+      const revertedGoals = dailyGoals.map(goal => 
+        goal.id === goalId ? { ...goal, completed: !newCompletedState } : goal
+      )
+      setDailyGoals(revertedGoals)
+      alert('Failed to update task. Please try again.')
     }
   }
 
@@ -1195,6 +1523,15 @@ export default function CoachDashboard() {
       
       // Generate new weekly tasks based on updated focus area
       if (coachData && settings.focusArea !== coachData.user.focus_area) {
+        // Update coach data immediately for responsive UI
+        setCoachData(prev => prev ? {
+          ...prev,
+          user: {
+            ...prev.user,
+            focus_area: settings.focusArea as 'financial' | 'health' | 'social' | 'personal'
+          }
+        } : prev)
+        
         const response = await fetch(`/api/coach/${params.id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1247,6 +1584,104 @@ export default function CoachDashboard() {
     )
   }
 
+  if (showOnboarding) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto p-4 py-8">
+          {/* Onboarding Header */}
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Trophy className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Welcome to Your AI Life Coach! 🎉
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Your subscription is active! Let's set up your personalized coaching experience to help you achieve your life goals.
+            </p>
+          </div>
+
+          {/* Onboarding Steps */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('coach.letsGetYouStarted')}</h2>
+            
+            <div className="space-y-6">
+              {/* Step 1: Set Preferences */}
+              <div className="flex items-start">
+                <div className="bg-green-100 p-3 rounded-full mr-4">
+                  <Settings className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">1. {t('coach.setYourCoachingPreferences')}</h3>
+                  <p className="text-gray-600 mb-4">
+                    {t('coach.chooseFocusAreaDesc')}
+                  </p>
+                  <CoachPreferenceSetup 
+                    assessmentId={params.id as string}
+                    onComplete={(preferences) => {
+                      console.log('✅ ONBOARDING COMPLETE!')
+                      console.log('📝 Preferences saved:', preferences)
+                      console.log('🚀 Hiding onboarding screen and fetching coach dashboard...')
+                      // Move to next step or refresh data
+                      setShowOnboarding(false)
+                      setLoading(true)
+                      fetchCoachData()
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Step 2: Set Check-ins (will show after preferences) */}
+              <div className="flex items-start opacity-50">
+                <div className="bg-gray-100 p-3 rounded-full mr-4">
+                  <Calendar className="h-6 w-6 text-gray-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">2. {t('coach.scheduleYourCheckins')}</h3>
+                  <p className="text-gray-600">
+                    {t('coach.setUpCheckinsDesc')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: First Chat (will show after check-ins) */}
+              <div className="flex items-start opacity-50">
+                <div className="bg-gray-100 p-3 rounded-full mr-4">
+                  <MessageSquare className="h-6 w-6 text-gray-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">3. {t('coach.meetYourAiCoach')}</h3>
+                  <p className="text-gray-600">
+                    {t('coach.firstConversationDesc')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Benefits Reminder */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 text-center">
+              <Target className="h-10 w-10 text-green-600 mx-auto mb-4" />
+              <h3 className="font-semibold text-gray-900 mb-2">{t('coach.personalizedGoals')}</h3>
+              <p className="text-sm text-gray-600">{t('coach.personalizedGoalsDesc')}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6 text-center">
+              <MessageSquare className="h-10 w-10 text-blue-600 mx-auto mb-4" />
+              <h3 className="font-semibold text-gray-900 mb-2">{t('coach.twentyFourSevenSupport')}</h3>
+              <p className="text-sm text-gray-600">{t('coach.twentyFourSevenSupportDesc')}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6 text-center">
+              <TrendingUp className="h-10 w-10 text-purple-600 mx-auto mb-4" />
+              <h3 className="font-semibold text-gray-900 mb-2">{t('coach.trackProgress')}</h3>
+              <p className="text-sm text-gray-600">{t('coach.trackProgressDesc')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -1259,7 +1694,7 @@ export default function CoachDashboard() {
             onClick={() => router.push('/')}
             className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
           >
-            Back to Home
+{t('common.back')} to Home
           </button>
         </div>
       </div>
@@ -1269,7 +1704,20 @@ export default function CoachDashboard() {
   if (!coachData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-600">Coach data not found</p>
+        <p className="text-gray-600">{t('coach.coachNotFound')}</p>
+      </div>
+    )
+  }
+
+  // Show preference setup if needed
+  if (showPreferenceSetup && coachPreferences) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <CoachPreferenceSetup
+          onComplete={handlePreferenceSetupComplete}
+          initialPreferences={coachPreferences}
+          assessmentId={Array.isArray(params.id) ? params.id[0] : params.id}
+        />
       </div>
     )
   }
@@ -1278,13 +1726,16 @@ export default function CoachDashboard() {
     financial: DollarSign,
     health: Heart,
     social: Users,
-    personal: Star
+    personal: Star,
+    other: Folder
   }
 
   const FocusIcon = focusAreaIcons[coachData.user.focus_area] || Star
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <LoginTrackerComponent />
+      
       <AchievementNotification 
         achievement={newAchievement} 
         onClose={() => setNewAchievement(null)} 
@@ -1308,18 +1759,13 @@ export default function CoachDashboard() {
           <div className="max-w-2xl w-full mx-4">
             <CheckInSetup
               onComplete={handleCheckInSetup}
+              onClose={() => setShowCheckInSetup(false)}
               initialSettings={{
-                frequency: settings.checkInFrequency as any || 'daily',
-                time: settings.checkInTime || '09:00',
-                days: settings.checkInDays ? JSON.parse(settings.checkInDays) : ['Monday']
+                frequency: (settings as any).checkInFrequency || 'daily',
+                time: (settings as any).checkInTime || '09:00',
+                days: (settings as any).checkInDays ? JSON.parse((settings as any).checkInDays) : ['Monday']
               }}
             />
-            <button
-              onClick={() => setShowCheckInSetup(false)}
-              className="mt-4 w-full text-center text-sm text-gray-500 hover:text-gray-700"
-            >
-              Cancel
-            </button>
           </div>
         </div>
       )}
@@ -1328,18 +1774,21 @@ export default function CoachDashboard() {
         <div className={`${showChat ? 'w-1/2 p-4 py-8 sm:py-12 overflow-y-auto' : 'w-full'}`}>
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.back()}
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Scorecard
-          </button>
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="inline-flex items-center text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {t('coach.backToDashboard')}
+            </button>
+            <LanguageSelector />
+          </div>
           
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-                Your AI Life Coach
+                {t('coach.yourAiLifeCoach')}
               </h1>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center">
@@ -1348,12 +1797,12 @@ export default function CoachDashboard() {
                 </div>
                 {coachData.user.subscription_status === 'trial' && (
                   <div className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium text-gray-800">
-                    {coachData.user.trial_days_left} days left in trial
+{coachData.user.trial_days_left} {t('coach.daysLeftInTrial')}
                   </div>
                 )}
                 {coachData.user.subscription_status === 'active' && (
                   <div className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium text-gray-800">
-                    Active Subscription
+{t('coach.activeSubscription')}
                   </div>
                 )}
               </div>
@@ -1365,14 +1814,14 @@ export default function CoachDashboard() {
                 className="flex items-center justify-center px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
               >
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+{t('coach.settings')}
               </button>
               <button
                 onClick={() => setShowChat(true)}
                 className="flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all"
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Chat with Coach
+{t('coach.chatWithCoach')}
               </button>
             </div>
           </div>
@@ -1381,15 +1830,214 @@ export default function CoachDashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Coach Configuration */}
+            {coachPreferences && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                    <Settings className="h-6 w-6 text-gray-600 mr-3" />
+{t('coach.coachConfiguration')}
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    {showCoachConfig && (
+                      <button
+                        onClick={async () => {
+                          if (editingCoachConfig) {
+                            // Save changes
+                            try {
+                              const response = await fetch(`/api/coach-preferences`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  preferences: coachPreferences,
+                                  assessmentId: params.id
+                                })
+                              });
+                              if (response.ok) {
+                                console.log('Coach preferences saved successfully');
+                              }
+                            } catch (error) {
+                              console.error('Error saving coach preferences:', error);
+                            }
+                          }
+                          setEditingCoachConfig(!editingCoachConfig);
+                        }}
+                        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                          editingCoachConfig 
+                            ? 'bg-gray-900 text-white' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+{editingCoachConfig ? t('common.save') : t('common.edit')}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowCoachConfig(!showCoachConfig)}
+                      className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                    >
+                      {showCoachConfig ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                
+                {showCoachConfig && (
+                  <div className="space-y-8">
+                    {editingCoachConfig ? (
+                      /* Edit Mode - Minimalist */
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Primary Focus</label>
+                            <select
+                              value={coachPreferences.primaryFocus}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, primaryFocus: e.target.value }))}
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
+                            >
+                              <option value="financial">Financial</option>
+                              <option value="health">Health</option>
+                              <option value="social">Social</option>
+                              <option value="personal">Personal</option>
+                            </select>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Secondary</label>
+                            <select
+                              value={coachPreferences.secondaryFocus || ''}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, secondaryFocus: e.target.value || null }))}
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
+                            >
+                              <option value="">None</option>
+                              <option value="financial">Financial</option>
+                              <option value="health">Health</option>
+                              <option value="social">Social</option>
+                              <option value="personal">Personal</option>
+                            </select>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Style</label>
+                            <select
+                              value={coachPreferences.coachingStyle}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, coachingStyle: e.target.value }))}
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
+                            >
+                              <option value="supportive">Supportive</option>
+                              <option value="analytical">Analytical</option>
+                              <option value="direct">Direct</option>
+                              <option value="encouraging">Encouraging</option>
+                            </select>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Motivation</label>
+                            <select
+                              value={coachPreferences.motivationLevel}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, motivationLevel: e.target.value }))}
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
+                            >
+                              <option value="gentle">Gentle</option>
+                              <option value="balanced">Balanced</option>
+                              <option value="intense">Intense</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-6 pt-2">
+                          <div className="flex items-center space-x-2">
+                            <label className="text-xs text-gray-500">Daily:</label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              value={coachPreferences.dailyTaskCount}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, dailyTaskCount: parseInt(e.target.value) }))}
+                              className="w-12 p-1 border border-gray-300 rounded text-center text-gray-900 text-sm"
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <label className="text-xs text-gray-500">Weekly:</label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="5"
+                              value={coachPreferences.weeklyTaskCount}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, weeklyTaskCount: parseInt(e.target.value) }))}
+                              className="w-12 p-1 border border-gray-300 rounded text-center text-gray-900 text-sm"
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <label className="text-xs text-gray-500">Difficulty:</label>
+                            <select
+                              value={coachPreferences.taskDifficulty}
+                              onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, taskDifficulty: e.target.value }))}
+                              className="px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
+                            >
+                              <option value="easy">Easy</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="challenging">Challenging</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* View Mode - Clean Display */
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                          <div className="space-y-2">
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Focus Area</span>
+                            <div className="text-lg font-semibold text-gray-900 capitalize">{coachPreferences.primaryFocus}</div>
+                            {coachPreferences.secondaryFocus && (
+                              <div className="text-sm text-gray-600">Secondary: {coachPreferences.secondaryFocus}</div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Coaching Style</span>
+                            <div className="text-lg font-semibold text-gray-900 capitalize">{coachPreferences.coachingStyle}</div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Task Frequency</span>
+                            <div className="text-lg font-semibold text-gray-900">
+                              {coachPreferences.dailyTaskCount} daily, {coachPreferences.weeklyTaskCount} weekly
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Motivation Level</span>
+                            <div className="text-lg font-semibold text-gray-900 capitalize">{coachPreferences.motivationLevel}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="pt-4 border-t border-gray-200">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500">Assessment-specific settings</span>
+                            <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-medium capitalize">
+                              {coachPreferences.taskDifficulty} difficulty
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            
             {/* Progress Overview */}
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
                   <BarChart3 className="h-6 w-6 text-gray-600 mr-3" />
-                  <h2 className="text-2xl font-bold text-gray-900">Your Progress</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{t('coach.yourProgress')}</h2>
                 </div>
                 <div className="text-sm text-gray-500">
-                  Last updated: {new Date().toLocaleDateString()}
+{t('coach.lastUpdated')}: {new Date().toLocaleDateString()}
                 </div>
               </div>
               
@@ -1399,9 +2047,9 @@ export default function CoachDashboard() {
                     <Zap className="h-8 w-8 text-gray-600" />
                   </div>
                   <div className="text-2xl font-bold text-gray-900">{userProgress?.streak.days || coachData.progress.currentStreak}</div>
-                  <div className="text-sm text-gray-600">Day Streak</div>
+                  <div className="text-sm text-gray-600">{t('coach.dayStreak')}</div>
                   <div className="text-xs text-gray-400 mt-1">
-                    {userProgress?.streak.message || (coachData.progress.currentStreak > 7 ? '🔥 On fire!' : 'Keep going!')}
+{userProgress?.streak.message || (coachData.progress.currentStreak > 7 ? t('coach.onFire') : t('coach.keepGoing'))}
                   </div>
                 </div>
                 
@@ -1412,9 +2060,9 @@ export default function CoachDashboard() {
                   <div className="text-2xl font-bold text-gray-900">
                     {userProgress?.completionRate.percentage || 0}%
                   </div>
-                  <div className="text-sm text-gray-600">Completion Rate</div>
+                  <div className="text-sm text-gray-600">{t('coach.completionRate')}</div>
                   <div className="text-xs text-gray-400 mt-1">
-                    {userProgress?.completionRate.completed || 0}/{userProgress?.completionRate.total || 0} completed
+{userProgress?.completionRate.completed || 0}/{userProgress?.completionRate.total || 0} {t('coach.completed')}
                   </div>
                 </div>
                 
@@ -1423,9 +2071,9 @@ export default function CoachDashboard() {
                     <TrendingUp className="h-8 w-8 text-gray-600" />
                   </div>
                   <div className="text-2xl font-bold text-gray-900">{userProgress?.currentScore.percentile || coachData.progress.thisWeekScore}</div>
-                  <div className="text-sm text-gray-600">Current Score</div>
+                  <div className="text-sm text-gray-600">{t('coach.currentScore')}</div>
                   <div className="text-xs text-gray-400 mt-1">
-                    {userProgress?.currentScore.percentile || coachData.progress.thisWeekScore}th percentile
+{userProgress?.currentScore.percentile || coachData.progress.thisWeekScore}th {t('coach.percentile')}
                   </div>
                 </div>
                 
@@ -1540,9 +2188,7 @@ export default function CoachDashboard() {
                         <span className="text-gray-700">Daily Goals (Week)</span>
                       </div>
                       <span className="text-gray-600 font-medium">
-                        {Array.isArray(dailyGoals) && dailyGoals.length > 0 
-                          ? Math.round((dailyGoals.filter(g => g && g.completed).length / dailyGoals.length) * 100)
-                          : 0}%
+                        {weeklyDailyGoalsProgress}%
                       </span>
                     </div>
                   </div>
@@ -1629,8 +2275,12 @@ export default function CoachDashboard() {
                   const areaIcon = focusAreaIcons[area] || Star
                   const Icon = areaIcon
                   const areaName = focusAreaNames[area as keyof typeof focusAreaNames]
-                  const areaTasks = getAllWeekTasks().filter(task => task.category === area)
+                  const areaTasks = area === 'other' 
+                    ? getAllWeekTasks().filter(task => !['financial', 'health', 'social', 'personal'].includes(task.category))
+                    : getAllWeekTasks().filter(task => task.category === area)
                   const completedTasks = areaTasks.filter(task => task.completed).length
+                  
+                  // Debug for all categories to see displayed vs counted (moved to useEffect to avoid spam)
                   
                   return (
                     <div key={area} className="bg-white rounded-xl p-6 border border-gray-200">
@@ -1663,22 +2313,27 @@ export default function CoachDashboard() {
                           return (
                             <div 
                               key={action.id} 
-                              className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                              className={`p-3 rounded-lg border-2 transition-all group ${
                                 isCompleted 
                                   ? 'border-gray-200 bg-gray-50' 
                                   : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                               }`}
-                              onClick={() => toggleActionComplete(action.id)}
                             >
                               <div className="flex items-start">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5 transition-all ${
-                                  isCompleted 
-                                    ? 'bg-gray-900 text-white' 
-                                    : 'border-2 border-gray-300 bg-white hover:border-gray-400'
-                                }`}>
+                                <div 
+                                  className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5 transition-all cursor-pointer ${
+                                    isCompleted 
+                                      ? 'bg-gray-900 text-white' 
+                                      : 'border-2 border-gray-300 bg-white hover:border-gray-400'
+                                  }`}
+                                  onClick={() => toggleActionComplete(action.id)}
+                                >
                                   {isCompleted && <CheckCircle className="h-4 w-4" />}
                                 </div>
-                                <div className="flex-1">
+                                <div 
+                                  className="flex-1 cursor-pointer"
+                                  onClick={() => toggleActionComplete(action.id)}
+                                >
                                   <div className={`font-semibold mb-1 transition-all ${
                                     isCompleted ? 'text-gray-800 line-through' : 'text-gray-900'
                                   }`}>
@@ -1694,6 +2349,16 @@ export default function CoachDashboard() {
                                     {action.timeEstimate}
                                   </div>
                                 </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    deleteWeeklyTask(action.id)
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                                  title="Delete task"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
                               </div>
                             </div>
                           )
@@ -1725,11 +2390,24 @@ export default function CoachDashboard() {
                 <div className="space-y-6">
                   {/* Completed Weekly Tasks */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Weekly Tasks</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-800">Weekly Tasks</h3>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm text-gray-600">
+                          {Math.round(actualWeeklyProgress)}% Complete
+                        </span>
+                        <button
+                          onClick={() => setShowTaskCreator(true)}
+                          className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          + Add Task
+                        </button>
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       {(() => {
                         const completedWeeklyTasks = getCurrentWeekTasks().filter(task => 
-                          weeklyProgress[task.id] ?? task.completed
+                          task.completed
                         )
                         
                         if (completedWeeklyTasks.length === 0) {
@@ -1739,13 +2417,22 @@ export default function CoachDashboard() {
                         }
                         
                         return completedWeeklyTasks.map(task => (
-                          <div key={task.id} className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <CheckCircle className="h-5 w-5 text-gray-600 mr-3 flex-shrink-0" />
+                          <div key={task.id} className="group flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                            <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
                             <div className="flex-1">
                               <p className="text-gray-800 font-medium">{task.title}</p>
                               <p className="text-gray-600 text-sm">{task.description}</p>
                             </div>
-                            <span className="text-gray-600 text-xs">Week {currentWeek}</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-gray-600 text-xs">Week {currentWeek}</span>
+                              <button
+                                onClick={() => deleteWeeklyTask(task.id)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                                title="Delete task"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                         ))
                       })()}
@@ -1754,7 +2441,12 @@ export default function CoachDashboard() {
 
                   {/* Completed Daily Goals */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Daily Goals</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-800">Daily Goals</h3>
+                      <span className="text-sm text-gray-600">
+                        {weeklyDailyGoalsProgress}% Complete (Week)
+                      </span>
+                    </div>
                     <div className="space-y-2">
                       {(() => {
                         const completedDailyGoals = dailyGoals.filter(goal => goal && goal.completed)
@@ -1766,13 +2458,22 @@ export default function CoachDashboard() {
                         }
                         
                         return completedDailyGoals.map((goal, index) => (
-                          <div key={goal.id || index} className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <CheckCircle className="h-5 w-5 text-gray-600 mr-3 flex-shrink-0" />
+                          <div key={goal.id || index} className="group flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                            <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
                             <div className="flex-1">
                               <p className="text-gray-800 font-medium">{goal.title}</p>
                               <p className="text-gray-600 text-sm capitalize">{goal.category}</p>
                             </div>
-                            <span className="text-gray-600 text-xs">Today</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-gray-600 text-xs">Today</span>
+                              <button
+                                onClick={() => deleteDailyGoal(goal.id)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                                title="Delete goal"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                         ))
                       })()}
@@ -1781,26 +2482,41 @@ export default function CoachDashboard() {
 
                   {/* Summary Stats */}
                   <div className="border-t border-gray-200 pt-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-gray-900">
-                          {getCurrentWeekTasks().filter(task => weeklyProgress[task.id] ?? task.completed).length}
+                        <p className="text-2xl font-bold text-gray-900">
+                          {getCurrentWeekTasks().filter(task => task.completed).length}
                         </p>
-                        <p className="text-sm text-gray-600">Weekly Tasks Completed</p>
+                        <p className="text-xs text-gray-600 mb-1">Weekly Tasks</p>
+                        <div className="text-xs font-medium text-green-600">
+                          {Math.round(actualWeeklyProgress)}%
+                        </div>
                       </div>
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-gray-900">
+                        <p className="text-2xl font-bold text-gray-900">
                           {dailyGoals.filter(goal => goal && goal.completed).length}
                         </p>
-                        <p className="text-sm text-gray-600">Daily Goals Completed</p>
+                        <p className="text-xs text-gray-600 mb-1">Daily Goals Today</p>
+                        <div className="text-xs font-medium text-blue-600">
+                          {weeklyDailyGoalsProgress}% Week
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">
+                          {Math.round(combinedWeeklyProgress)}%
+                        </p>
+                        <p className="text-xs text-gray-600 mb-1">Overall Progress</p>
+                        <div className="text-xs font-medium text-purple-600">
+                          Combined
+                        </div>
                       </div>
                     </div>
                     <div className="mt-4 text-center">
                       <p className="text-lg font-semibold text-gray-800">
                         Total: {
-                          getCurrentWeekTasks().filter(task => weeklyProgress[task.id] ?? task.completed).length +
+                          getCurrentWeekTasks().filter(task => task.completed).length +
                           dailyGoals.filter(goal => goal && goal.completed).length
-                        } Tasks Completed
+                        } Tasks Completed This Week
                       </p>
                     </div>
                   </div>
@@ -1810,7 +2526,7 @@ export default function CoachDashboard() {
               {!showCompletedTasks && (
                 <div className="text-center py-4">
                   <p className="text-gray-500 text-sm">
-                    {getCurrentWeekTasks().filter(task => weeklyProgress[task.id] ?? task.completed).length + 
+                    {getCurrentWeekTasks().filter(task => task.completed).length + 
                      dailyGoals.filter(goal => goal && goal.completed).length} total tasks completed
                   </p>
                   <p className="text-gray-400 text-xs mt-1">Click "Show Completed" to view details</p>
@@ -1851,36 +2567,86 @@ export default function CoachDashboard() {
             {/* Daily Goals */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-gray-900">Today's Goals</h3>
+                <div className="flex items-center space-x-3">
+                  <h3 className="font-bold text-gray-900">{formatDateForDisplay(selectedDate)}</h3>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={navigateToYesterday}
+                      className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                      title="Yesterday"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    {selectedDate.toDateString() !== new Date().toDateString() && (
+                      <button
+                        onClick={navigateToToday}
+                        className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                        title="Go to Today"
+                      >
+                        Today
+                      </button>
+                    )}
+                    <button
+                      onClick={navigateToTomorrow}
+                      className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                      title="Tomorrow"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                 <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setShowDailyTaskCreator(true)}
-                    className="px-3 py-1 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-xs"
-                  >
-                    + Add
-                  </button>
                 </div>
               </div>
               <div className="space-y-3">
-                {dailyGoals.map((goal) => (
+                {dailyGoals.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="text-sm">
+                      {selectedDate.toDateString() === new Date().toDateString() 
+                        ? "No goals set for today" 
+                        : selectedDate > new Date()
+                        ? `No goals planned for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                        : `No goals were set for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                      }
+                    </p>
+                    {(selectedDate.toDateString() === new Date().toDateString() || isTomorrow()) && (
+                      <button
+                        onClick={() => setShowDailyTaskCreator(true)}
+                        className="mt-3 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                      >
+                        Create your first goal
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  dailyGoals.map((goal) => (
                   <div 
                     key={goal.id} 
-                    className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                    className={`p-3 rounded-lg border transition-all group ${
                       goal.completed 
                         ? 'border-gray-200 bg-gray-50' 
                         : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                     }`}
-                    onClick={() => toggleDailyGoal(goal.id)}
                   >
                     <div className="flex items-start">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 mt-0.5 transition-all ${
-                        goal.completed 
-                          ? 'bg-gray-900 text-white' 
-                          : 'border-2 border-gray-300 bg-white hover:border-gray-400'
-                      }`}>
+                      <div 
+                        className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 mt-0.5 transition-all cursor-pointer ${
+                          goal.completed 
+                            ? 'bg-gray-900 text-white' 
+                            : 'border-2 border-gray-300 bg-white hover:border-gray-400'
+                        }`}
+                        onClick={() => toggleDailyGoal(goal.id)}
+                      >
                         {goal.completed && <CheckCircle className="h-3 w-3" />}
                       </div>
-                      <div className="flex-1">
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => toggleDailyGoal(goal.id)}
+                      >
                         <div className={`text-sm font-medium transition-all ${
                           goal.completed ? 'text-gray-800 line-through' : 'text-gray-900'
                         }`}>
@@ -1890,15 +2656,36 @@ export default function CoachDashboard() {
                           {goal.category} focus
                         </div>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          deleteDailyGoal(goal.id)
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                        title="Delete goal"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </div>
                   </div>
-                ))}
+                  ))
+                )}
               </div>
-              <div className="mt-4 text-center">
-                <div className="text-xs text-gray-500">
-                  {dailyGoals.filter(g => g.completed).length} of {dailyGoals.length} completed
+              {dailyGoals.length > 0 && (
+                <div className="mt-4 text-center space-y-3">
+                  <div className="text-xs text-gray-500">
+                    {dailyGoals.filter(g => g.completed).length} of {dailyGoals.length} completed
+                  </div>
+                  {(selectedDate.toDateString() === new Date().toDateString() || isTomorrow()) && (
+                    <button
+                      onClick={() => setShowDailyTaskCreator(true)}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                    >
+                      Add a new daily goal
+                    </button>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Upcoming Check-ins */}
@@ -2090,7 +2877,20 @@ export default function CoachDashboard() {
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
-                    <p className="text-sm leading-relaxed">{message.message}</p>
+                    <div className="text-sm leading-relaxed">
+                      <ReactMarkdown 
+                        components={{
+                          p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
+                          ul: ({children}) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                          li: ({children}) => <li className="text-sm">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="italic">{children}</em>,
+                        }}
+                      >
+                        {message.message}
+                      </ReactMarkdown>
+                    </div>
                     <div className={`text-xs mt-2 opacity-70 ${
                       message.type === 'user' ? 'text-gray-300' : 'text-gray-500'
                     }`}>
@@ -2310,7 +3110,7 @@ export default function CoachDashboard() {
                         <select
                           value={newGoal.category}
                           onChange={(e) => setNewGoal(prev => ({...prev, category: e.target.value}))}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         >
                           <option value="">Select a category</option>
                           <option value="Financial Health">Financial Health</option>
@@ -2327,7 +3127,7 @@ export default function CoachDashboard() {
                           value={newGoal.title}
                           onChange={(e) => setNewGoal(prev => ({...prev, title: e.target.value}))}
                           placeholder="e.g., Save $5,000 for emergency fund"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         />
                       </div>
 
@@ -2349,7 +3149,7 @@ export default function CoachDashboard() {
                           value={newGoal.target}
                           onChange={(e) => setNewGoal(prev => ({...prev, target: e.target.value}))}
                           placeholder="e.g., $5,000, 10 lbs, 30 minutes daily"
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         />
                       </div>
 
@@ -2359,7 +3159,7 @@ export default function CoachDashboard() {
                           type="date"
                           value={newGoal.deadline}
                           onChange={(e) => setNewGoal(prev => ({...prev, deadline: e.target.value}))}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         />
                       </div>
 
@@ -2473,7 +3273,7 @@ export default function CoachDashboard() {
                       <select
                         value={settings.focusArea}
                         onChange={(e) => setSettings(prev => ({...prev, focusArea: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                       >
                         <option value="financial">Financial Health</option>
                         <option value="health">Physical Wellness</option>
@@ -2487,7 +3287,7 @@ export default function CoachDashboard() {
                       <select
                         value={settings.coachingStyle}
                         onChange={(e) => setSettings(prev => ({...prev, coachingStyle: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                       >
                         <option value="supportive">Supportive & Encouraging</option>
                         <option value="challenging">Direct & Challenging</option>
@@ -2501,7 +3301,7 @@ export default function CoachDashboard() {
                       <select
                         value={settings.goalFrequency}
                         onChange={(e) => setSettings(prev => ({...prev, goalFrequency: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                       >
                         <option value="daily">Daily Goals</option>
                         <option value="weekly">Weekly Goals</option>
@@ -2515,7 +3315,7 @@ export default function CoachDashboard() {
                         type="time"
                         value={settings.reminderTime}
                         onChange={(e) => setSettings(prev => ({...prev, reminderTime: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                       />
                     </div>
                   </div>
@@ -2565,11 +3365,11 @@ export default function CoachDashboard() {
       {/* Task Creator Modal */}
       {showTaskCreator && (
         <WeeklyTaskCreatorModal
-          currentWeek={currentWeek}
+          currentWeek={currentWeek.toString()}
           onClose={() => setShowTaskCreator(false)}
           onSubmit={async (tasksData) => {
             try {
-              const promises = tasksData.map(task => 
+              const promises = tasksData.tasks.map(task => 
                 fetch('/api/tasks/user', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -2578,9 +3378,10 @@ export default function CoachDashboard() {
                     title: task.title,
                     description: task.description || task.title,
                     category: task.category,
-                    priority: task.priority || 'medium',
-                    week: currentWeek,
-                    estimatedMinutes: task.estimatedMinutes || 30
+                    priority: (task as any).priority || 'medium',
+                    weekNumber: currentWeek,
+                    estimatedMinutes: (task as any).estimatedMinutes || 30,
+                    assessmentId: params.id
                   })
                 })
               )
@@ -2589,15 +3390,14 @@ export default function CoachDashboard() {
               const failedTasks = results.filter(r => !r.ok)
               
               if (failedTasks.length === 0) {
-                alert(`Successfully created ${tasksData.length} tasks for Week ${currentWeek}!`)
                 await loadWeeklyTasks()
                 setShowTaskCreator(false)
               } else {
-                alert(`Created ${results.length - failedTasks.length}/${results.length} tasks. Some failed to create.`)
+                // Log errors but don't show alert
+                console.error(`Created ${results.length - failedTasks.length}/${results.length} tasks. Some failed to create.`)
               }
             } catch (error) {
               console.error('Error creating tasks:', error)
-              alert('Failed to create tasks. Please try again.')
             }
           }}
         />
@@ -2609,6 +3409,7 @@ export default function CoachDashboard() {
         <DailyTaskCreatorModal
           onClose={() => setShowDailyTaskCreator(false)}
           onSubmit={createUserTask}
+          initialDate={selectedDate}
         />
       )}
     </div>
@@ -2616,9 +3417,10 @@ export default function CoachDashboard() {
 }
 
 // Daily Task Creator Modal Component
-function DailyTaskCreatorModal({ onClose, onSubmit }: {
+function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
   onClose: () => void
   onSubmit: (taskData: any) => Promise<any>
+  initialDate?: Date
 }) {
   const [taskData, setTaskData] = useState({
     type: 'daily',
@@ -2627,7 +3429,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
     category: 'personal',
     priority: 'medium',
     estimatedMinutes: 30,
-    date: new Date().toISOString().split('T')[0]
+    date: (initialDate || new Date()).toISOString().split('T')[0]
   })
   const [submitting, setSubmitting] = useState(false)
 
@@ -2662,7 +3464,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
               type="text"
               value={taskData.title}
               onChange={(e) => setTaskData(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
               placeholder="Enter task title..."
               required
             />
@@ -2673,7 +3475,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
             <textarea
               value={taskData.description}
               onChange={(e) => setTaskData(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
               placeholder="Describe the task..."
               rows={3}
             />
@@ -2685,12 +3487,13 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
               <select
                 value={taskData.category}
                 onChange={(e) => setTaskData(prev => ({ ...prev, category: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
               >
                 <option value="financial">Financial</option>
                 <option value="health">Health</option>
                 <option value="social">Social</option>
                 <option value="personal">Personal</option>
+                <option value="other">Other</option>
               </select>
             </div>
             
@@ -2699,7 +3502,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
               <select
                 value={taskData.priority}
                 onChange={(e) => setTaskData(prev => ({ ...prev, priority: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -2715,7 +3518,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
                 type="date"
                 value={taskData.date}
                 onChange={(e) => setTaskData(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
               />
             </div>
             
@@ -2725,7 +3528,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit }: {
                 type="number"
                 value={taskData.estimatedMinutes}
                 onChange={(e) => setTaskData(prev => ({ ...prev, estimatedMinutes: parseInt(e.target.value) || 30 }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                 min="5"
                 max="480"
               />

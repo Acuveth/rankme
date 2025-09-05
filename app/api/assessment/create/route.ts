@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAgeBand } from '@/lib/utils'
+import countries from '@/data/countries.json'
 
 export async function POST(request: Request) {
   try {
@@ -29,16 +30,12 @@ export async function POST(request: Request) {
   }
 }
 
-function getRegion(country: string): string {
-  const regions: { [key: string]: string } = {
-    'US': 'North America',
-    'CA': 'North America',
-    'UK': 'Europe',
-    'DE': 'Europe',
-    'FR': 'Europe',
-    'AU': 'Oceania',
-  }
-  return regions[country] || 'Global'
+function getRegion(countryCode: string): string {
+  // Find the country in our countries data
+  const country = countries.countries.find(c => c.code === countryCode)
+  
+  // Return the region if found, otherwise return 'Global'
+  return country ? country.region : 'Global'
 }
 
 function generateAnonId(): string {

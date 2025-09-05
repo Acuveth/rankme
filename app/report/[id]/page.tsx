@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { formatPercentile } from '@/lib/utils'
 import { 
   Download, TrendingUp, Target, Calendar, ArrowLeft, Share2,
@@ -44,13 +45,51 @@ interface DetailedScoreData {
 export default function DetailedReportPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [reportData, setReportData] = useState<DetailedScoreData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareLoading, setShareLoading] = useState(false)
+  const [shareSvg, setShareSvg] = useState<string | null>(null)
+  const [hasActiveCoachSubscription, setHasActiveCoachSubscription] = useState(false)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true)
 
   useEffect(() => {
     fetchDetailedReport()
-  }, [params.id])
+    if (session?.user?.email) {
+      checkSubscriptionStatus()
+    } else {
+      setSubscriptionLoading(false)
+    }
+  }, [params.id, session])
+
+  const checkSubscriptionStatus = async () => {
+    if (!session?.user?.email) {
+      setSubscriptionLoading(false)
+      return
+    }
+    
+    try {
+      const response = await fetch('/api/user/subscription')
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Check for active AI coach subscription in all subscriptions
+        const hasActiveCoachSub = data.subscriptions?.some((sub: any) => 
+          sub.product === 'ai_coach_monthly' && 
+          sub.status === 'active' &&
+          new Date(sub.periodEnd) > new Date()
+        ) || false
+        
+        setHasActiveCoachSubscription(hasActiveCoachSub)
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error)
+    } finally {
+      setSubscriptionLoading(false)
+    }
+  }
 
   const fetchDetailedReport = async () => {
     try {
@@ -90,6 +129,55 @@ export default function DetailedReportPage() {
     } catch (error) {
       console.error('Error downloading PDF:', error)
     }
+  }
+
+  const handleShare = async () => {
+    if (!reportData) return
+    
+    setShareLoading(true)
+    setShowShareModal(true)
+    
+    try {
+      const response = await fetch('/api/share/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assessmentId: params.id,
+          format: 'instagram',
+          isDeepReport: true
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setShareSvg(data.svgContent)
+      } else {
+        throw new Error('Failed to generate share graphic')
+      }
+    } catch (error) {
+      console.error('Error generating share graphic:', error)
+      alert('Failed to generate share graphic. Please try again.')
+    } finally {
+      setShareLoading(false)
+    }
+  }
+
+  const downloadShareImage = () => {
+    if (!shareSvg) return
+
+    // Convert SVG to blob
+    const blob = new Blob([shareSvg], { type: 'image/svg+xml' })
+    const url = window.URL.createObjectURL(blob)
+    
+    // Create download link
+    const a = document.createElement('a')
+    a.style.display = 'none'
+    a.href = url
+    a.download = `rankme-deep-report-${params.id}.svg`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
   }
 
   if (loading) {
@@ -150,11 +238,11 @@ export default function DetailedReportPage() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard')}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Scorecard
+            Back to Dashboard
           </button>
           
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
@@ -169,7 +257,7 @@ export default function DetailedReportPage() {
             
             <div className="flex flex-col sm:flex-row gap-3 mt-6 lg:mt-0">
               <button
-                onClick={() => alert('Share feature coming soon!')}
+                onClick={handleShare}
                 className="flex items-center justify-center px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
               >
                 <Share2 className="h-4 w-4 mr-2" />
@@ -329,7 +417,7 @@ export default function DetailedReportPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Report Stats */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-4">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="font-bold text-gray-900 mb-4">Report Overview</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -391,22 +479,95 @@ export default function DetailedReportPage() {
               </div>
             </div>
 
-            {/* Upgrade CTA */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 text-white">
-              <h3 className="font-bold mb-3">Want Ongoing Support?</h3>
-              <p className="text-sm text-gray-200 mb-4">
-                Get personalized coaching and weekly action plans with our AI Life Coach.
-              </p>
-              <button
-                onClick={() => router.push(`/paywall/coach/${params.id}`)}
-                className="w-full bg-white text-gray-900 py-3 rounded-lg hover:bg-gray-100 transition-all font-semibold text-sm"
-              >
-                Upgrade to AI Coach - $19/mo
-              </button>
-            </div>
+            {/* Upgrade CTA - Only show if user doesn't have active AI Coach subscription */}
+            {!subscriptionLoading && !hasActiveCoachSubscription && (
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 text-white">
+                <h3 className="font-bold mb-3">Want Ongoing Support?</h3>
+                <p className="text-sm text-gray-200 mb-4">
+                  Get personalized coaching and weekly action plans with our AI Life Coach.
+                </p>
+                <button
+                  onClick={() => router.push(`/paywall/coach/${params.id}`)}
+                  className="w-full bg-white text-gray-900 py-3 rounded-lg hover:bg-gray-100 transition-all font-semibold text-sm"
+                >
+                  Upgrade to AI Coach - $19/mo
+                </button>
+              </div>
+            )}
+            
+            {/* Show AI Coach access if user already has subscription */}
+            {!subscriptionLoading && hasActiveCoachSubscription && (
+              <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-6">
+                <h3 className="font-bold text-gray-900 mb-3">Your AI Life Coach</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  You have an active AI Life Coach subscription. Continue your personalized coaching journey.
+                </p>
+                <button
+                  onClick={() => router.push(`/coach/${params.id}`)}
+                  className="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-all font-semibold text-sm"
+                >
+                  Open AI Coach Dashboard
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Share Your Deep Report</h2>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {shareLoading ? (
+              <div className="h-64 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+              </div>
+            ) : shareSvg ? (
+              <div>
+                <div 
+                  className="bg-gray-100 rounded-lg p-4 mb-4 overflow-auto max-h-96"
+                  dangerouslySetInnerHTML={{ __html: shareSvg }}
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={downloadShareImage}
+                    className="flex-1 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    <Download className="h-5 w-5 inline mr-2" />
+                    Download Image
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`Check out my RankMe Deep Life Report! Overall Score: ${reportData?.overall.score_0_100}/100 - Top ${reportData?.overall.percentile}% percentile! Get your assessment at rankme.app`)
+                      alert('Caption copied to clipboard!')
+                    }}
+                    className="flex-1 px-4 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Copy Caption
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 text-center mt-4">
+                  Share on Instagram, Twitter, or any social platform
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-600 text-center py-8">Failed to generate share graphic</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

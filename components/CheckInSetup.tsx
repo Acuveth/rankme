@@ -1,162 +1,382 @@
 import React, { useState } from 'react'
-import { Calendar, Clock, Bell, ChevronRight } from 'lucide-react'
+import { Calendar, Clock, Bell, ChevronRight, X, Plus, Trash2, Sun, Moon, Coffee, Sunset } from 'lucide-react'
 
 interface CheckInSetupProps {
   onComplete: (settings: CheckInSettings) => void
+  onClose?: () => void
   initialSettings?: CheckInSettings
 }
 
 export interface CheckInSettings {
-  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly'
+  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'multiple-daily'
   time: string
+  times?: string[] // For multiple times per day
   days?: string[]
+  timeOfDay?: 'morning' | 'afternoon' | 'evening' | 'night' | 'custom'
+  reminderMinutesBefore?: number
 }
 
-export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, initialSettings }) => {
+export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose, initialSettings }) => {
   const [settings, setSettings] = useState<CheckInSettings>(initialSettings || {
     frequency: 'daily',
     time: '09:00',
-    days: ['Monday']
+    times: [],
+    days: ['Monday'],
+    timeOfDay: 'morning',
+    reminderMinutesBefore: 15
   })
 
+  const [customTimes, setCustomTimes] = useState<string[]>(initialSettings?.times || ['09:00'])
+  const [showAdvanced, setShowAdvanced] = useState(false)
+
   const frequencies = [
-    { value: 'daily', label: 'Daily', description: 'Check in every day' },
-    { value: 'weekly', label: 'Weekly', description: 'Check in on specific days' },
-    { value: 'biweekly', label: 'Bi-weekly', description: 'Check in every 2 weeks' },
-    { value: 'monthly', label: 'Monthly', description: 'Check in once a month' }
+    { value: 'daily', label: 'Daily', description: 'Once every day' },
+    { value: 'multiple-daily', label: 'Multiple Daily', description: 'Multiple times per day' },
+    { value: 'weekly', label: 'Weekly', description: 'Specific days' },
+    { value: 'biweekly', label: 'Bi-weekly', description: 'Every 2 weeks' },
+    { value: 'monthly', label: 'Monthly', description: 'Once a month' }
   ]
 
-  const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const fullDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-  const handleDayToggle = (day: string) => {
+  const timePresets = [
+    { value: 'morning', label: 'Morning', icon: Sun, time: '08:00', description: '8 AM' },
+    { value: 'afternoon', label: 'Afternoon', icon: Coffee, time: '13:00', description: '1 PM' },
+    { value: 'evening', label: 'Evening', icon: Sunset, time: '18:00', description: '6 PM' },
+    { value: 'night', label: 'Night', icon: Moon, time: '21:00', description: '9 PM' },
+    { value: 'custom', label: 'Custom', icon: Clock, time: '', description: 'Choose time' }
+  ]
+
+  const reminderOptions = [
+    { value: 0, label: 'At time' },
+    { value: 5, label: '5 min before' },
+    { value: 15, label: '15 min before' },
+    { value: 30, label: '30 min before' }
+  ]
+
+  const handleDayToggle = (day: string, index: number) => {
     const currentDays = settings.days || []
-    if (currentDays.includes(day)) {
+    const fullDay = fullDays[index]
+    if (currentDays.includes(fullDay)) {
       setSettings({
         ...settings,
-        days: currentDays.filter(d => d !== day)
+        days: currentDays.filter(d => d !== fullDay)
       })
     } else {
       setSettings({
         ...settings,
-        days: [...currentDays, day]
+        days: [...currentDays, fullDay]
       })
     }
   }
 
-  return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <div className="flex items-center mb-3">
-          <Bell className="h-6 w-6 text-gray-600 mr-3" />
-          <h2 className="text-2xl font-bold text-gray-900">Set Up Check-Ins</h2>
-        </div>
-        <p className="text-gray-600">
-          Regular check-ins help you stay on track and reflect on your progress. 
-          Choose how often you'd like to check in with your AI coach.
-        </p>
-      </div>
+  const handleTimePresetSelect = (preset: typeof timePresets[0]) => {
+    if (preset.value === 'custom') {
+      setSettings({ ...settings, timeOfDay: 'custom' })
+    } else {
+      setSettings({ 
+        ...settings, 
+        timeOfDay: preset.value as any,
+        time: preset.time 
+      })
+    }
+  }
 
-      {/* Frequency Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          How often would you like to check in?
-        </label>
-        <div className="grid gap-3">
-          {frequencies.map((freq) => (
-            <button
-              key={freq.value}
-              onClick={() => setSettings({ ...settings, frequency: freq.value as any })}
-              className={`p-4 rounded-xl border-2 transition-all text-left ${
-                settings.frequency === freq.value
-                  ? 'border-gray-900 bg-gray-100'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-gray-900">{freq.label}</div>
-                  <div className="text-sm text-gray-600 mt-1">{freq.description}</div>
+  const addCustomTime = () => {
+    const newTime = '12:00'
+    setCustomTimes([...customTimes, newTime])
+    setSettings({
+      ...settings,
+      times: [...customTimes, newTime]
+    })
+  }
+
+  const updateCustomTime = (index: number, newTime: string) => {
+    const updatedTimes = [...customTimes]
+    updatedTimes[index] = newTime
+    setCustomTimes(updatedTimes)
+    setSettings({
+      ...settings,
+      times: updatedTimes
+    })
+  }
+
+  const removeCustomTime = (index: number) => {
+    const updatedTimes = customTimes.filter((_, i) => i !== index)
+    setCustomTimes(updatedTimes)
+    setSettings({
+      ...settings,
+      times: updatedTimes
+    })
+  }
+
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':')
+    const hour = parseInt(hours)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+    return `${displayHour}:${minutes} ${ampm}`
+  }
+
+  const getSchedulePreview = () => {
+    if (settings.frequency === 'daily') {
+      return `Every day at ${formatTime(settings.time)}`
+    } else if (settings.frequency === 'multiple-daily') {
+      const times = settings.times?.length ? settings.times : customTimes
+      return `Daily at ${times.map(t => formatTime(t)).join(', ')}`
+    } else if (settings.frequency === 'weekly') {
+      return `Every ${settings.days?.join(', ')} at ${formatTime(settings.time)}`
+    } else if (settings.frequency === 'biweekly') {
+      return `Every 2 weeks at ${formatTime(settings.time)}`
+    } else if (settings.frequency === 'monthly') {
+      return `Monthly at ${formatTime(settings.time)}`
+    }
+    return ''
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto">
+      <div className="min-h-full flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
+          {/* Header */}
+          <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Set Up Check-Ins</h2>
+              </div>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+            {/* Frequency Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                How often?
+              </label>
+              <div className="space-y-2">
+                {frequencies.map((freq) => (
+                  <button
+                    key={freq.value}
+                    onClick={() => setSettings({ ...settings, frequency: freq.value as any })}
+                    className={`w-full p-3 rounded-lg border-2 transition-all text-left ${
+                      settings.frequency === freq.value
+                        ? 'border-gray-900 bg-gray-100'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-semibold text-gray-900 text-sm">{freq.label}</div>
+                        <div className="text-xs text-gray-600">{freq.description}</div>
+                      </div>
+                      {settings.frequency === freq.value && (
+                        <div className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center">
+                          <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Time Selection - Daily */}
+            {settings.frequency === 'daily' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  When?
+                </label>
+                
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {timePresets.slice(0, 3).map((preset) => {
+                    const Icon = preset.icon
+                    return (
+                      <button
+                        key={preset.value}
+                        onClick={() => handleTimePresetSelect(preset)}
+                        className={`p-2 rounded-lg border transition-all ${
+                          settings.timeOfDay === preset.value
+                            ? 'border-gray-900 bg-gray-100'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 mx-auto mb-1 text-gray-600" />
+                        <div className="text-xs font-medium">{preset.label}</div>
+                        <div className="text-xs text-gray-600">{preset.description}</div>
+                      </button>
+                    )
+                  })}
                 </div>
-                {settings.frequency === freq.value && (
-                  <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
+
+                {settings.timeOfDay === 'custom' && (
+                  <input
+                    type="time"
+                    value={settings.time}
+                    onChange={(e) => setSettings({ ...settings, time: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
                 )}
               </div>
-            </button>
-          ))}
-        </div>
-      </div>
+            )}
 
-      {/* Time Selection */}
-      <div className="mb-6">
-        <label htmlFor="check-in-time" className="block text-sm font-medium text-gray-700 mb-3">
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-2" />
-            What time would you like to check in?
-          </div>
-        </label>
-        <input
-          id="check-in-time"
-          type="time"
-          value={settings.time}
-          onChange={(e) => setSettings({ ...settings, time: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-        />
-        <p className="text-xs text-gray-500 mt-2">
-          We'll send you a reminder at this time
-        </p>
-      </div>
+            {/* Multiple Daily */}
+            {settings.frequency === 'multiple-daily' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Times
+                </label>
+                
+                <div className="space-y-2">
+                  {customTimes.map((time, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => updateCustomTime(index, e.target.value)}
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                      />
+                      <span className="text-xs text-gray-600 w-16">
+                        {formatTime(time)}
+                      </span>
+                      {customTimes.length > 1 && (
+                        <button
+                          onClick={() => removeCustomTime(index)}
+                          className="p-1 text-gray-500 hover:text-gray-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {customTimes.length < 3 && (
+                  <button
+                    onClick={addCustomTime}
+                    className="mt-2 flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Add time
+                  </button>
+                )}
+              </div>
+            )}
 
-      {/* Day Selection (for weekly) */}
-      {settings.frequency === 'weekly' && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-2" />
-              Which days would you like to check in?
-            </div>
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {weekDays.map((day) => (
+            {/* Time for other frequencies */}
+            {(settings.frequency === 'weekly' || settings.frequency === 'biweekly' || settings.frequency === 'monthly') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Time
+                </label>
+                <input
+                  type="time"
+                  value={settings.time}
+                  onChange={(e) => setSettings({ ...settings, time: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            )}
+
+            {/* Days Selection for Weekly */}
+            {settings.frequency === 'weekly' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Days
+                </label>
+                <div className="grid grid-cols-4 gap-1">
+                  {weekDays.map((day, index) => (
+                    <button
+                      key={day}
+                      onClick={() => handleDayToggle(day, index)}
+                      className={`px-2 py-1 rounded border text-xs font-medium ${
+                        settings.days?.includes(fullDays[index])
+                          ? 'border-gray-900 bg-gray-100 text-gray-900'
+                          : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Advanced Settings */}
+            <div>
               <button
-                key={day}
-                onClick={() => handleDayToggle(day)}
-                className={`px-3 py-2 rounded-lg border transition-all text-sm font-medium ${
-                  settings.days?.includes(day)
-                    ? 'border-gray-900 bg-gray-100 text-gray-900'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                }`}
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900"
               >
-                {day.substring(0, 3)}
+                {showAdvanced ? 'Hide' : 'Show'} Advanced
               </button>
-            ))}
+
+              {showAdvanced && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Reminder
+                  </label>
+                  <select
+                    value={settings.reminderMinutesBefore || 15}
+                    onChange={(e) => setSettings({ ...settings, reminderMinutesBefore: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
+                  >
+                    {reminderOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Preview */}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-sm font-medium text-gray-700 mb-1">Schedule:</div>
+              <div className="text-sm text-gray-900">
+                {getSchedulePreview()}
+              </div>
+              {settings.reminderMinutesBefore && settings.reminderMinutesBefore > 0 && (
+                <div className="text-xs text-gray-600 mt-1">
+                  Reminder: {settings.reminderMinutesBefore} min before
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200">
+            <button
+              onClick={() => {
+                const finalSettings = {
+                  ...settings,
+                  times: settings.frequency === 'multiple-daily' ? customTimes : undefined
+                }
+                onComplete(finalSettings)
+              }}
+              disabled={
+                (settings.frequency === 'weekly' && (!settings.days || settings.days.length === 0)) ||
+                (settings.frequency === 'multiple-daily' && customTimes.length === 0)
+              }
+              className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-medium disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
+            >
+              Continue Setup
+            </button>
           </div>
         </div>
-      )}
-
-      {/* Preview */}
-      <div className="bg-gray-50 rounded-xl p-4 mb-6">
-        <div className="text-sm font-medium text-gray-700 mb-2">Your check-in schedule:</div>
-        <div className="text-gray-900">
-          {settings.frequency === 'daily' && `Every day at ${settings.time}`}
-          {settings.frequency === 'weekly' && `Every ${settings.days?.join(', ')} at ${settings.time}`}
-          {settings.frequency === 'biweekly' && `Every 2 weeks at ${settings.time}`}
-          {settings.frequency === 'monthly' && `Once a month at ${settings.time}`}
-        </div>
       </div>
-
-      {/* Submit Button */}
-      <button
-        onClick={() => onComplete(settings)}
-        disabled={settings.frequency === 'weekly' && (!settings.days || settings.days.length === 0)}
-        className="w-full flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
-      >
-        Continue Setup
-        <ChevronRight className="h-4 w-4 ml-2" />
-      </button>
     </div>
   )
 }

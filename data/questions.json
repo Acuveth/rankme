@@ -281,6 +281,241 @@
       "options": ["Very low", "Low", "Moderate", "High", "Very high"],
       "pnts": false,
       "skip": null
+    },
+    {
+      "id": "fin_retirement_savings",
+      "category": "financial",
+      "type": "single",
+      "label": "Monthly retirement/pension contributions",
+      "options": ["$0", "$1-$200", "$201-$500", "$501-$1,000", "$1,001-$2,000", "More than $2,000"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "fin_investment_portfolio",
+      "category": "financial",
+      "type": "single",
+      "label": "Investment portfolio value (stocks, bonds, etc.)",
+      "options": ["$0", "$1-$10k", "$10k-$50k", "$50k-$200k", "$200k-$500k", "More than $500k"],
+      "pnts": true,
+      "skip": null
+    },
+    {
+      "id": "fin_financial_stress",
+      "category": "financial",
+      "type": "likert",
+      "label": "Financial stress level in the past month",
+      "options": ["Extremely stressed", "Very stressed", "Moderately stressed", "Slightly stressed", "Not stressed at all"],
+      "pnts": false,
+      "skip": null,
+      "reverse": true
+    },
+    {
+      "id": "fin_insurance_coverage",
+      "category": "financial",
+      "type": "single",
+      "label": "Insurance coverage you currently have",
+      "options": ["None", "Health only", "Health + Auto", "Health + Auto + Life", "Comprehensive (Health/Auto/Life/Disability)"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_mental_health",
+      "category": "health_fitness",
+      "type": "likert",
+      "label": "Overall mental health and well-being",
+      "options": ["Very poor", "Poor", "Fair", "Good", "Excellent"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_stress_management",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Stress management practices you regularly use",
+      "options": ["None", "Occasional (breathing, walks)", "Regular (meditation, yoga)", "Multiple practices", "Professional support + practices"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_medical_checkups",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "Regular medical checkups and preventive care",
+      "options": ["Never/rarely", "When sick only", "Every 2-3 years", "Annually", "Bi-annually + specialists"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_nutrition",
+      "category": "health_fitness",
+      "type": "single",
+      "label": "How would you rate your nutrition habits?",
+      "options": ["Very poor (mostly fast food/processed)", "Poor (some home cooking)", "Average (balanced most days)", "Good (consistent healthy meals)", "Excellent (optimized nutrition)"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "health_energy_levels",
+      "category": "health_fitness",
+      "type": "likert",
+      "label": "Average daily energy levels",
+      "options": ["Always exhausted", "Often tired", "Moderate energy", "Usually energetic", "High energy all day"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "career_satisfaction",
+      "category": "career",
+      "type": "likert",
+      "label": "Overall career/work satisfaction",
+      "options": ["Very unsatisfied", "Unsatisfied", "Neutral", "Satisfied", "Very satisfied"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "career_growth",
+      "category": "career",
+      "type": "single",
+      "label": "Career growth in the past 2 years",
+      "options": ["Significant decline", "Some setbacks", "Stagnant", "Moderate growth", "Significant advancement"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "career_skills_development",
+      "category": "career",
+      "type": "single",
+      "label": "Time spent on skill development per week",
+      "options": ["0 hours", "1-2 hours", "3-5 hours", "6-10 hours", "More than 10 hours"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "career_work_life_balance",
+      "category": "career",
+      "type": "likert",
+      "label": "Work-life balance satisfaction",
+      "options": ["Very poor", "Poor", "Fair", "Good", "Excellent"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "career_leadership",
+      "category": "career",
+      "type": "single",
+      "label": "Leadership responsibilities and influence",
+      "options": ["No leadership role", "Informal influence", "Team lead/mentor", "Manager/supervisor", "Executive/senior leadership"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "career_networking",
+      "category": "career",
+      "type": "single",
+      "label": "Professional networking activity",
+      "options": ["None", "Occasional events", "Regular industry engagement", "Active networking", "Thought leader/speaker"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "personal_goal_achievement",
+      "category": "personal_growth",
+      "type": "single",
+      "label": "Achievement of personal goals in the past year",
+      "options": ["Achieved none", "Achieved few", "Achieved about half", "Achieved most", "Exceeded goals"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "personal_learning",
+      "category": "personal_growth",
+      "type": "single",
+      "label": "Learning new skills/knowledge outside work",
+      "options": ["Rarely/never", "Occasionally", "Monthly", "Weekly", "Daily learning habit"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "personal_creativity",
+      "category": "personal_growth",
+      "type": "single",
+      "label": "Creative pursuits and hobbies",
+      "options": ["None", "Rare creative moments", "Occasional hobby", "Regular creative practice", "Multiple active pursuits"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "personal_mindfulness",
+      "category": "personal_growth",
+      "type": "single",
+      "label": "Mindfulness/self-reflection practices",
+      "options": ["None", "Occasional reflection", "Weekly practice", "Daily practice", "Integrated lifestyle"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "personal_values_alignment",
+      "category": "personal_growth",
+      "type": "likert",
+      "label": "How well does your life align with your core values?",
+      "options": ["Not at all", "Slightly", "Moderately", "Well", "Perfectly aligned"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_family_relationships",
+      "category": "social",
+      "type": "likert",
+      "label": "Quality of family relationships",
+      "options": ["Very poor", "Poor", "Fair", "Good", "Excellent"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_conflict_resolution",
+      "category": "social",
+      "type": "single",
+      "label": "How do you handle interpersonal conflicts?",
+      "options": ["Avoid completely", "Struggle significantly", "Handle with difficulty", "Navigate well", "Excel at resolution"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "social_giving_back",
+      "category": "social",
+      "type": "single",
+      "label": "Volunteering or giving back to community",
+      "options": ["Never", "Rare occasions", "Few times per year", "Monthly", "Weekly commitment"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "rom_communication",
+      "category": "romantic",
+      "type": "likert",
+      "label": "Communication quality in romantic relationships",
+      "options": ["Very poor", "Poor", "Fair", "Good", "Excellent"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "rom_emotional_intelligence",
+      "category": "romantic",
+      "type": "single",
+      "label": "Emotional intelligence in romantic contexts",
+      "options": ["Very low", "Low", "Moderate", "High", "Very high"],
+      "pnts": false,
+      "skip": null
+    },
+    {
+      "id": "rom_future_planning",
+      "category": "romantic",
+      "type": "single",
+      "label": "Future planning with romantic partner/prospects",
+      "options": ["No planning", "Short-term only", "Some long-term ideas", "Clear shared goals", "Detailed life plan together"],
+      "pnts": false,
+      "skip": null
     }
   ]
 }

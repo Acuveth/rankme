@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { loadStripe } from '@stripe/stripe-js'
 import { CheckCircle, FileText, TrendingUp, Calendar, Lock, ArrowLeft, Star, Users, Target, BarChart3 } from 'lucide-react'
 
@@ -10,6 +11,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 export default function ReportPaywallPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
 
   const features = [
@@ -43,12 +45,17 @@ export default function ReportPaywallPage() {
   const handlePurchase = async () => {
     setLoading(true)
     try {
+      // Store product type and assessment ID for success page redirect
+      localStorage.setItem('lastProductType', 'deep_report_oneoff')
+      localStorage.setItem('lastAssessmentId', params.id as string)
+      
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           product: 'deep_report_oneoff',
-          assessmentId: params.id
+          assessmentId: params.id,
+          userId: session?.user?.id || 'anonymous'
         })
       })
 
@@ -74,7 +81,7 @@ export default function ReportPaywallPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push(`/scorecard/${params.id}`)}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

@@ -34,18 +34,18 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   })
 
   const moods = [
-    { value: 'great', label: 'Great', icon: '😊', color: 'text-gray-900' },
-    { value: 'good', label: 'Good', icon: '🙂', color: 'text-gray-800' },
-    { value: 'okay', label: 'Okay', icon: '😐', color: 'text-gray-700' },
-    { value: 'challenging', label: 'Challenging', icon: '😕', color: 'text-gray-600' },
-    { value: 'difficult', label: 'Difficult', icon: '😔', color: 'text-gray-500' }
+    { value: 'great', label: 'Great', icon: '😊' },
+    { value: 'good', label: 'Good', icon: '🙂' },
+    { value: 'okay', label: 'Okay', icon: '😐' },
+    { value: 'challenging', label: 'Bad', icon: '😕' },
+    { value: 'difficult', label: 'Awful', icon: '😔' }
   ]
 
   const questions = [
-    "What's one thing you accomplished today that you're proud of?",
-    "What was your biggest challenge today and how did you handle it?",
-    "What are you looking forward to tomorrow?",
-    "How did you take care of yourself today?"
+    "What's one accomplishment today?",
+    "Biggest challenge?",
+    "Tomorrow's focus?",
+    "Self-care today?"
   ]
 
   const handleComplete = () => {
@@ -64,57 +64,56 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Daily Check-In</h2>
-              <p className="text-sm text-gray-600 mt-1">Step {step} of 3</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6">
-          {/* Step 1: Mood & Energy */}
-          {step === 1 && (
-            <div className="space-y-6">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-50 overflow-y-auto">
+      <div className="min-h-full flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+          {/* Compact Header */}
+          <div className="bg-white border-b border-gray-200 px-4 py-3 rounded-t-xl">
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  How are you feeling today?
-                </h3>
-                <div className="grid grid-cols-5 gap-2">
-                  {moods.map((mood) => (
-                    <button
-                      key={mood.value}
-                      onClick={() => setCheckInData({ ...checkInData, mood: mood.value })}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        checkInData.mood === mood.value
-                          ? 'border-gray-900 bg-gray-100'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="text-2xl mb-1">{mood.icon}</div>
-                      <div className="text-xs font-medium text-gray-700">{mood.label}</div>
-                    </button>
-                  ))}
-                </div>
+                <h2 className="text-lg font-bold text-gray-900">Check-In</h2>
+                <p className="text-xs text-gray-600">Step {step} of 3</p>
               </div>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
 
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  <div className="flex items-center">
-                    <Battery className="h-5 w-5 mr-2" />
-                    What's your energy level?
+          {/* Content Area */}
+          <div className="p-4">
+            {/* Step 1: Mood & Energy - Compact */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                    How are you feeling?
+                  </h3>
+                  <div className="grid grid-cols-5 gap-1">
+                    {moods.map((mood) => (
+                      <button
+                        key={mood.value}
+                        onClick={() => setCheckInData({ ...checkInData, mood: mood.value })}
+                        className={`p-2 rounded-lg border-2 transition-all ${
+                          checkInData.mood === mood.value
+                            ? 'border-gray-900 bg-gray-100'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="text-lg">{mood.icon}</div>
+                        <div className="text-xs mt-1">{mood.label}</div>
+                      </button>
+                    ))}
                   </div>
-                </h3>
-                <div className="space-y-3">
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    Energy Level
+                  </h3>
                   <input
                     type="range"
                     min="1"
@@ -123,139 +122,124 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                     onChange={(e) => setCheckInData({ ...checkInData, energy: parseInt(e.target.value) })}
                     className="w-full"
                   />
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-xs text-gray-600 mt-1">
                     <span>Low</span>
-                    <span className="text-lg font-semibold text-gray-900">{checkInData.energy}/10</span>
+                    <span className="font-semibold text-gray-900">{checkInData.energy}/10</span>
                     <span>High</span>
                   </div>
                 </div>
-              </div>
 
-              <button
-                onClick={() => setStep(2)}
-                disabled={!checkInData.mood}
-                className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
-                Continue
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </button>
-            </div>
-          )}
-
-          {/* Step 2: Reflection Questions */}
-          {step === 2 && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Quick Reflection
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Take a moment to reflect on your day (optional)
-                </p>
-              </div>
-
-              {questions.map((question, index) => (
-                <div key={index} className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    {question}
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={checkInData.responses[`q${index}`] || ''}
-                    onChange={(e) => setCheckInData({
-                      ...checkInData,
-                      responses: {
-                        ...checkInData.responses,
-                        [`q${index}`]: e.target.value
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
-                    placeholder="Your thoughts..."
-                  />
-                </div>
-              ))}
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setStep(1)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={() => setStep(3)}
-                  className="flex-1 flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-medium"
-                >
-                  Continue
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Additional Notes */}
-          {step === 3 && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  <div className="flex items-center">
-                    <MessageSquare className="h-5 w-5 mr-2" />
-                    Anything else to add?
-                  </div>
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Any other thoughts, goals, or notes for today? (optional)
-                </p>
-              </div>
-
-              <textarea
-                rows={5}
-                value={checkInData.notes}
-                onChange={(e) => setCheckInData({ ...checkInData, notes: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                placeholder="Additional notes, thoughts, or reminders..."
-              />
-
-              {/* Summary */}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">Check-In Summary</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Mood:</span>
-                    <span className="font-medium text-gray-900">
-                      {moods.find(m => m.value === checkInData.mood)?.icon} {' '}
-                      {moods.find(m => m.value === checkInData.mood)?.label}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Energy:</span>
-                    <span className="font-medium text-gray-900">{checkInData.energy}/10</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Reflections:</span>
-                    <span className="font-medium text-gray-900">
-                      {Object.values(checkInData.responses).filter(r => r).length} answered
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
                 <button
                   onClick={() => setStep(2)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium"
+                  disabled={!checkInData.mood}
+                  className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-medium disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
                 >
-                  Back
-                </button>
-                <button
-                  onClick={handleComplete}
-                  className="flex-1 flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-medium"
-                >
-                  Complete Check-In
+                  Continue →
                 </button>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Step 2: Quick Reflection - Very Compact */}
+            {step === 2 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Quick Reflection (Optional)
+                </h3>
+
+                {questions.map((question, index) => (
+                  <div key={index}>
+                    <label className="text-xs font-medium text-gray-700">
+                      {question}
+                    </label>
+                    <input
+                      type="text"
+                      value={checkInData.responses[`q${index}`] || ''}
+                      onChange={(e) => setCheckInData({
+                        ...checkInData,
+                        responses: {
+                          ...checkInData.responses,
+                          [`q${index}`]: e.target.value
+                        }
+                      })}
+                      className="w-full mt-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                      placeholder="Brief answer..."
+                    />
+                  </div>
+                ))}
+
+                <div className="flex space-x-2 pt-2">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setStep(3)}
+                    className="flex-1 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm"
+                  >
+                    Continue →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Notes & Complete - Compact */}
+            {step === 3 && (
+              <div className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    Additional Notes (Optional)
+                  </h3>
+                  <textarea
+                    rows={3}
+                    value={checkInData.notes}
+                    onChange={(e) => setCheckInData({ ...checkInData, notes: e.target.value })}
+                    className="w-full px-2 py-1 border border-gray-300 rounded-lg text-sm resize-none"
+                    placeholder="Any other thoughts..."
+                  />
+                </div>
+
+                {/* Compact Summary */}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <h4 className="font-semibold text-gray-900 text-sm mb-2">Summary</h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Mood:</span>
+                      <span className="font-medium">
+                        {moods.find(m => m.value === checkInData.mood)?.icon} {moods.find(m => m.value === checkInData.mood)?.label}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Energy:</span>
+                      <span className="font-medium">{checkInData.energy}/10</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Reflections:</span>
+                      <span className="font-medium">
+                        {Object.values(checkInData.responses).filter(r => r).length}/4
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex space-x-2 pt-2">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleComplete}
+                    className="flex-1 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium text-sm"
+                  >
+                    Complete
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

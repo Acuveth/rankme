@@ -1,0 +1,589 @@
+{
+    "cohort_stats": {
+"Under_18_Male_North_America": {
+        "overall": {"mean": 38.5, "stddev": 20.1, "n": 1120, "p1": 8.2, "p99": 74.3},
+        "financial": {"mean": 18.2, "stddev": 24.8, "n": 1120, "p1": 1.5, "p99": 58.9},
+        "health_fitness": {"mean": 58.3, "stddev": 18.2, "n": 1120, "p1": 23.5, "p99": 88.1},
+        "social": {"mean": 51.2, "stddev": 19.8, "n": 1120, "p1": 17.3, "p99": 84.5},
+        "romantic": {"mean": 32.4, "stddev": 26.9, "n": 1120, "p1": 4.8, "p99": 80.2},
+        "career": {"mean": 28.3, "stddev": 23.2, "n": 1120, "p1": 5.2, "p99": 69.8},
+        "personal_growth": {"mean": 41.8, "stddev": 20.7, "n": 1120, "p1": 11.2, "p99": 77.3}
+      },
+      "Under_18_Female_North_America": {
+        "overall": {"mean": 39.7, "stddev": 19.6, "n": 1080, "p1": 9.3, "p99": 74.8},
+        "financial": {"mean": 17.5, "stddev": 24.2, "n": 1080, "p1": 1.3, "p99": 57.3},
+        "health_fitness": {"mean": 59.7, "stddev": 17.8, "n": 1080, "p1": 24.8, "p99": 88.5},
+        "social": {"mean": 53.6, "stddev": 19.1, "n": 1080, "p1": 19.4, "p99": 85.2},
+        "romantic": {"mean": 33.8, "stddev": 26.3, "n": 1080, "p1": 5.6, "p99": 80.7},
+        "career": {"mean": 29.5, "stddev": 22.7, "n": 1080, "p1": 6.0, "p99": 70.4},
+        "personal_growth": {"mean": 43.5, "stddev": 20.1, "n": 1080, "p1": 12.6, "p99": 78.0}
+      },
+      "Under_18_Male_Europe": {
+        "overall": {"mean": 39.2, "stddev": 19.8, "n": 820, "p1": 8.8, "p99": 74.6},
+        "financial": {"mean": 19.5, "stddev": 24.5, "n": 820, "p1": 1.8, "p99": 59.4},
+        "health_fitness": {"mean": 59.1, "stddev": 17.9, "n": 820, "p1": 24.2, "p99": 88.3},
+        "social": {"mean": 52.0, "stddev": 19.5, "n": 820, "p1": 17.8, "p99": 84.7},
+        "romantic": {"mean": 33.1, "stddev": 26.6, "n": 820, "p1": 5.1, "p99": 80.4},
+        "career": {"mean": 29.0, "stddev": 22.9, "n": 820, "p1": 5.5, "p99": 70.1},
+        "personal_growth": {"mean": 42.5, "stddev": 20.4, "n": 820, "p1": 11.6, "p99": 77.6}
+      },
+      "Under_18_Female_Europe": {
+        "overall": {"mean": 40.3, "stddev": 19.4, "n": 790, "p1": 9.6, "p99": 75.0},
+        "financial": {"mean": 18.7, "stddev": 24.0, "n": 790, "p1": 1.5, "p99": 58.0},
+        "health_fitness": {"mean": 60.3, "stddev": 17.6, "n": 790, "p1": 25.3, "p99": 88.6},
+        "social": {"mean": 54.2, "stddev": 18.9, "n": 790, "p1": 19.8, "p99": 85.4},
+        "romantic": {"mean": 34.3, "stddev": 26.1, "n": 790, "p1": 5.9, "p99": 80.9},
+        "career": {"mean": 30.0, "stddev": 22.5, "n": 790, "p1": 6.3, "p99": 70.6},
+        "personal_growth": {"mean": 44.0, "stddev": 19.9, "n": 790, "p1": 12.9, "p99": 78.2}
+      },
+      "Under_18_Male_Asia": {
+        "overall": {"mean": 40.1, "stddev": 19.5, "n": 950, "p1": 9.4, "p99": 75.0},
+        "financial": {"mean": 20.8, "stddev": 24.2, "n": 950, "p1": 2.1, "p99": 60.2},
+        "health_fitness": {"mean": 58.7, "stddev": 17.7, "n": 950, "p1": 24.6, "p99": 88.0},
+        "social": {"mean": 51.8, "stddev": 19.3, "n": 950, "p1": 18.0, "p99": 84.3},
+        "romantic": {"mean": 32.8, "stddev": 26.4, "n": 950, "p1": 5.3, "p99": 80.0},
+        "career": {"mean": 30.2, "stddev": 22.6, "n": 950, "p1": 6.0, "p99": 70.8},
+        "personal_growth": {"mean": 43.3, "stddev": 20.2, "n": 950, "p1": 12.0, "p99": 77.8}
+      },
+      "Under_18_Female_Asia": {
+        "overall": {"mean": 41.0, "stddev": 19.2, "n": 920, "p1": 10.0, "p99": 75.3},
+        "financial": {"mean": 19.9, "stddev": 23.8, "n": 920, "p1": 1.9, "p99": 58.8},
+        "health_fitness": {"mean": 59.9, "stddev": 17.4, "n": 920, "p1": 25.6, "p99": 88.4},
+        "social": {"mean": 53.9, "stddev": 18.7, "n": 920, "p1": 20.1, "p99": 85.1},
+        "romantic": {"mean": 34.0, "stddev": 25.9, "n": 920, "p1": 6.1, "p99": 80.5},
+        "career": {"mean": 31.3, "stddev": 22.2, "n": 920, "p1": 6.8, "p99": 71.2},
+        "personal_growth": {"mean": 44.8, "stddev": 19.7, "n": 920, "p1": 13.2, "p99": 78.5}
+      },
+      "Under_18_Male_South_America": {
+        "overall": {"mean": 37.5, "stddev": 20.3, "n": 450, "p1": 7.6, "p99": 73.6},
+        "financial": {"mean": 16.7, "stddev": 25.0, "n": 450, "p1": 1.0, "p99": 57.5},
+        "health_fitness": {"mean": 57.7, "stddev": 18.4, "n": 450, "p1": 22.9, "p99": 87.8},
+        "social": {"mean": 50.0, "stddev": 20.0, "n": 450, "p1": 16.6, "p99": 84.1},
+        "romantic": {"mean": 31.5, "stddev": 27.1, "n": 450, "p1": 4.3, "p99": 79.6},
+        "career": {"mean": 27.5, "stddev": 23.5, "n": 450, "p1": 4.8, "p99": 69.2},
+        "personal_growth": {"mean": 40.8, "stddev": 21.0, "n": 450, "p1": 10.6, "p99": 76.8}
+      },
+      "Under_18_Female_South_America": {
+        "overall": {"mean": 38.8, "stddev": 19.9, "n": 430, "p1": 8.5, "p99": 74.0},
+        "financial": {"mean": 16.0, "stddev": 24.5, "n": 430, "p1": 0.9, "p99": 56.2},
+        "health_fitness": {"mean": 59.0, "stddev": 18.0, "n": 430, "p1": 24.0, "p99": 88.2},
+        "social": {"mean": 52.3, "stddev": 19.4, "n": 430, "p1": 18.6, "p99": 84.8},
+        "romantic": {"mean": 32.7, "stddev": 26.6, "n": 430, "p1": 5.0, "p99": 80.0},
+        "career": {"mean": 28.6, "stddev": 23.0, "n": 430, "p1": 5.4, "p99": 69.7},
+        "personal_growth": {"mean": 42.3, "stddev": 20.5, "n": 430, "p1": 11.8, "p99": 77.3}
+      },
+      "Under_18_Male_Africa": {
+        "overall": {"mean": 36.2, "stddev": 20.8, "n": 320, "p1": 6.8, "p99": 72.8},
+        "financial": {"mean": 14.5, "stddev": 25.5, "n": 320, "p1": 0.5, "p99": 55.8},
+        "health_fitness": {"mean": 56.5, "stddev": 18.9, "n": 320, "p1": 21.8, "p99": 87.2},
+        "social": {"mean": 48.8, "stddev": 20.5, "n": 320, "p1": 15.6, "p99": 83.5},
+        "romantic": {"mean": 30.2, "stddev": 27.5, "n": 320, "p1": 3.8, "p99": 78.8},
+        "career": {"mean": 26.3, "stddev": 23.9, "n": 320, "p1": 4.2, "p99": 68.5},
+        "personal_growth": {"mean": 39.5, "stddev": 21.3, "n": 320, "p1": 10.0, "p99": 76.0}
+      },
+      "Under_18_Female_Africa": {
+        "overall": {"mean": 37.5, "stddev": 20.3, "n": 310, "p1": 7.6, "p99": 73.2},
+        "financial": {"mean": 13.8, "stddev": 25.0, "n": 310, "p1": 0.4, "p99": 54.5},
+        "health_fitness": {"mean": 57.8, "stddev": 18.5, "n": 310, "p1": 22.8, "p99": 87.6},
+        "social": {"mean": 50.8, "stddev": 19.9, "n": 310, "p1": 17.5, "p99": 84.2},
+        "romantic": {"mean": 31.3, "stddev": 27.0, "n": 310, "p1": 4.4, "p99": 79.2},
+        "career": {"mean": 27.3, "stddev": 23.4, "n": 310, "p1": 4.7, "p99": 68.9},
+        "personal_growth": {"mean": 40.8, "stddev": 20.8, "n": 310, "p1": 11.0, "p99": 76.5}
+      },
+      "Under_18_Male_Oceania": {
+        "overall": {"mean": 38.8, "stddev": 19.9, "n": 280, "p1": 8.5, "p99": 74.0},
+        "financial": {"mean": 17.8, "stddev": 24.6, "n": 280, "p1": 1.3, "p99": 58.3},
+        "health_fitness": {"mean": 58.6, "stddev": 18.0, "n": 280, "p1": 23.8, "p99": 88.0},
+        "social": {"mean": 51.6, "stddev": 19.6, "n": 280, "p1": 17.6, "p99": 84.4},
+        "romantic": {"mean": 32.2, "stddev": 26.7, "n": 280, "p1": 4.7, "p99": 79.9},
+        "career": {"mean": 28.0, "stddev": 23.0, "n": 280, "p1": 5.0, "p99": 69.5},
+        "personal_growth": {"mean": 41.5, "stddev": 20.5, "n": 280, "p1": 11.0, "p99": 77.0}
+      },
+      "Under_18_Female_Oceania": {
+        "overall": {"mean": 39.9, "stddev": 19.5, "n": 270, "p1": 9.2, "p99": 74.5},
+        "financial": {"mean": 17.1, "stddev": 24.1, "n": 270, "p1": 1.2, "p99": 57.0},
+        "health_fitness": {"mean": 59.8, "stddev": 17.6, "n": 270, "p1": 24.9, "p99": 88.3},
+        "social": {"mean": 53.5, "stddev": 19.0, "n": 270, "p1": 19.5, "p99": 85.0},
+        "romantic": {"mean": 33.5, "stddev": 26.2, "n": 270, "p1": 5.4, "p99": 80.3},
+        "career": {"mean": 29.1, "stddev": 22.6, "n": 270, "p1": 5.7, "p99": 70.0},
+        "personal_growth": {"mean": 43.0, "stddev": 20.0, "n": 270, "p1": 12.2, "p99": 77.5}
+      },
+      "18-22_Male_North_America": {
+        "overall": {"mean": 42.1, "stddev": 19.2, "n": 1850, "p1": 10.5, "p99": 76.8},
+        "financial": {"mean": 28.3, "stddev": 23.5, "n": 1850, "p1": 4.2, "p99": 68.7},
+        "health_fitness": {"mean": 55.2, "stddev": 18.9, "n": 1850, "p1": 20.3, "p99": 86.8},
+        "social": {"mean": 49.8, "stddev": 20.3, "n": 1850, "p1": 15.6, "p99": 83.2},
+        "romantic": {"mean": 38.9, "stddev": 25.7, "n": 1850, "p1": 7.8, "p99": 84.3},
+        "career": {"mean": 35.2, "stddev": 22.1, "n": 1850, "p1": 8.3, "p99": 74.6},
+        "personal_growth": {"mean": 44.3, "stddev": 20.1, "n": 1850, "p1": 13.2, "p99": 78.9}
+      },
+      "18-22_Female_North_America": {
+        "overall": {"mean": 43.5, "stddev": 18.7, "n": 1920, "p1": 11.8, "p99": 77.3},
+        "financial": {"mean": 26.7, "stddev": 22.9, "n": 1920, "p1": 3.8, "p99": 66.2},
+        "health_fitness": {"mean": 56.8, "stddev": 18.4, "n": 1920, "p1": 21.7, "p99": 87.3},
+        "social": {"mean": 52.3, "stddev": 19.6, "n": 1920, "p1": 17.8, "p99": 84.1},
+        "romantic": {"mean": 40.5, "stddev": 25.1, "n": 1920, "p1": 8.9, "p99": 84.8},
+        "career": {"mean": 36.7, "stddev": 21.6, "n": 1920, "p1": 9.2, "p99": 75.3},
+        "personal_growth": {"mean": 46.2, "stddev": 19.5, "n": 1920, "p1": 14.7, "p99": 79.6}
+      },
+      "18-22_Male_Europe": {
+        "overall": {"mean": 43.2, "stddev": 18.8, "n": 1350, "p1": 11.3, "p99": 77.2},
+        "financial": {"mean": 30.1, "stddev": 23.1, "n": 1350, "p1": 4.8, "p99": 69.5},
+        "health_fitness": {"mean": 56.5, "stddev": 18.5, "n": 1350, "p1": 21.2, "p99": 87.2},
+        "social": {"mean": 50.8, "stddev": 19.9, "n": 1350, "p1": 16.3, "p99": 83.6},
+        "romantic": {"mean": 39.8, "stddev": 25.3, "n": 1350, "p1": 8.4, "p99": 84.6},
+        "career": {"mean": 36.5, "stddev": 21.7, "n": 1350, "p1": 9.0, "p99": 75.0},
+        "personal_growth": {"mean": 45.3, "stddev": 19.7, "n": 1350, "p1": 13.8, "p99": 79.3}
+      },
+      "18-22_Female_Europe": {
+        "overall": {"mean": 44.3, "stddev": 18.4, "n": 1400, "p1": 12.4, "p99": 77.6},
+        "financial": {"mean": 28.3, "stddev": 22.6, "n": 1400, "p1": 4.3, "p99": 67.0},
+        "health_fitness": {"mean": 57.8, "stddev": 18.1, "n": 1400, "p1": 22.4, "p99": 87.6},
+        "social": {"mean": 53.1, "stddev": 19.3, "n": 1400, "p1": 18.3, "p99": 84.4},
+        "romantic": {"mean": 41.2, "stddev": 24.8, "n": 1400, "p1": 9.4, "p99": 85.0},
+        "career": {"mean": 37.8, "stddev": 21.3, "n": 1400, "p1": 9.8, "p99": 75.6},
+        "personal_growth": {"mean": 47.0, "stddev": 19.2, "n": 1400, "p1": 15.2, "p99": 79.9}
+      },
+      "18-22_Male_Asia": {
+        "overall": {"mean": 42.8, "stddev": 18.9, "n": 1600, "p1": 11.0, "p99": 77.0},
+        "financial": {"mean": 31.0, "stddev": 23.3, "n": 1600, "p1": 5.2, "p99": 70.0},
+        "health_fitness": {"mean": 55.8, "stddev": 18.6, "n": 1600, "p1": 20.8, "p99": 87.0},
+        "social": {"mean": 50.3, "stddev": 20.0, "n": 1600, "p1": 16.0, "p99": 83.3},
+        "romantic": {"mean": 38.5, "stddev": 25.5, "n": 1600, "p1": 7.6, "p99": 84.0},
+        "career": {"mean": 36.0, "stddev": 21.8, "n": 1600, "p1": 8.7, "p99": 74.8},
+        "personal_growth": {"mean": 44.8, "stddev": 19.8, "n": 1600, "p1": 13.5, "p99": 79.0}
+      },
+      "18-22_Female_Asia": {
+        "overall": {"mean": 43.8, "stddev": 18.5, "n": 1650, "p1": 12.0, "p99": 77.4},
+        "financial": {"mean": 29.2, "stddev": 22.8, "n": 1650, "p1": 4.6, "p99": 67.5},
+        "health_fitness": {"mean": 57.2, "stddev": 18.2, "n": 1650, "p1": 22.0, "p99": 87.4},
+        "social": {"mean": 52.6, "stddev": 19.4, "n": 1650, "p1": 18.0, "p99": 84.2},
+        "romantic": {"mean": 40.0, "stddev": 25.0, "n": 1650, "p1": 8.6, "p99": 84.5},
+        "career": {"mean": 37.3, "stddev": 21.4, "n": 1650, "p1": 9.5, "p99": 75.4},
+        "personal_growth": {"mean": 46.5, "stddev": 19.3, "n": 1650, "p1": 15.0, "p99": 79.7}
+      },
+      "18-22_Male_South_America": {
+        "overall": {"mean": 41.2, "stddev": 19.4, "n": 750, "p1": 9.8, "p99": 76.2},
+        "financial": {"mean": 26.9, "stddev": 23.7, "n": 750, "p1": 3.5, "p99": 67.0},
+        "health_fitness": {"mean": 54.6, "stddev": 19.1, "n": 750, "p1": 19.6, "p99": 86.3},
+        "social": {"mean": 48.7, "stddev": 20.5, "n": 750, "p1": 14.9, "p99": 82.8},
+        "romantic": {"mean": 37.5, "stddev": 25.9, "n": 750, "p1": 7.1, "p99": 83.7},
+        "career": {"mean": 34.0, "stddev": 22.3, "n": 750, "p1": 7.6, "p99": 73.8},
+        "personal_growth": {"mean": 43.0, "stddev": 20.3, "n": 750, "p1": 12.5, "p99": 78.3}
+      },
+      "18-22_Female_South_America": {
+        "overall": {"mean": 42.5, "stddev": 19.0, "n": 780, "p1": 11.0, "p99": 76.7},
+        "financial": {"mean": 25.4, "stddev": 23.2, "n": 780, "p1": 3.1, "p99": 65.3},
+        "health_fitness": {"mean": 56.1, "stddev": 18.6, "n": 780, "p1": 21.0, "p99": 86.9},
+        "social": {"mean": 51.1, "stddev": 19.9, "n": 780, "p1": 17.0, "p99": 83.6},
+        "romantic": {"mean": 39.1, "stddev": 25.4, "n": 780, "p1": 8.1, "p99": 84.2},
+        "career": {"mean": 35.5, "stddev": 21.8, "n": 780, "p1": 8.5, "p99": 74.5},
+        "personal_growth": {"mean": 45.0, "stddev": 19.7, "n": 780, "p1": 14.0, "p99": 78.9}
+      },
+      "18-22_Male_Africa": {
+        "overall": {"mean": 40.0, "stddev": 19.8, "n": 520, "p1": 9.0, "p99": 75.6},
+        "financial": {"mean": 24.5, "stddev": 24.1, "n": 520, "p1": 2.8, "p99": 65.2},
+        "health_fitness": {"mean": 53.4, "stddev": 19.5, "n": 520, "p1": 18.6, "p99": 85.7},
+        "social": {"mean": 47.5, "stddev": 21.0, "n": 520, "p1": 13.9, "p99": 82.0},
+        "romantic": {"mean": 36.2, "stddev": 26.3, "n": 520, "p1": 6.4, "p99": 83.0},
+        "career": {"mean": 32.8, "stddev": 22.7, "n": 520, "p1": 7.0, "p99": 73.0},
+        "personal_growth": {"mean": 41.8, "stddev": 20.7, "n": 520, "p1": 11.8, "p99": 77.6}
+      },
+      "18-22_Female_Africa": {
+        "overall": {"mean": 41.3, "stddev": 19.3, "n": 510, "p1": 10.2, "p99": 76.0},
+        "financial": {"mean": 23.0, "stddev": 23.6, "n": 510, "p1": 2.4, "p99": 63.5},
+        "health_fitness": {"mean": 55.0, "stddev": 19.0, "n": 510, "p1": 19.8, "p99": 86.3},
+        "social": {"mean": 49.8, "stddev": 20.3, "n": 510, "p1": 15.8, "p99": 83.0},
+        "romantic": {"mean": 37.8, "stddev": 25.8, "n": 510, "p1": 7.3, "p99": 83.5},
+        "career": {"mean": 34.2, "stddev": 22.2, "n": 510, "p1": 7.8, "p99": 73.7},
+        "personal_growth": {"mean": 43.5, "stddev": 20.2, "n": 510, "p1": 13.0, "p99": 78.2}
+      },
+      "18-22_Male_Oceania": {
+        "overall": {"mean": 42.5, "stddev": 18.9, "n": 390, "p1": 10.8, "p99": 76.9},
+        "financial": {"mean": 29.0, "stddev": 23.2, "n": 390, "p1": 4.5, "p99": 68.9},
+        "health_fitness": {"mean": 55.8, "stddev": 18.6, "n": 390, "p1": 20.8, "p99": 87.0},
+        "social": {"mean": 50.2, "stddev": 20.0, "n": 390, "p1": 15.9, "p99": 83.4},
+        "romantic": {"mean": 39.2, "stddev": 25.4, "n": 390, "p1": 8.1, "p99": 84.5},
+        "career": {"mean": 35.8, "stddev": 21.8, "n": 390, "p1": 8.6, "p99": 74.9},
+        "personal_growth": {"mean": 44.8, "stddev": 19.8, "n": 390, "p1": 13.5, "p99": 79.1}
+      },
+      "18-22_Female_Oceania": {
+        "overall": {"mean": 43.8, "stddev": 18.5, "n": 400, "p1": 12.0, "p99": 77.4},
+        "financial": {"mean": 27.3, "stddev": 22.7, "n": 400, "p1": 4.0, "p99": 66.5},
+        "health_fitness": {"mean": 57.3, "stddev": 18.2, "n": 400, "p1": 22.0, "p99": 87.5},
+        "social": {"mean": 52.6, "stddev": 19.4, "n": 400, "p1": 18.0, "p99": 84.2},
+        "romantic": {"mean": 40.8, "stddev": 24.9, "n": 400, "p1": 9.1, "p99": 85.0},
+        "career": {"mean": 37.2, "stddev": 21.4, "n": 400, "p1": 9.5, "p99": 75.5},
+        "personal_growth": {"mean": 46.3, "stddev": 19.3, "n": 400, "p1": 15.0, "p99": 79.8}
+      },
+      "23-27_Male_North_America": {
+        "overall": {"mean": 45.2, "stddev": 18.5, "n": 2450, "p1": 12.3, "p99": 78.9},
+        "financial": {"mean": 38.5, "stddev": 22.1, "n": 2450, "p1": 8.2, "p99": 75.3},
+        "health_fitness": {"mean": 52.8, "stddev": 19.3, "n": 2450, "p1": 18.5, "p99": 85.2},
+        "social": {"mean": 48.6, "stddev": 20.7, "n": 2450, "p1": 14.2, "p99": 82.1},
+        "romantic": {"mean": 44.3, "stddev": 24.8, "n": 2450, "p1": 10.5, "p99": 86.7},
+        "career": {"mean": 42.1, "stddev": 21.3, "n": 2450, "p1": 11.8, "p99": 78.4},
+        "personal_growth": {"mean": 46.8, "stddev": 19.6, "n": 2450, "p1": 15.3, "p99": 80.2}
+      },
+      "23-27_Female_North_America": {
+        "overall": {"mean": 46.8, "stddev": 17.9, "n": 2380, "p1": 13.8, "p99": 79.5},
+        "financial": {"mean": 36.2, "stddev": 21.5, "n": 2380, "p1": 7.5, "p99": 72.8},
+        "health_fitness": {"mean": 54.3, "stddev": 18.7, "n": 2380, "p1": 20.1, "p99": 86.4},
+        "social": {"mean": 51.2, "stddev": 19.8, "n": 2380, "p1": 16.5, "p99": 83.7},
+        "romantic": {"mean": 46.8, "stddev": 23.9, "n": 2380, "p1": 12.1, "p99": 87.3},
+        "career": {"mean": 43.5, "stddev": 20.8, "n": 2380, "p1": 12.9, "p99": 79.1},
+        "personal_growth": {"mean": 48.9, "stddev": 18.9, "n": 2380, "p1": 17.2, "p99": 81.6}
+      },
+      "23-27_Male_Europe": {
+        "overall": {"mean": 47.8, "stddev": 17.9, "n": 1820, "p1": 14.5, "p99": 80.3},
+        "financial": {"mean": 41.2, "stddev": 21.6, "n": 1820, "p1": 9.8, "p99": 77.1},
+        "health_fitness": {"mean": 54.6, "stddev": 18.7, "n": 1820, "p1": 20.3, "p99": 86.1},
+        "social": {"mean": 50.2, "stddev": 20.1, "n": 1820, "p1": 15.9, "p99": 83.0},
+        "romantic": {"mean": 46.1, "stddev": 24.2, "n": 1820, "p1": 11.8, "p99": 87.2},
+        "career": {"mean": 44.3, "stddev": 20.8, "n": 1820, "p1": 13.2, "p99": 79.5},
+        "personal_growth": {"mean": 48.5, "stddev": 19.1, "n": 1820, "p1": 16.8, "p99": 81.2}
+      },
+      "23-27_Female_Europe": {
+        "overall": {"mean": 49.2, "stddev": 17.5, "n": 1780, "p1": 15.8, "p99": 80.8},
+        "financial": {"mean": 38.7, "stddev": 21.0, "n": 1780, "p1": 9.0, "p99": 74.5},
+        "health_fitness": {"mean": 55.9, "stddev": 18.3, "n": 1780, "p1": 21.4, "p99": 86.8},
+        "social": {"mean": 52.5, "stddev": 19.5, "n": 1780, "p1": 17.6, "p99": 84.3},
+        "romantic": {"mean": 48.3, "stddev": 23.5, "n": 1780, "p1": 13.2, "p99": 87.8},
+        "career": {"mean": 45.6, "stddev": 20.3, "n": 1780, "p1": 14.2, "p99": 80.1},
+        "personal_growth": {"mean": 50.2, "stddev": 18.6, "n": 1780, "p1": 18.0, "p99": 81.8}
+      },
+      "23-27_Male_Asia": {
+        "overall": {"mean": 46.2, "stddev": 18.3, "n": 2680, "p1": 13.2, "p99": 79.5},
+        "financial": {"mean": 42.8, "stddev": 21.9, "n": 2680, "p1": 10.5, "p99": 78.3},
+        "health_fitness": {"mean": 53.4, "stddev": 19.0, "n": 2680, "p1": 19.2, "p99": 85.6},
+        "social": {"mean": 49.1, "stddev": 20.4, "n": 2680, "p1": 14.8, "p99": 82.4},
+        "romantic": {"mean": 43.8, "stddev": 24.5, "n": 2680, "p1": 10.2, "p99": 86.3},
+        "career": {"mean": 43.2, "stddev": 21.1, "n": 2680, "p1": 12.5, "p99": 78.8},
+        "personal_growth": {"mean": 47.6, "stddev": 19.3, "n": 2680, "p1": 16.1, "p99": 80.7}
+      },
+      "23-27_Female_Asia": {
+        "overall": {"mean": 47.8, "stddev": 17.8, "n": 2620, "p1": 14.4, "p99": 80.0},
+        "financial": {"mean": 40.2, "stddev": 21.3, "n": 2620, "p1": 9.6, "p99": 75.6},
+        "health_fitness": {"mean": 54.7, "stddev": 18.6, "n": 2620, "p1": 20.2, "p99": 86.2},
+        "social": {"mean": 51.3, "stddev": 19.8, "n": 2620, "p1": 16.5, "p99": 83.5},
+        "romantic": {"mean": 45.8, "stddev": 23.8, "n": 2620, "p1": 11.5, "p99": 87.0},
+        "career": {"mean": 44.5, "stddev": 20.6, "n": 2620, "p1": 13.4, "p99": 79.4},
+        "personal_growth": {"mean": 49.2, "stddev": 18.8, "n": 2620, "p1": 17.2, "p99": 81.3}
+      },
+      "23-27_Male_South_America": {
+        "overall": {"mean": 44.5, "stddev": 18.6, "n": 980, "p1": 11.8, "p99": 78.1},
+        "financial": {"mean": 36.2, "stddev": 22.3, "n": 980, "p1": 6.9, "p99": 73.5},
+        "health_fitness": {"mean": 51.8, "stddev": 19.4, "n": 980, "p1": 17.8, "p99": 84.7},
+        "social": {"mean": 47.9, "stddev": 20.8, "n": 980, "p1": 13.6, "p99": 81.6},
+        "romantic": {"mean": 43.1, "stddev": 24.9, "n": 980, "p1": 9.7, "p99": 85.9},
+        "career": {"mean": 41.2, "stddev": 21.4, "n": 980, "p1": 11.2, "p99": 77.8},
+        "personal_growth": {"mean": 46.0, "stddev": 19.7, "n": 980, "p1": 14.7, "p99": 79.9}
+      },
+      "23-27_Female_South_America": {
+        "overall": {"mean": 45.9, "stddev": 18.2, "n": 960, "p1": 13.1, "p99": 78.6},
+        "financial": {"mean": 33.8, "stddev": 21.7, "n": 960, "p1": 6.2, "p99": 71.0},
+        "health_fitness": {"mean": 53.2, "stddev": 19.0, "n": 960, "p1": 18.8, "p99": 85.3},
+        "social": {"mean": 50.1, "stddev": 20.2, "n": 960, "p1": 15.3, "p99": 82.5},
+        "romantic": {"mean": 45.0, "stddev": 24.3, "n": 960, "p1": 10.8, "p99": 86.5},
+        "career": {"mean": 42.5, "stddev": 20.9, "n": 960, "p1": 12.1, "p99": 78.4},
+        "personal_growth": {"mean": 47.6, "stddev": 19.2, "n": 960, "p1": 15.8, "p99": 80.5}
+      },
+      "23-27_Male_Africa": {
+        "overall": {"mean": 42.8, "stddev": 19.1, "n": 680, "p1": 10.3, "p99": 76.7},
+        "financial": {"mean": 33.5, "stddev": 23.0, "n": 680, "p1": 5.2, "p99": 70.8},
+        "health_fitness": {"mean": 50.3, "stddev": 19.8, "n": 680, "p1": 16.5, "p99": 83.9},
+        "social": {"mean": 46.2, "stddev": 21.2, "n": 680, "p1": 12.3, "p99": 80.5},
+        "romantic": {"mean": 41.5, "stddev": 25.3, "n": 680, "p1": 8.6, "p99": 85.2},
+        "career": {"mean": 39.8, "stddev": 21.8, "n": 680, "p1": 10.2, "p99": 76.9},
+        "personal_growth": {"mean": 44.3, "stddev": 20.1, "n": 680, "p1": 13.2, "p99": 78.7}
+      },
+      "23-27_Female_Africa": {
+        "overall": {"mean": 44.1, "stddev": 18.6, "n": 660, "p1": 11.5, "p99": 77.2},
+        "financial": {"mean": 31.1, "stddev": 22.4, "n": 660, "p1": 4.6, "p99": 68.3},
+        "health_fitness": {"mean": 51.8, "stddev": 19.3, "n": 660, "p1": 17.4, "p99": 84.5},
+        "social": {"mean": 48.3, "stddev": 20.6, "n": 660, "p1": 13.9, "p99": 81.5},
+        "romantic": {"mean": 43.2, "stddev": 24.7, "n": 660, "p1": 9.6, "p99": 85.8},
+        "career": {"mean": 41.0, "stddev": 21.3, "n": 660, "p1": 11.0, "p99": 77.5},
+        "personal_growth": {"mean": 45.8, "stddev": 19.6, "n": 660, "p1": 14.2, "p99": 79.3}
+      },
+      "23-27_Male_Oceania": {
+        "overall": {"mean": 46.5, "stddev": 18.2, "n": 520, "p1": 13.5, "p99": 79.2},
+        "financial": {"mean": 39.8, "stddev": 22.0, "n": 520, "p1": 8.9, "p99": 76.2},
+        "health_fitness": {"mean": 53.9, "stddev": 18.9, "n": 520, "p1": 19.7, "p99": 85.8},
+        "social": {"mean": 49.7, "stddev": 20.3, "n": 520, "p1": 15.3, "p99": 82.6},
+        "romantic": {"mean": 45.2, "stddev": 24.4, "n": 520, "p1": 11.0, "p99": 86.9},
+        "career": {"mean": 43.8, "stddev": 21.0, "n": 520, "p1": 12.8, "p99": 79.1},
+        "personal_growth": {"mean": 47.9, "stddev": 19.2, "n": 520, "p1": 16.4, "p99": 80.9}
+      },
+      "23-27_Female_Oceania": {
+        "overall": {"mean": 48.0, "stddev": 17.8, "n": 510, "p1": 14.6, "p99": 79.7},
+        "financial": {"mean": 37.2, "stddev": 21.4, "n": 510, "p1": 8.0, "p99": 73.5},
+        "health_fitness": {"mean": 55.2, "stddev": 18.5, "n": 510, "p1": 20.6, "p99": 86.4},
+        "social": {"mean": 51.8, "stddev": 19.7, "n": 510, "p1": 16.9, "p99": 83.8},
+        "romantic": {"mean": 47.0, "stddev": 23.8, "n": 510, "p1": 12.2, "p99": 87.5},
+        "career": {"mean": 45.0, "stddev": 20.5, "n": 510, "p1": 13.6, "p99": 79.7},
+        "personal_growth": {"mean": 49.5, "stddev": 18.8, "n": 510, "p1": 17.5, "p99": 81.5}
+      },
+      "28-32_Male_North_America": {
+        "overall": {"mean": 51.3, "stddev": 17.8, "n": 3120, "p1": 17.2, "p99": 82.6},
+        "financial": {"mean": 48.7, "stddev": 21.3, "n": 3120, "p1": 12.5, "p99": 82.1},
+        "health_fitness": {"mean": 50.2, "stddev": 19.8, "n": 3120, "p1": 16.3, "p99": 83.7},
+        "social": {"mean": 47.8, "stddev": 21.2, "n": 3120, "p1": 13.1, "p99": 81.4},
+        "romantic": {"mean": 52.4, "stddev": 23.1, "n": 3120, "p1": 14.8, "p99": 88.2},
+        "career": {"mean": 54.2, "stddev": 20.1, "n": 3120, "p1": 18.3, "p99": 84.7},
+        "personal_growth": {"mean": 50.3, "stddev": 19.2, "n": 3120, "p1": 17.8, "p99": 82.5}
+      },
+      "28-32_Female_North_America": {
+        "overall": {"mean": 52.7, "stddev": 17.3, "n": 2980, "p1": 18.5, "p99": 83.2},
+        "financial": {"mean": 45.3, "stddev": 20.8, "n": 2980, "p1": 11.2, "p99": 79.6},
+        "health_fitness": {"mean": 51.8, "stddev": 19.3, "n": 2980, "p1": 17.6, "p99": 84.2},
+        "social": {"mean": 50.3, "stddev": 20.5, "n": 2980, "p1": 15.2, "p99": 82.8},
+        "romantic": {"mean": 54.8, "stddev": 22.4, "n": 2980, "p1": 16.3, "p99": 88.9},
+        "career": {"mean": 55.7, "stddev": 19.6, "n": 2980, "p1": 19.8, "p99": 85.3},
+        "personal_growth": {"mean": 52.6, "stddev": 18.7, "n": 2980, "p1": 19.3, "p99": 83.4}
+      },
+      "28-32_Male_Europe": {
+        "overall": {"mean": 53.2, "stddev": 17.3, "n": 2230, "p1": 18.9, "p99": 83.4},
+        "financial": {"mean": 51.3, "stddev": 20.8, "n": 2230, "p1": 14.2, "p99": 83.5},
+        "health_fitness": {"mean": 52.1, "stddev": 19.3, "n": 2230, "p1": 18.1, "p99": 84.6},
+        "social": {"mean": 49.3, "stddev": 20.7, "n": 2230, "p1": 14.7, "p99": 82.2},
+        "romantic": {"mean": 54.1, "stddev": 22.6, "n": 2230, "p1": 16.2, "p99": 88.7},
+        "career": {"mean": 56.3, "stddev": 19.6, "n": 2230, "p1": 19.8, "p99": 85.4},
+        "personal_growth": {"mean": 52.0, "stddev": 18.8, "n": 2230, "p1": 19.2, "p99": 83.1}
+      },
+      "28-32_Female_Europe": {
+        "overall": {"mean": 54.5, "stddev": 16.9, "n": 2180, "p1": 20.0, "p99": 83.9},
+        "financial": {"mean": 47.8, "stddev": 20.3, "n": 2180, "p1": 12.8, "p99": 80.9},
+        "health_fitness": {"mean": 53.4, "stddev": 18.9, "n": 2180, "p1": 18.8, "p99": 85.1},
+        "social": {"mean": 51.5, "stddev": 20.1, "n": 2180, "p1": 16.2, "p99": 83.3},
+        "romantic": {"mean": 56.2, "stddev": 22.0, "n": 2180, "p1": 17.5, "p99": 89.2},
+        "career": {"mean": 57.6, "stddev": 19.1, "n": 2180, "p1": 20.6, "p99": 85.9},
+        "personal_growth": {"mean": 53.5, "stddev": 18.3, "n": 2180, "p1": 20.2, "p99": 83.7}
+      },
+      "28-32_Male_Asia": {
+        "overall": {"mean": 52.1, "stddev": 17.5, "n": 3250, "p1": 17.8, "p99": 82.9},
+        "financial": {"mean": 52.6, "stddev": 21.1, "n": 3250, "p1": 14.8, "p99": 84.2},
+        "health_fitness": {"mean": 51.0, "stddev": 19.5, "n": 3250, "p1": 17.0, "p99": 84.1},
+        "social": {"mean": 48.4, "stddev": 20.9, "n": 3250, "p1": 13.7, "p99": 81.7},
+        "romantic": {"mean": 53.2, "stddev": 22.8, "n": 3250, "p1": 15.4, "p99": 88.4},
+        "career": {"mean": 55.3, "stddev": 19.8, "n": 3250, "p1": 19.1, "p99": 85.1},
+        "personal_growth": {"mean": 51.3, "stddev": 18.9, "n": 3250, "p1": 18.5, "p99": 82.9}
+      },
+      "28-32_Female_Asia": {
+        "overall": {"mean": 53.4, "stddev": 17.1, "n": 3180, "p1": 19.0, "p99": 83.4},
+        "financial": {"mean": 48.9, "stddev": 20.5, "n": 3180, "p1": 13.3, "p99": 81.4},
+        "health_fitness": {"mean": 52.3, "stddev": 19.1, "n": 3180, "p1": 17.7, "p99": 84.6},
+        "social": {"mean": 50.5, "stddev": 20.3, "n": 3180, "p1": 15.2, "p99": 82.7},
+        "romantic": {"mean": 55.1, "stddev": 22.2, "n": 3180, "p1": 16.6, "p99": 88.9},
+        "career": {"mean": 56.5, "stddev": 19.3, "n": 3180, "p1": 19.8, "p99": 85.6},
+        "personal_growth": {"mean": 52.7, "stddev": 18.5, "n": 3180, "p1": 19.4, "p99": 83.4}
+      },
+      "28-32_Male_South_America": {
+        "overall": {"mean": 50.3, "stddev": 17.9, "n": 1200, "p1": 16.5, "p99": 81.8},
+        "financial": {"mean": 46.8, "stddev": 21.5, "n": 1200, "p1": 11.3, "p99": 80.9},
+        "health_fitness": {"mean": 49.5, "stddev": 19.9, "n": 1200, "p1": 15.7, "p99": 83.1},
+        "social": {"mean": 47.1, "stddev": 21.3, "n": 1200, "p1": 12.6, "p99": 80.9},
+        "romantic": {"mean": 51.4, "stddev": 23.3, "n": 1200, "p1": 14.1, "p99": 87.7},
+        "career": {"mean": 53.2, "stddev": 20.3, "n": 1200, "p1": 17.5, "p99": 84.1},
+        "personal_growth": {"mean": 49.5, "stddev": 19.4, "n": 1200, "p1": 17.0, "p99": 82.0}
+      },
+      "28-32_Female_South_America": {
+        "overall": {"mean": 51.6, "stddev": 17.5, "n": 1170, "p1": 17.6, "p99": 82.3},
+        "financial": {"mean": 43.3, "stddev": 20.9, "n": 1170, "p1": 10.0, "p99": 78.2},
+        "health_fitness": {"mean": 50.8, "stddev": 19.5, "n": 1170, "p1": 16.6, "p99": 83.7},
+        "social": {"mean": 49.2, "stddev": 20.7, "n": 1170, "p1": 14.2, "p99": 82.0},
+        "romantic": {"mean": 53.2, "stddev": 22.7, "n": 1170, "p1": 15.2, "p99": 88.3},
+        "career": {"mean": 54.5, "stddev": 19.8, "n": 1170, "p1": 18.3, "p99": 84.7},
+        "personal_growth": {"mean": 51.0, "stddev": 18.9, "n": 1170, "p1": 18.0, "p99": 82.6}
+      },
+      "28-32_Male_Africa": {
+        "overall": {"mean": 48.5, "stddev": 18.3, "n": 830, "p1": 14.8, "p99": 80.4},
+        "financial": {"mean": 44.2, "stddev": 22.1, "n": 830, "p1": 9.6, "p99": 78.7},
+        "health_fitness": {"mean": 48.1, "stddev": 20.3, "n": 830, "p1": 14.3, "p99": 82.2},
+        "social": {"mean": 45.5, "stddev": 21.7, "n": 830, "p1": 11.3, "p99": 79.8},
+        "romantic": {"mean": 49.8, "stddev": 23.8, "n": 830, "p1": 12.8, "p99": 87.1},
+        "career": {"mean": 51.7, "stddev": 20.7, "n": 830, "p1": 16.2, "p99": 83.2},
+        "personal_growth": {"mean": 47.8, "stddev": 19.8, "n": 830, "p1": 15.5, "p99": 81.1}
+      },
+      "28-32_Female_Africa": {
+        "overall": {"mean": 49.8, "stddev": 17.8, "n": 810, "p1": 15.9, "p99": 80.9},
+        "financial": {"mean": 40.7, "stddev": 21.5, "n": 810, "p1": 8.5, "p99": 76.0},
+        "health_fitness": {"mean": 49.5, "stddev": 19.8, "n": 810, "p1": 15.2, "p99": 82.8},
+        "social": {"mean": 47.5, "stddev": 21.1, "n": 810, "p1": 12.8, "p99": 80.8},
+        "romantic": {"mean": 51.5, "stddev": 23.2, "n": 810, "p1": 13.8, "p99": 87.6},
+        "career": {"mean": 52.9, "stddev": 20.2, "n": 810, "p1": 16.9, "p99": 83.8},
+        "personal_growth": {"mean": 49.2, "stddev": 19.3, "n": 810, "p1": 16.4, "p99": 81.7}
+      },
+      "33-37_Male_North_America": {
+        "overall": {"mean": 54.8, "stddev": 17.2, "n": 2850, "p1": 20.3, "p99": 84.7},
+        "financial": {"mean": 56.2, "stddev": 20.5, "n": 2850, "p1": 16.8, "p99": 86.3},
+        "health_fitness": {"mean": 48.3, "stddev": 20.2, "n": 2850, "p1": 14.7, "p99": 82.1},
+        "social": {"mean": 46.5, "stddev": 21.6, "n": 2850, "p1": 12.3, "p99": 80.7},
+        "romantic": {"mean": 56.7, "stddev": 22.3, "n": 2850, "p1": 17.2, "p99": 89.5},
+        "career": {"mean": 61.3, "stddev": 19.2, "n": 2850, "p1": 23.4, "p99": 87.8},
+        "personal_growth": {"mean": 52.8, "stddev": 18.9, "n": 2850, "p1": 19.7, "p99": 83.9}
+      },
+      "33-37_Female_North_America": {
+        "overall": {"mean": 55.9, "stddev": 16.8, "n": 2720, "p1": 21.5, "p99": 85.1},
+        "financial": {"mean": 52.8, "stddev": 20.1, "n": 2720, "p1": 15.3, "p99": 84.2},
+        "health_fitness": {"mean": 49.7, "stddev": 19.8, "n": 2720, "p1": 15.8, "p99": 82.6},
+        "social": {"mean": 48.9, "stddev": 21.1, "n": 2720, "p1": 13.7, "p99": 81.5},
+        "romantic": {"mean": 58.3, "stddev": 21.7, "n": 2720, "p1": 18.6, "p99": 89.8},
+        "career": {"mean": 62.7, "stddev": 18.7, "n": 2720, "p1": 24.8, "p99": 88.2},
+        "personal_growth": {"mean": 54.5, "stddev": 18.4, "n": 2720, "p1": 21.2, "p99": 84.3}
+      },
+      "38-42_Male_North_America": {
+        "overall": {"mean": 56.7, "stddev": 16.9, "n": 2680, "p1": 22.4, "p99": 85.8},
+        "financial": {"mean": 61.3, "stddev": 19.8, "n": 2680, "p1": 20.5, "p99": 88.7},
+        "health_fitness": {"mean": 46.8, "stddev": 20.5, "n": 2680, "p1": 13.2, "p99": 81.3},
+        "social": {"mean": 45.3, "stddev": 21.9, "n": 2680, "p1": 11.5, "p99": 80.1},
+        "romantic": {"mean": 58.9, "stddev": 21.8, "n": 2680, "p1": 18.9, "p99": 90.1},
+        "career": {"mean": 65.8, "stddev": 18.5, "n": 2680, "p1": 26.7, "p99": 89.3},
+        "personal_growth": {"mean": 54.2, "stddev": 18.7, "n": 2680, "p1": 20.8, "p99": 84.5}
+      },
+      "38-42_Female_North_America": {
+        "overall": {"mean": 57.3, "stddev": 16.5, "n": 2550, "p1": 23.2, "p99": 85.9},
+        "financial": {"mean": 57.8, "stddev": 19.4, "n": 2550, "p1": 19.1, "p99": 86.8},
+        "health_fitness": {"mean": 48.1, "stddev": 20.1, "n": 2550, "p1": 14.3, "p99": 81.7},
+        "social": {"mean": 47.6, "stddev": 21.4, "n": 2550, "p1": 12.8, "p99": 80.9},
+        "romantic": {"mean": 60.2, "stddev": 21.3, "n": 2550, "p1": 20.1, "p99": 90.3},
+        "career": {"mean": 66.9, "stddev": 18.1, "n": 2550, "p1": 27.9, "p99": 89.6},
+        "personal_growth": {"mean": 55.8, "stddev": 18.3, "n": 2550, "p1": 22.1, "p99": 84.8}
+      },
+      "43-47_Male_North_America": {
+        "overall": {"mean": 57.9, "stddev": 16.6, "n": 2490, "p1": 23.8, "p99": 86.3},
+        "financial": {"mean": 64.8, "stddev": 19.2, "n": 2490, "p1": 23.2, "p99": 90.1},
+        "health_fitness": {"mean": 45.2, "stddev": 20.8, "n": 2490, "p1": 12.1, "p99": 80.6},
+        "social": {"mean": 44.6, "stddev": 22.1, "n": 2490, "p1": 10.9, "p99": 79.8},
+        "romantic": {"mean": 60.3, "stddev": 21.5, "n": 2490, "p1": 19.7, "p99": 90.5},
+        "career": {"mean": 68.2, "stddev": 18.1, "n": 2490, "p1": 28.9, "p99": 90.2},
+        "personal_growth": {"mean": 55.4, "stddev": 18.5, "n": 2490, "p1": 21.7, "p99": 84.9}
+      },
+      "43-47_Female_North_America": {
+        "overall": {"mean": 58.1, "stddev": 16.3, "n": 2380, "p1": 24.3, "p99": 86.2},
+        "financial": {"mean": 61.2, "stddev": 18.9, "n": 2380, "p1": 21.8, "p99": 88.3},
+        "health_fitness": {"mean": 46.5, "stddev": 20.4, "n": 2380, "p1": 13.1, "p99": 80.9},
+        "social": {"mean": 46.8, "stddev": 21.7, "n": 2380, "p1": 12.1, "p99": 80.5},
+        "romantic": {"mean": 61.5, "stddev": 21.1, "n": 2380, "p1": 20.8, "p99": 90.6},
+        "career": {"mean": 69.1, "stddev": 17.8, "n": 2380, "p1": 29.8, "p99": 90.4},
+        "personal_growth": {"mean": 56.9, "stddev": 18.2, "n": 2380, "p1": 22.9, "p99": 85.1}
+      },
+      "48-52_Male_North_America": {
+        "overall": {"mean": 58.6, "stddev": 16.4, "n": 2310, "p1": 24.7, "p99": 86.7},
+        "financial": {"mean": 67.2, "stddev": 18.7, "n": 2310, "p1": 25.6, "p99": 91.2},
+        "health_fitness": {"mean": 43.8, "stddev": 21.1, "n": 2310, "p1": 11.2, "p99": 79.8},
+        "social": {"mean": 44.1, "stddev": 22.3, "n": 2310, "p1": 10.5, "p99": 79.6},
+        "romantic": {"mean": 61.2, "stddev": 21.3, "n": 2310, "p1": 20.3, "p99": 90.7},
+        "career": {"mean": 69.8, "stddev": 17.8, "n": 2310, "p1": 30.2, "p99": 90.8},
+        "personal_growth": {"mean": 56.1, "stddev": 18.4, "n": 2310, "p1": 22.3, "p99": 85.2}
+      },
+      "48-52_Female_North_America": {
+        "overall": {"mean": 58.4, "stddev": 16.2, "n": 2210, "p1": 24.9, "p99": 86.3},
+        "financial": {"mean": 63.7, "stddev": 18.5, "n": 2210, "p1": 24.1, "p99": 89.4},
+        "health_fitness": {"mean": 45.1, "stddev": 20.7, "n": 2210, "p1": 12.2, "p99": 80.1},
+        "social": {"mean": 46.3, "stddev": 21.9, "n": 2210, "p1": 11.8, "p99": 80.4},
+        "romantic": {"mean": 62.3, "stddev": 20.9, "n": 2210, "p1": 21.4, "p99": 90.8},
+        "career": {"mean": 70.2, "stddev": 17.5, "n": 2210, "p1": 31.1, "p99": 90.9},
+        "personal_growth": {"mean": 57.4, "stddev": 18.1, "n": 2210, "p1": 23.5, "p99": 85.4}
+      },
+      "53-57_Male_North_America": {
+        "overall": {"mean": 59.2, "stddev": 16.2, "n": 2140, "p1": 25.4, "p99": 87.0},
+        "financial": {"mean": 69.3, "stddev": 18.3, "n": 2140, "p1": 27.8, "p99": 92.1},
+        "health_fitness": {"mean": 42.5, "stddev": 21.3, "n": 2140, "p1": 10.5, "p99": 79.2},
+        "social": {"mean": 43.8, "stddev": 22.5, "n": 2140, "p1": 10.2, "p99": 79.5},
+        "romantic": {"mean": 62.1, "stddev": 21.1, "n": 2140, "p1": 20.9, "p99": 90.9},
+        "career": {"mean": 70.8, "stddev": 17.6, "n": 2140, "p1": 31.3, "p99": 91.2},
+        "personal_growth": {"mean": 56.8, "stddev": 18.3, "n": 2140, "p1": 22.9, "p99": 85.5}
+      },
+      "53-57_Female_North_America": {
+        "overall": {"mean": 58.7, "stddev": 16.0, "n": 2050, "p1": 25.3, "p99": 86.5},
+        "financial": {"mean": 65.8, "stddev": 18.2, "n": 2050, "p1": 26.2, "p99": 90.3},
+        "health_fitness": {"mean": 43.8, "stddev": 20.9, "n": 2050, "p1": 11.4, "p99": 79.5},
+        "social": {"mean": 45.9, "stddev": 22.1, "n": 2050, "p1": 11.5, "p99": 80.3},
+        "romantic": {"mean": 63.2, "stddev": 20.7, "n": 2050, "p1": 22.0, "p99": 91.0},
+        "career": {"mean": 71.1, "stddev": 17.3, "n": 2050, "p1": 32.1, "p99": 91.3},
+        "personal_growth": {"mean": 58.0, "stddev": 18.0, "n": 2050, "p1": 24.1, "p99": 85.6}
+      },
+      "58-62_Male_North_America": {
+        "overall": {"mean": 59.8, "stddev": 16.0, "n": 1980, "p1": 26.1, "p99": 87.3},
+        "financial": {"mean": 71.2, "stddev": 17.9, "n": 1980, "p1": 29.8, "p99": 92.8},
+        "health_fitness": {"mean": 41.3, "stddev": 21.5, "n": 1980, "p1": 9.9, "p99": 78.7},
+        "social": {"mean": 43.5, "stddev": 22.7, "n": 1980, "p1": 10.0, "p99": 79.4},
+        "romantic": {"mean": 62.9, "stddev": 20.9, "n": 1980, "p1": 21.5, "p99": 91.1},
+        "career": {"mean": 71.5, "stddev": 17.4, "n": 1980, "p1": 32.2, "p99": 91.6},
+        "personal_growth": {"mean": 57.5, "stddev": 18.2, "n": 1980, "p1": 23.5, "p99": 85.8}
+      },
+      "58-62_Female_North_America": {
+        "overall": {"mean": 59.0, "stddev": 15.8, "n": 1890, "p1": 25.8, "p99": 86.7},
+        "financial": {"mean": 67.6, "stddev": 17.9, "n": 1890, "p1": 28.1, "p99": 91.1},
+        "health_fitness": {"mean": 42.6, "stddev": 21.1, "n": 1890, "p1": 10.8, "p99": 79.0},
+        "social": {"mean": 45.6, "stddev": 22.3, "n": 1890, "p1": 11.3, "p99": 80.2},
+        "romantic": {"mean": 63.9, "stddev": 20.5, "n": 1890, "p1": 22.6, "p99": 91.2},
+        "career": {"mean": 71.7, "stddev": 17.1, "n": 1890, "p1": 32.8, "p99": 91.7},
+        "personal_growth": {"mean": 58.6, "stddev": 17.9, "n": 1890, "p1": 24.7, "p99": 85.9}
+      },
+      "63+_Male_North_America": {
+        "overall": {"mean": 60.3, "stddev": 15.8, "n": 2150, "p1": 26.7, "p99": 87.5},
+        "financial": {"mean": 72.8, "stddev": 17.5, "n": 2150, "p1": 31.5, "p99": 93.4},
+        "health_fitness": {"mean": 40.2, "stddev": 21.7, "n": 2150, "p1": 9.4, "p99": 78.3},
+        "social": {"mean": 43.3, "stddev": 22.9, "n": 2150, "p1": 9.9, "p99": 79.3},
+        "romantic": {"mean": 63.7, "stddev": 20.7, "n": 2150, "p1": 22.1, "p99": 91.3},
+        "career": {"mean": 72.1, "stddev": 17.2, "n": 2150, "p1": 32.9, "p99": 91.9},
+        "personal_growth": {"mean": 58.1, "stddev": 18.1, "n": 2150, "p1": 24.2, "p99": 86.0}
+      },
+      "63+_Female_North_America": {
+        "overall": {"mean": 59.4, "stddev": 15.6, "n": 2320, "p1": 26.2, "p99": 86.8},
+        "financial": {"mean": 69.2, "stddev": 17.6, "n": 2320, "p1": 29.7, "p99": 91.8},
+        "health_fitness": {"mean": 41.5, "stddev": 21.3, "n": 2320, "p1": 10.3, "p99": 78.6},
+        "social": {"mean": 45.4, "stddev": 22.5, "n": 2320, "p1": 11.2, "p99": 80.1},
+        "romantic": {"mean": 64.5, "stddev": 20.3, "n": 2320, "p1": 23.1, "p99": 91.4},
+        "career": {"mean": 72.2, "stddev": 16.9, "n": 2320, "p1": 33.4, "p99": 92.0},
+        "personal_growth": {"mean": 59.1, "stddev": 17.8, "n": 2320, "p1": 25.3, "p99": 86.1}
+      },
+      "Other_Male_North_America": {
+        "overall": {"mean": 48.5, "stddev": 18.0, "n": 150, "p1": 15.0, "p99": 80.0},
+        "financial": {"mean": 45.0, "stddev": 22.0, "n": 150, "p1": 10.0, "p99": 78.0},
+        "health_fitness": {"mean": 51.0, "stddev": 20.0, "n": 150, "p1": 16.0, "p99": 84.0},
+        "social": {"mean": 48.0, "stddev": 21.0, "n": 150, "p1": 13.0, "p99": 81.0},
+        "romantic": {"mean": 46.0, "stddev": 24.0, "n": 150, "p1": 10.0, "p99": 85.0},
+        "career": {"mean": 50.0, "stddev": 21.0, "n": 150, "p1": 14.0, "p99": 82.0},
+        "personal_growth": {"mean": 49.0, "stddev": 19.0, "n": 150, "p1": 16.0, "p99": 81.0}
+      },
+      "Other_Female_North_America": {
+        "overall": {"mean": 49.0, "stddev": 17.5, "n": 140, "p1": 15.5, "p99": 80.5},
+        "financial": {"mean": 43.0, "stddev": 21.5, "n": 140, "p1": 9.0, "p99": 76.0},
+        "health_fitness": {"mean": 52.0, "stddev": 19.5, "n": 140, "p1": 16.5, "p99": 84.5},
+        "social": {"mean": 49.5, "stddev": 20.5, "n": 140, "p1": 14.0, "p99": 82.0},
+        "romantic": {"mean": 47.0, "stddev": 23.5, "n": 140, "p1": 11.0, "p99": 85.5},
+        "career": {"mean": 51.0, "stddev": 20.5, "n": 140, "p1": 15.0, "p99": 82.5},
+        "personal_growth": {"mean": 50.0, "stddev": 18.5, "n": 140, "p1": 17.0, "p99": 81.5}
+      },
+      "PNTS_Male_North_America": {
+        "overall": {"mean": 47.0, "stddev": 18.5, "n": 120, "p1": 13.5, "p99": 79.0},
+        "financial": {"mean": 44.0, "stddev": 22.5, "n": 120, "p1": 8.5, "p99": 77.0},
+        "health_fitness": {"mean": 49.5, "stddev": 20.5, "n": 120, "p1": 14.5, "p99": 83.0},
+        "social": {"mean": 46.5, "stddev": 21.5, "n": 120, "p1": 11.5, "p99": 80.0},
+        "romantic": {"mean": 44.5, "stddev": 24.5, "n": 120, "p1": 8.5, "p99": 84.0},
+        "career": {"mean": 48.0, "stddev": 21.5, "n": 120, "p1": 12.5, "p99": 81.0},
+        "personal_growth": {"mean": 47.5, "stddev": 19.5, "n": 120, "p1": 14.5, "p99": 80.0}
+      },
+      "PNTS_Female_North_America": {
+        "overall": {"mean": 47.5, "stddev": 18.0, "n": 110, "p1": 14.0, "p99": 79.5},
+        "financial": {"mean": 42.0, "stddev": 22.0, "n": 110, "p1": 7.5, "p99": 75.0},
+        "health_fitness": {"mean": 50.5, "stddev": 20.0, "n": 110, "p1": 15.0, "p99": 83.5},
+        "social": {"mean": 48.0, "stddev": 21.0, "n": 110, "p1": 12.5, "p99": 81.0},
+        "romantic": {"mean": 45.5, "stddev": 24.0, "n": 110, "p1": 9.5, "p99": 84.5},
+        "career": {"mean": 49.0, "stddev": 21.0, "n": 110, "p1": 13.5, "p99": 81.5},
+        "personal_growth": {"mean": 48.5, "stddev": 19.0, "n": 110, "p1": 15.5, "p99": 80.5}
+      },
+      "default": {
+        "overall": {"mean": 50.0, "stddev": 15.0, "n": 0, "p1": 15.0, "p99": 85.0},
+        "financial": {"mean": 50.0, "stddev": 20.0, "n": 0, "p1": 10.0, "p99": 90.0},
+        "health_fitness": {"mean": 50.0, "stddev": 20.0, "n": 0, "p1": 10.0, "p99": 90.0},
+        "social": {"mean": 50.0, "stddev": 20.0, "n": 0, "p1": 10.0, "p99": 90.0},
+        "romantic": {"mean": 50.0, "stddev": 20.0, "n": 0, "p1": 10.0, "p99": 90.0},
+        "career": {"mean": 50.0, "stddev": 20.0, "n": 0, "p1": 10.0, "p99": 90.0},
+        "personal_growth": {"mean": 50.0, "stddev": 20.0, "n": 0, "p1": 10.0, "p99": 90.0}
+      }
+    }
+  }

@@ -1,4 +1,5 @@
 import scoringConfig from '@/data/scoring.json'
+import demographicsStats from '@/data/demographics_stats.json'
 
 interface Answer {
   questionId: string
@@ -10,6 +11,8 @@ interface CategoryScores {
   health_fitness: number
   social: number
   romantic: number
+  career: number
+  personal_growth: number
 }
 
 export function calculateScores(answers: Answer[]): {
@@ -20,14 +23,18 @@ export function calculateScores(answers: Answer[]): {
     financial: 0,
     health_fitness: 0,
     social: 0,
-    romantic: 0
+    romantic: 0,
+    career: 0,
+    personal_growth: 0
   }
 
   const categoryItems: Record<keyof CategoryScores, number> = {
     financial: 0,
     health_fitness: 0,
     social: 0,
-    romantic: 0
+    romantic: 0,
+    career: 0,
+    personal_growth: 0
   }
 
   for (const answer of answers) {
@@ -49,7 +56,7 @@ export function calculateScores(answers: Answer[]): {
     }
   }
 
-  const overall = Object.values(categoryScores).reduce((sum, score) => sum + score, 0) / 4
+  const overall = Object.values(categoryScores).reduce((sum, score) => sum + score, 0) / 6
 
   return { categories: categoryScores, overall }
 }
@@ -126,29 +133,183 @@ function getQuestionCategory(questionId: string): string | null {
     'fin': 'financial',
     'health': 'health_fitness',
     'social': 'social',
-    'rom': 'romantic'
+    'rom': 'romantic',
+    'career': 'career',
+    'personal': 'personal_growth'
   }
   return categoryMap[prefix] || null
 }
 
 export function calculatePercentiles(
   scores: { categories: CategoryScores; overall: number },
-  cohortStats: any
+  cohortKey?: string
 ): {
   overall: number
   financial: number
   health: number
   social: number
   romantic: number
+  career: number
+  personal_growth: number
 } {
-  const stats = cohortStats || scoringConfig.cohort_stats.default
+  // Get cohort stats from demographics data
+  const stats = getCohortStats(cohortKey)
 
   return {
     overall: scoreToPercentile(scores.overall, stats.overall.mean, stats.overall.stddev),
     financial: scoreToPercentile(scores.categories.financial, stats.financial.mean, stats.financial.stddev),
     health: scoreToPercentile(scores.categories.health_fitness, stats.health_fitness.mean, stats.health_fitness.stddev),
     social: scoreToPercentile(scores.categories.social, stats.social.mean, stats.social.stddev),
-    romantic: scoreToPercentile(scores.categories.romantic, stats.romantic.mean, stats.romantic.stddev)
+    romantic: scoreToPercentile(scores.categories.romantic, stats.romantic.mean, stats.romantic.stddev),
+    career: scoreToPercentile(scores.categories.career, stats.career.mean, stats.career.stddev),
+    personal_growth: scoreToPercentile(scores.categories.personal_growth, stats.personal_growth.mean, stats.personal_growth.stddev)
+  }
+}
+
+export function calculateDualScoring(
+  scores: { categories: CategoryScores; overall: number },
+  cohortKey?: string
+): {
+  cohortPercentiles: {
+    overall: number
+    financial: number
+    health: number
+    social: number
+    romantic: number
+    career: number
+    personal_growth: number
+  },
+  absolutePotential: {
+    overall: number
+    financial: number
+    health: number
+    social: number
+    romantic: number
+    career: number
+    personal_growth: number
+  }
+} {
+  // Calculate cohort percentiles
+  const cohortPercentiles = calculatePercentiles(scores, cohortKey)
+  
+  // Calculate absolute potential (percentage of theoretical maximum)
+  const absolutePotential = {
+    overall: Math.round((scores.overall / 100) * 100),
+    financial: Math.round((scores.categories.financial / 100) * 100),
+    health: Math.round((scores.categories.health_fitness / 100) * 100),
+    social: Math.round((scores.categories.social / 100) * 100),
+    romantic: Math.round((scores.categories.romantic / 100) * 100),
+    career: Math.round((scores.categories.career / 100) * 100),
+    personal_growth: Math.round((scores.categories.personal_growth / 100) * 100)
+  }
+  
+  return {
+    cohortPercentiles,
+    absolutePotential
+  }
+}
+
+function getCohortStats(cohortKey?: string): any {
+  if (!cohortKey) {
+    return demographicsStats.cohort_stats.default
+  }
+
+  // Try to find the exact cohort key
+  const cohortStats = demographicsStats.cohort_stats[cohortKey as keyof typeof demographicsStats.cohort_stats]
+  if (cohortStats) {
+    return cohortStats
+  }
+
+  // Fallback to default if cohort not found
+  console.warn(`Cohort stats not found for key: ${cohortKey}, using default`)
+  return demographicsStats.cohort_stats.default
+}
+
+export function categorizeAnswers(answers: Answer[]): {
+  financial: Answer[]
+  health_fitness: Answer[]
+  social: Answer[]
+  romantic: Answer[]
+  career: Answer[]
+  personal_growth: Answer[]
+} {
+  const categorized = {
+    financial: [] as Answer[],
+    health_fitness: [] as Answer[],
+    social: [] as Answer[],
+    romantic: [] as Answer[],
+    career: [] as Answer[],
+    personal_growth: [] as Answer[]
+  }
+
+  for (const answer of answers) {
+    const category = getQuestionCategory(answer.questionId)
+    if (category && categorized[category as keyof typeof categorized]) {
+      categorized[category as keyof typeof categorized].push(answer)
+    }
+  }
+
+  return categorized
+}
+
+export function getAbsolutePotentialInsights(
+  scores: { categories: CategoryScores; overall: number }
+): {
+  overall: { score: number; potential: number; gapToExcellence: number }
+  financial: { score: number; potential: number; gapToExcellence: number }
+  health: { score: number; potential: number; gapToExcellence: number }
+  social: { score: number; potential: number; gapToExcellence: number }
+  romantic: { score: number; potential: number; gapToExcellence: number }
+  career: { score: number; potential: number; gapToExcellence: number }
+  personal_growth: { score: number; potential: number; gapToExcellence: number }
+} {
+  // Best real-world p99 scores across all demographics
+  const excellence = {
+    overall: 87.5,
+    financial: 93.4,
+    health_fitness: 88.6,
+    social: 85.4,
+    romantic: 91.4,
+    career: 92.0,
+    personal_growth: 86.1
+  }
+
+  return {
+    overall: {
+      score: scores.overall,
+      potential: scores.overall,
+      gapToExcellence: Math.max(0, excellence.overall - scores.overall)
+    },
+    financial: {
+      score: scores.categories.financial,
+      potential: scores.categories.financial,
+      gapToExcellence: Math.max(0, excellence.financial - scores.categories.financial)
+    },
+    health: {
+      score: scores.categories.health_fitness,
+      potential: scores.categories.health_fitness,
+      gapToExcellence: Math.max(0, excellence.health_fitness - scores.categories.health_fitness)
+    },
+    social: {
+      score: scores.categories.social,
+      potential: scores.categories.social,
+      gapToExcellence: Math.max(0, excellence.social - scores.categories.social)
+    },
+    romantic: {
+      score: scores.categories.romantic,
+      potential: scores.categories.romantic,
+      gapToExcellence: Math.max(0, excellence.romantic - scores.categories.romantic)
+    },
+    career: {
+      score: scores.categories.career,
+      potential: scores.categories.career,
+      gapToExcellence: Math.max(0, excellence.career - scores.categories.career)
+    },
+    personal_growth: {
+      score: scores.categories.personal_growth,
+      potential: scores.categories.personal_growth,
+      gapToExcellence: Math.max(0, excellence.personal_growth - scores.categories.personal_growth)
+    }
   }
 }
 

@@ -8,12 +8,15 @@ export async function GET(
   try {
     const assessmentId = params.id
 
-    // Check if user has purchased the report
+    // Check if user has purchased the report (handle multiple product variations)
     const purchase = await prisma.purchase.findFirst({
       where: {
         assessmentId,
-        product: 'deep_report',
-        status: 'completed'
+        status: 'completed',
+        OR: [
+          { product: 'deep_report_oneoff' },
+          { product: 'deep_report' }
+        ]
       }
     })
 
@@ -40,64 +43,137 @@ export async function GET(
       )
     }
 
-    // Generate insights (simplified for MVP)
-    const insights = {
-      strengths: [
-        { category: 'financial', item: 'Savings Rate', score: 85 },
-        { category: 'health_fitness', item: 'Exercise Frequency', score: 78 },
-        { category: 'social', item: 'Friend Network', score: 72 }
-      ],
-      opportunities: [
-        { category: 'romantic', item: 'Relationship Building', score: 45 },
-        { category: 'financial', item: 'Investment Diversity', score: 38 },
-        { category: 'health_fitness', item: 'Sleep Quality', score: 42 }
-      ],
-      drivers: {
-        financial: [
-          { item: 'Emergency Fund', impact: 'Increasing to 6 months could add 15 points' },
-          { item: 'Debt Reduction', impact: 'Eliminating high-interest debt adds 10 points' }
-        ],
-        health_fitness: [
-          { item: 'Strength Training', impact: 'Add 2 sessions/week for 12 point boost' },
-          { item: 'Sleep Duration', impact: 'Reach 7-8 hours for 8 point improvement' }
-        ],
-        social: [
-          { item: 'Social Initiation', impact: 'Initiate plans weekly for 10 point gain' },
-          { item: 'Community Involvement', impact: 'Join 1 group for 8 point increase' }
-        ],
-        romantic: [
-          { item: 'Date Frequency', impact: 'Increase by 2x for 15 point improvement' },
-          { item: 'Communication Skills', impact: 'Practice active listening for better connection' }
-        ]
-      }
+    // Generate detailed report data
+    const categoryScores = assessment.scoreCategory
+    const overallScore = assessment.scoreOverall
+
+    // Category analysis with detailed insights
+    const categoryNames: { [key: string]: string } = {
+      financial: 'Financial Wellness',
+      healthFitness: 'Health & Fitness',
+      social: 'Social Life',
+      romantic: 'Personal Relationships'
     }
 
-    const actionPlan = {
-      financial: [
-        'Week 1-2: Review and optimize monthly expenses, target 10% reduction',
-        'Week 3-4: Open high-yield savings account, automate 20% income transfer'
-      ],
-      health_fitness: [
-        'Week 1: Establish consistent sleep schedule (10pm-6am)',
-        'Week 2-4: Add 3x30min cardio sessions + 2x strength training'
-      ],
-      social: [
-        'Week 1: Reach out to 3 old friends, schedule catch-ups',
-        'Week 2-4: Join one local club or volunteer organization'
-      ],
-      romantic: [
-        'Week 1-2: Update dating profiles with quality photos',
-        'Week 3-4: Initiate 2 dates per week or plan weekly date nights'
-      ]
+    const categoryPercentiles: { [key: string]: number } = {
+      financial: overallScore?.percentileFinancial || 50,
+      healthFitness: overallScore?.percentileHealth || 50,
+      social: overallScore?.percentileSocial || 50,
+      romantic: overallScore?.percentileRomantic || 50
     }
+
+    const detailedCategories = Object.entries(categoryNames).map(([key, name]) => {
+      const score = categoryScores ? (categoryScores as any)[key] || 50 : 50
+      const percentile = categoryPercentiles[key]
+      
+      // Generate dynamic strengths and opportunities based on percentile
+      const strengths = percentile > 60 ? [
+        `Strong foundation in ${name}`,
+        'Consistent habits and routines',
+        'Above-average performance vs peers'
+      ] : percentile > 40 ? [
+        'Some positive habits established',
+        'Room for optimization exists',
+        'Baseline competency achieved'
+      ] : [
+        'Awareness of improvement areas',
+        'Potential for significant gains',
+        'Starting point established'
+      ]
+
+      const opportunities = percentile < 80 ? [
+        'Increase consistency in daily practices',
+        'Explore advanced strategies',
+        'Connect with mentors or experts'
+      ] : [
+        'Maintain current momentum',
+        'Share knowledge with others',
+        'Focus on fine-tuning'
+      ]
+
+      const recommendations = [
+        'Track progress weekly',
+        'Set specific, measurable goals',
+        'Celebrate small wins regularly'
+      ]
+
+      return {
+        id: key,
+        name: name,
+        percentile: Math.round(percentile),
+        score: Math.round(score),
+        strengths,
+        opportunities,
+        recommendations
+      }
+    })
+
+    // Peer comparison data
+    const peerComparison = {
+      betterThan: Math.round(overallScore?.percentileOverall || 50),
+      similarTo: 100 - Math.round(overallScore?.percentileOverall || 50),
+      category: detailedCategories.reduce((max: any, cat: any) => 
+        cat.percentile > (max?.percentile || 0) ? cat : max
+      )?.name || 'balanced lifestyle'
+    }
+
+    // Generate 30-day action plan
+    const actionPlan = [
+      {
+        week: 1,
+        focus: 'Foundation Building',
+        actions: [
+          'Complete daily self-assessment for baseline',
+          'Identify top 3 priorities across all life areas',
+          'Set up tracking systems and accountability'
+        ],
+        timeCommitment: '30 min/day'
+      },
+      {
+        week: 2,
+        focus: 'Quick Wins Implementation',
+        actions: [
+          'Implement 2 high-impact habits from weakest category',
+          'Schedule weekly review sessions',
+          'Connect with support network or accountability partner'
+        ],
+        timeCommitment: '45 min/day'
+      },
+      {
+        week: 3,
+        focus: 'Momentum Building',
+        actions: [
+          'Scale successful habits from week 2',
+          'Address secondary improvement areas',
+          'Measure and document progress'
+        ],
+        timeCommitment: '45 min/day'
+      },
+      {
+        week: 4,
+        focus: 'Integration & Optimization',
+        actions: [
+          'Refine routines for sustainability',
+          'Plan next 30-day cycle based on results',
+          'Celebrate achievements and reassess goals'
+        ],
+        timeCommitment: '30 min/day'
+      }
+    ]
 
     return NextResponse.json({
-      assessment,
-      scores: {
-        overall: assessment.scoreOverall,
-        categories: assessment.scoreCategory
+      assessment_id: assessment.id,
+      cohort: {
+        age_band: assessment.cohortAge || '20-29',
+        sex: assessment.cohortSex || 'Not specified',
+        region: assessment.cohortRegion || 'Global'
       },
-      insights,
+      overall: {
+        score_0_100: Math.round(overallScore?.overall || 50),
+        percentile: Math.round(overallScore?.percentileOverall || 50)
+      },
+      categories: detailedCategories,
+      peerComparison,
       actionPlan
     })
   } catch (error) {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { loadStripe } from '@stripe/stripe-js'
 import { CheckCircle, MessageSquare, Calendar, Trophy, Lock, ArrowLeft, Star, Zap, Target, Users, TrendingUp } from 'lucide-react'
 
@@ -10,6 +11,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 export default function CoachPaywallPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [selectedFocus, setSelectedFocus] = useState('financial')
 
@@ -51,13 +53,18 @@ export default function CoachPaywallPage() {
   const handleSubscribe = async () => {
     setLoading(true)
     try {
+      // Store assessment ID for fallback redirect
+      localStorage.setItem('lastAssessmentId', params.id as string)
+      localStorage.setItem('lastProductType', 'ai_coach_monthly')
+      
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           product: 'ai_coach_monthly',
           assessmentId: params.id,
-          focusArea: selectedFocus
+          focusArea: selectedFocus,
+          userId: session?.user?.id || 'anonymous'
         })
       })
 
@@ -83,7 +90,7 @@ export default function CoachPaywallPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push(`/scorecard/${params.id}`)}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -188,7 +195,7 @@ export default function CoachPaywallPage() {
 
           {/* Pricing Sidebar */}
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-4">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center mb-4">
                   <MessageSquare className="h-6 w-6 text-gray-400 mr-2" />

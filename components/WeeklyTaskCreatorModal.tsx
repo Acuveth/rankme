@@ -30,8 +30,7 @@ export default function WeeklyTaskCreatorModal({
     { value: 'health', label: 'Physical Wellness', color: 'bg-blue-100 text-blue-800' },
     { value: 'social', label: 'Social Connection', color: 'bg-purple-100 text-purple-800' },
     { value: 'personal', label: 'Personal Development', color: 'bg-orange-100 text-orange-800' },
-    { value: 'career', label: 'Career Growth', color: 'bg-indigo-100 text-indigo-800' },
-    { value: 'mindfulness', label: 'Mindfulness', color: 'bg-pink-100 text-pink-800' }
+    { value: 'other', label: 'Other', color: 'bg-gray-100 text-gray-800' }
   ]
 
   const addTask = () => {
@@ -58,7 +57,6 @@ export default function WeeklyTaskCreatorModal({
     const validTasks = tasks.filter(task => task.title.trim() && task.description.trim())
     
     if (validTasks.length === 0) {
-      alert('Please add at least one complete task')
       return
     }
 
@@ -68,7 +66,6 @@ export default function WeeklyTaskCreatorModal({
       onClose()
     } catch (error) {
       console.error('Error creating tasks:', error)
-      alert('Failed to create tasks. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -126,7 +123,7 @@ export default function WeeklyTaskCreatorModal({
                     <select
                       value={task.category}
                       onChange={(e) => updateTask(index, 'category', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 bg-white"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                       required
                     >
                       {categories.map((category) => (

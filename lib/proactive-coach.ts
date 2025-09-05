@@ -3,16 +3,24 @@ import { enhancedCoachingEngine } from './enhanced-coaching'
 import { ProactiveInsight } from './coaching-types'
 
 export class ProactiveCoachingScheduler {
-  async scheduleUserCheckIns(userId: string) {
-    const coachSettings = await prisma.coachSettings.findUnique({
-      where: { userId }
+  async scheduleUserCheckIns(userId: string, assessmentId?: string) {
+    const coachSettings = await prisma.coachSettings.findFirst({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' }
     })
 
     if (!coachSettings) {
+      // If no assessmentId provided, skip creating settings as they require assessmentId
+      if (!assessmentId) {
+        console.log('No coach settings found and no assessmentId provided, skipping check-in scheduling')
+        return
+      }
+      
       // Create default settings
       await prisma.coachSettings.create({
         data: {
           userId,
+          assessmentId,
           checkInFrequency: 'daily',
           checkInTime: '09:00',
           dailyReminders: true
@@ -37,6 +45,7 @@ export class ProactiveCoachingScheduler {
       await prisma.checkIn.create({
         data: {
           userId,
+          assessmentId: coachSettings.assessmentId,
           type: this.getCheckInType(coachSettings.checkInFrequency),
           scheduledFor: nextCheckIn,
           status: 'pending'
@@ -45,7 +54,12 @@ export class ProactiveCoachingScheduler {
 
       // Update user settings with next check-in time
       await prisma.coachSettings.update({
-        where: { userId },
+        where: { 
+          userId_assessmentId: {
+            userId: userId,
+            assessmentId: coachSettings.assessmentId
+          }
+        },
         data: { nextCheckIn }
       })
     }
@@ -176,7 +190,7 @@ export class ProactiveCoachingScheduler {
     }
 
     // Goal progress insights
-    const stagnantGoals = context.goalProgress.filter(goal => 
+    const stagnantGoals = context.goalProgress.filter((goal: any) => 
       goal.status === 'active' && goal.progress < 10 && 
       goal.deadline && new Date(goal.deadline) < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
     )
@@ -214,8 +228,8 @@ export class ProactiveCoachingScheduler {
 
     // Achievement opportunities
     const categoriesNeedingWork = Object.entries(assessmentData.categories)
-      .filter(([, percentile]) => percentile < 40)
-      .sort(([,a], [,b]) => a - b)
+      .filter(([, percentile]) => (percentile as number) < 40)
+      .sort(([,a], [,b]) => (a as number) - (b as number))
 
     if (categoriesNeedingWork.length > 0) {
       const [category, percentile] = categoriesNeedingWork[0]
@@ -299,7 +313,7 @@ export class ProactiveCoachingScheduler {
     })
 
     for (const checkIn of pendingCheckIns) {
-      if (checkIn.user.coachSettings?.dailyReminders) {
+      if ((checkIn.user.coachSettings as any)?.dailyReminders) {
         await this.createMotivationalCheckIn(checkIn.userId)
       }
 

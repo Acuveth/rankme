@@ -28,6 +28,7 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type')
+    const assessmentId = searchParams.get('assessmentId')
     const date = searchParams.get('date')
 
     if (type === 'daily') {
@@ -37,18 +38,29 @@ export async function GET(request: Request) {
       const nextDay = new Date(targetDate)
       nextDay.setDate(targetDate.getDate() + 1)
 
+      const whereClause: any = {
+        userId: user.id,
+        date: {
+          gte: targetDate,
+          lt: nextDay
+        }
+      }
+      
+      // If assessmentId is provided, filter by it, otherwise get all
+      if (assessmentId) {
+        whereClause.assessmentId = assessmentId
+      }
+      
+      console.log('Loading daily tasks with whereClause:', whereClause)
+      
       const dailyTasks = await prisma.dailyTask.findMany({
-        where: {
-          userId: user.id,
-          date: {
-            gte: targetDate,
-            lt: nextDay
-          }
-        },
+        where: whereClause,
         orderBy: {
           createdAt: 'asc'
         }
       })
+
+      console.log(`Found ${dailyTasks.length} daily tasks for user ${user.id}`)
 
       return NextResponse.json({ tasks: dailyTasks })
     }
@@ -57,16 +69,30 @@ export async function GET(request: Request) {
       const week = searchParams.get('week')
       const category = searchParams.get('category')
       
+      const weeklyWhereClause: any = {
+        userId: user.id,
+        ...(week && { week: parseInt(week) }),
+        ...(category && { category })
+      }
+      
+      // If assessmentId is provided, filter by it, otherwise get all
+      if (assessmentId) {
+        weeklyWhereClause.assessmentId = assessmentId
+      }
+      
+      console.log('[PROGRESS API] Loading weekly tasks with where clause:', weeklyWhereClause)
+      
       const weeklyTasks = await prisma.weeklyTask.findMany({
-        where: {
-          userId: user.id,
-          ...(week && { week: parseInt(week) }),
-          ...(category && { category })
-        },
+        where: weeklyWhereClause,
         orderBy: [
           { week: 'desc' },
           { createdAt: 'asc' }
         ]
+      })
+
+      console.log(`[PROGRESS API] Found ${weeklyTasks.length} weekly tasks for week ${week}`)
+      weeklyTasks.forEach(task => {
+        console.log(`[PROGRESS API]   - ${task.title} (${task.id}): completed=${task.completed}, completedAt=${task.completedAt}`)
       })
 
       return NextResponse.json({ tasks: weeklyTasks })
@@ -75,10 +101,17 @@ export async function GET(request: Request) {
     if (type === 'journal') {
       const limit = searchParams.get('limit')
       
+      const journalWhereClause: any = {
+        userId: user.id
+      }
+      
+      // If assessmentId is provided, filter by it, otherwise get all
+      if (assessmentId) {
+        journalWhereClause.assessmentId = assessmentId
+      }
+      
       const journalEntries = await prisma.journalEntry.findMany({
-        where: {
-          userId: user.id
-        },
+        where: journalWhereClause,
         orderBy: {
           date: 'desc'
         },
@@ -89,11 +122,29 @@ export async function GET(request: Request) {
     }
 
     if (type === 'settings') {
-      const coachSettings = await prisma.coachSettings.findUnique({
-        where: {
-          userId: user.id
-        }
-      })
+      let coachSettings = null
+      
+      if (assessmentId) {
+        // Get settings for specific assessment
+        coachSettings = await prisma.coachSettings.findUnique({
+          where: {
+            userId_assessmentId: {
+              userId: user.id,
+              assessmentId: assessmentId
+            }
+          }
+        })
+      } else {
+        // Get most recent settings across all assessments (fallback)
+        coachSettings = await prisma.coachSettings.findFirst({
+          where: {
+            userId: user.id
+          },
+          orderBy: {
+            updatedAt: 'desc'
+          }
+        })
+      }
 
       return NextResponse.json({ settings: coachSettings })
     }
@@ -137,12 +188,20 @@ export async function POST(request: Request) {
     const { type, data } = body
 
     if (type === 'daily_task') {
-      const { title, description, category, date, completed } = data
+      const { title, description, category, date, completed, assessmentId } = data
+      
+      if (!assessmentId) {
+        return NextResponse.json(
+          { error: 'Assessment ID is required for daily tasks' },
+          { status: 400 }
+        )
+      }
       
       const task = await prisma.dailyTask.upsert({
         where: {
-          userId_title_date: {
+          userId_assessmentId_title_date: {
             userId: user.id,
+            assessmentId: assessmentId,
             title,
             date: new Date(date)
           }
@@ -153,6 +212,7 @@ export async function POST(request: Request) {
         },
         create: {
           userId: user.id,
+          assessmentId: assessmentId,
           title,
           description,
           category,
@@ -171,10 +231,27 @@ export async function POST(request: Request) {
     if (type === 'weekly_task') {
       const { title, description, category, week, completed, assessmentId } = data
       
+      if (!assessmentId) {
+        return NextResponse.json(
+          { error: 'Assessment ID is required for weekly tasks' },
+          { status: 400 }
+        )
+      }
+      
+      console.log('[PROGRESS API] Upserting weekly task:', {
+        userId: user.id,
+        assessmentId,
+        title,
+        week,
+        category,
+        completed
+      })
+      
       const task = await prisma.weeklyTask.upsert({
         where: {
-          userId_title_week_category: {
+          userId_assessmentId_title_week_category: {
             userId: user.id,
+            assessmentId: assessmentId,
             title,
             week,
             category
@@ -186,14 +263,20 @@ export async function POST(request: Request) {
         },
         create: {
           userId: user.id,
+          assessmentId: assessmentId,
           title,
           description,
           category,
           week,
           completed: completed || false,
-          completedAt: completed ? new Date() : null,
-          assessmentId
+          completedAt: completed ? new Date() : null
         }
+      })
+      
+      console.log('[PROGRESS API] Upserted task result:', {
+        id: task.id,
+        title: task.title,
+        completed: task.completed
       })
 
       // Update progress tracking for weekly task
@@ -203,11 +286,19 @@ export async function POST(request: Request) {
     }
 
     if (type === 'journal_entry') {
-      const { entry, question, mood } = data
+      const { entry, question, mood, assessmentId } = data
+      
+      if (!assessmentId) {
+        return NextResponse.json(
+          { error: 'Assessment ID is required for journal entries' },
+          { status: 400 }
+        )
+      }
       
       const journalEntry = await prisma.journalEntry.create({
         data: {
           userId: user.id,
+          assessmentId: assessmentId,
           entry,
           question,
           mood,
@@ -222,11 +313,21 @@ export async function POST(request: Request) {
     }
 
     if (type === 'coach_settings') {
-      const { primaryFocus, coachingStyle, goalFrequency, dailyReminders } = data
+      const { primaryFocus, coachingStyle, goalFrequency, dailyReminders, assessmentId } = data
+      
+      if (!assessmentId) {
+        return NextResponse.json(
+          { error: 'Assessment ID is required for coach settings' },
+          { status: 400 }
+        )
+      }
       
       const settings = await prisma.coachSettings.upsert({
         where: {
-          userId: user.id
+          userId_assessmentId: {
+            userId: user.id,
+            assessmentId: assessmentId
+          }
         },
         update: {
           primaryFocus,
@@ -236,6 +337,7 @@ export async function POST(request: Request) {
         },
         create: {
           userId: user.id,
+          assessmentId: assessmentId,
           primaryFocus: primaryFocus || 'financial',
           coachingStyle: coachingStyle || 'supportive',
           goalFrequency: goalFrequency || 'daily',
@@ -254,34 +356,64 @@ export async function POST(request: Request) {
         dailyReminders,
         checkInFrequency,
         checkInTime,
-        checkInDays
+        checkInTimes,
+        checkInDays,
+        checkInTimeOfDay,
+        checkInReminderMinutes,
+        assessmentId
       } = data
       
-      const settings = await prisma.coachSettings.upsert({
-        where: {
-          userId: user.id
-        },
-        update: {
-          ...(primaryFocus && { primaryFocus }),
-          ...(coachingStyle && { coachingStyle }),
-          ...(goalFrequency && { goalFrequency }),
-          ...(dailyReminders !== undefined && { dailyReminders }),
-          ...(checkInFrequency && { checkInFrequency }),
-          ...(checkInTime && { checkInTime }),
-          ...(checkInDays && { checkInDays })
-        },
-        create: {
-          userId: user.id,
-          primaryFocus: primaryFocus || 'financial',
-          coachingStyle: coachingStyle || 'supportive',
-          goalFrequency: goalFrequency || 'daily',
-          dailyReminders: dailyReminders !== undefined ? dailyReminders : true,
-          checkInFrequency: checkInFrequency || 'daily',
-          checkInTime: checkInTime || '09:00',
-          checkInDays: checkInDays || null
-        }
-      })
-      return NextResponse.json({ success: true, settings })
+      if (!assessmentId) {
+        return NextResponse.json(
+          { error: 'Assessment ID is required for settings' },
+          { status: 400 }
+        )
+      }
+      
+      try {
+        const settings = await prisma.coachSettings.upsert({
+          where: {
+            userId_assessmentId: {
+              userId: user.id,
+              assessmentId: assessmentId
+            }
+          },
+          update: {
+            ...(primaryFocus && { primaryFocus }),
+            ...(coachingStyle && { coachingStyle }),
+            ...(goalFrequency && { goalFrequency }),
+            ...(dailyReminders !== undefined && { dailyReminders }),
+            ...(checkInFrequency && { checkInFrequency }),
+            ...(checkInTime && { checkInTime }),
+            ...(checkInTimes && { checkInTimes }),
+            ...(checkInDays && { checkInDays }),
+            ...(checkInTimeOfDay && { checkInTimeOfDay }),
+            ...(checkInReminderMinutes !== undefined && { checkInReminderMinutes })
+          },
+          create: {
+            userId: user.id,
+            assessmentId: assessmentId,
+            primaryFocus: primaryFocus || 'financial',
+            coachingStyle: coachingStyle || 'supportive',
+            goalFrequency: goalFrequency || 'daily',
+            dailyReminders: dailyReminders !== undefined ? dailyReminders : true,
+            checkInFrequency: checkInFrequency || 'daily',
+            checkInTime: checkInTime || '09:00',
+            checkInTimes: checkInTimes || null,
+            checkInDays: checkInDays || null,
+            checkInTimeOfDay: checkInTimeOfDay || null,
+            checkInReminderMinutes: checkInReminderMinutes !== undefined ? checkInReminderMinutes : 15
+          }
+        })
+        
+        return NextResponse.json({ success: true, settings })
+      } catch (prismaError) {
+        console.error('PROGRESS API: Prisma error saving settings:', prismaError)
+        return NextResponse.json({ 
+          error: 'Database error saving settings', 
+          details: prismaError instanceof Error ? prismaError.message : String(prismaError)
+        }, { status: 500 })
+      }
     }
 
     return NextResponse.json(
@@ -320,8 +452,19 @@ export async function DELETE(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type')
-    const id = searchParams.get('id')
+    let type = searchParams.get('type')
+    let id = searchParams.get('id')
+
+    // If not in query params, try to get from request body
+    if (!type || !id) {
+      try {
+        const body = await request.json()
+        type = type || body.type
+        id = id || body.id
+      } catch (error) {
+        // If no body, continue with query params
+      }
+    }
 
     if (!id) {
       return NextResponse.json(

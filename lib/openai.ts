@@ -473,7 +473,7 @@ function generateMockDailyTasks(assessmentData: UserAssessmentData, date: string
     }
   })
 
-  return { tasks: tasks.map(task => ({ ...task, category: task.category || 'personal' })) }
+  return { tasks: tasks.map(task => ({ ...task, category: (task as any).category || 'personal' })) }
 }
 
 function generateMockWeeklyTasks(assessmentData: UserAssessmentData, weekNumber: number) {

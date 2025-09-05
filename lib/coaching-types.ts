@@ -143,10 +143,15 @@ export interface TaskAdaptation {
 }
 
 export interface ProactiveInsight {
-  type: 'milestone_celebration' | 'obstacle_warning' | 'habit_suggestion' | 'motivation_boost'
+  type: 'milestone_celebration' | 'obstacle_warning' | 'habit_suggestion' | 'motivation_boost' | 'goal_suggestion'
   priority: 'high' | 'medium' | 'low'
   message: string
   actionable: boolean
   suggestedActions?: string[]
   triggerData: any
+  // Goal suggestion specific fields
+  title?: string
+  description?: string
+  category?: string
+  target?: string
 }

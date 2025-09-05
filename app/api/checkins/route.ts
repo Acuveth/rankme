@@ -7,13 +7,26 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     const url = new URL(request.url)
     const type = url.searchParams.get('type') || 'upcoming'
     const limit = parseInt(url.searchParams.get('limit') || '10')
+    const assessmentId = url.searchParams.get('assessmentId')
+    
+    if (!assessmentId) {
+      return NextResponse.json({ error: 'Assessment ID is required' }, { status: 400 })
+    }
 
     let checkIns
     
@@ -21,7 +34,8 @@ export async function GET(request: NextRequest) {
       // Get upcoming check-ins
       checkIns = await prisma.checkIn.findMany({
         where: {
-          userId: session.user.id,
+          userId: user.id,
+          assessmentId: assessmentId,
           status: 'pending',
           scheduledFor: {
             gte: new Date()
@@ -36,7 +50,8 @@ export async function GET(request: NextRequest) {
       // Get completed check-ins
       checkIns = await prisma.checkIn.findMany({
         where: {
-          userId: session.user.id,
+          userId: user.id,
+          assessmentId: assessmentId,
           status: 'completed'
         },
         orderBy: {
@@ -48,7 +63,8 @@ export async function GET(request: NextRequest) {
       // Get all check-ins
       checkIns = await prisma.checkIn.findMany({
         where: {
-          userId: session.user.id
+          userId: user.id,
+          assessmentId: assessmentId
         },
         orderBy: {
           scheduledFor: 'desc'
@@ -68,8 +84,16 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     const body = await request.json()
@@ -77,25 +101,83 @@ export async function POST(request: NextRequest) {
 
     if (action === 'schedule') {
       // Schedule new check-ins based on user preferences
-      const settings = await prisma.coachSettings.findUnique({
-        where: { userId: session.user.id }
+      const { assessmentId } = data
+      
+      if (!assessmentId) {
+        return NextResponse.json({ error: 'Assessment ID is required' }, { status: 400 })
+      }
+
+      // Validate that the assessment exists and belongs to the user
+      const assessment = await prisma.assessment.findFirst({
+        where: {
+          id: assessmentId,
+          userId: user.id
+        }
       })
 
-      if (!settings) {
-        return NextResponse.json({ error: 'Coach settings not found' }, { status: 404 })
+      if (!assessment) {
+        return NextResponse.json({ 
+          error: 'Assessment not found or does not belong to user' 
+        }, { status: 404 })
       }
+      
+      let settings = await prisma.coachSettings.findFirst({
+        where: { 
+          userId: user.id,
+          assessmentId: assessmentId
+        },
+        orderBy: { updatedAt: 'desc' }
+      })
+
+      // If no settings found for this specific assessment, create default settings
+      if (!settings) {
+        settings = await prisma.coachSettings.create({
+          data: {
+            userId: user.id,
+            assessmentId: assessmentId,
+            primaryFocus: 'financial',
+            coachingStyle: 'supportive',
+            goalFrequency: 'daily',
+            dailyReminders: true,
+            checkInFrequency: 'daily',
+            checkInTime: '09:00',
+            checkInReminderMinutes: 15
+          }
+        })
+      }
+
+      // Parse times if stored as JSON string
+      let times = undefined
+      if (settings.checkInFrequency === 'multiple-daily' && settings.checkInTimes) {
+        try {
+          times = JSON.parse(settings.checkInTimes)
+        } catch (e) {
+          console.error('Failed to parse checkInTimes:', e)
+        }
+      }
+
+      // Delete existing pending check-ins for this assessment to avoid duplicates
+      await prisma.checkIn.deleteMany({
+        where: {
+          userId: user.id,
+          assessmentId: assessmentId,
+          status: 'pending'
+        }
+      })
 
       const checkInDates = calculateCheckInDates(
         settings.checkInFrequency,
         settings.checkInTime,
-        settings.checkInDays ? JSON.parse(settings.checkInDays) : null
+        settings.checkInDays ? JSON.parse(settings.checkInDays) : null,
+        times
       )
 
       const checkIns = await Promise.all(
         checkInDates.map(date => 
           prisma.checkIn.create({
             data: {
-              userId: session.user.id,
+              userId: user.id,
+              assessmentId: assessmentId,
               type: settings.checkInFrequency,
               scheduledFor: date,
               status: 'pending'
@@ -107,7 +189,12 @@ export async function POST(request: NextRequest) {
       // Update next check-in in settings
       if (checkInDates.length > 0) {
         await prisma.coachSettings.update({
-          where: { userId: session.user.id },
+          where: { 
+            userId_assessmentId: {
+              userId: user.id,
+              assessmentId: assessmentId
+            }
+          },
           data: { nextCheckIn: checkInDates[0] }
         })
       }
@@ -132,16 +219,23 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Update last check-in in settings
-      await prisma.coachSettings.update({
-        where: { userId: session.user.id },
-        data: { lastCheckIn: new Date() }
+      // Update last check-in in settings (update most recent settings)
+      const settingsToUpdate = await prisma.coachSettings.findFirst({
+        where: { userId: user.id },
+        orderBy: { updatedAt: 'desc' }
       })
+      
+      if (settingsToUpdate) {
+        await prisma.coachSettings.update({
+          where: { id: settingsToUpdate.id },
+          data: { lastCheckIn: new Date() }
+        })
+      }
 
       // Check for achievements related to check-ins
       const completedCheckIns = await prisma.checkIn.count({
         where: {
-          userId: session.user.id,
+          userId: user.id,
           status: 'completed'
         }
       })
@@ -183,7 +277,8 @@ export async function POST(request: NextRequest) {
 function calculateCheckInDates(
   frequency: string, 
   time: string, 
-  days: string[] | null
+  days: string[] | null,
+  times?: string[] // For multiple daily check-ins
 ): Date[] {
   const dates: Date[] = []
   const now = new Date()
@@ -199,6 +294,22 @@ function calculateCheckInDates(
         if (date > now) {
           dates.push(date)
         }
+      }
+      break
+
+    case 'multiple-daily':
+      // Schedule multiple times per day for the next 7 days
+      const checkInTimes = times || [time]
+      for (let i = 0; i < 7; i++) {
+        checkInTimes.forEach(checkTime => {
+          const [h, m] = checkTime.split(':').map(Number)
+          const date = new Date(now)
+          date.setDate(date.getDate() + i)
+          date.setHours(h, m, 0, 0)
+          if (date > now) {
+            dates.push(date)
+          }
+        })
       }
       break
 

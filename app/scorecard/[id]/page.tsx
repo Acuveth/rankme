@@ -4,7 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { formatPercentile } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
-import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3, Mail, UserPlus } from 'lucide-react'
+import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3, Mail, UserPlus, ArrowLeft, FileText } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
+import LanguageSelector from '@/components/LanguageSelector'
 
 interface ScoreData {
   cohort: {
@@ -27,6 +29,7 @@ export default function ScorecardPage() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
+  const { t } = useLanguage()
   const [scoreData, setScoreData] = useState<ScoreData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -37,10 +40,70 @@ export default function ScorecardPage() {
   const [emailLoading, setEmailLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [showAccountPrompt, setShowAccountPrompt] = useState(false)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'none' | 'active' | 'cancelled' | 'loading'>('loading')
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [hasDeepReportPurchase, setHasDeepReportPurchase] = useState(false)
 
   useEffect(() => {
     fetchScoreData()
-  }, [params.id])
+    if (session?.user?.email) {
+      checkSubscriptionStatus()
+      checkDeepReportPurchase()
+    }
+  }, [params.id, session])
+  
+  const checkSubscriptionStatus = async () => {
+    if (!session?.user?.email) {
+      setSubscriptionStatus('none')
+      return
+    }
+    
+    try {
+      const response = await fetch('/api/user/subscription')
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Check for active AI coach subscription in all subscriptions
+        const hasActiveCoachSub = data.subscriptions?.some((sub: any) => 
+          sub.product === 'ai_coach_monthly' && 
+          sub.status === 'active' &&
+          new Date(sub.periodEnd) > new Date()
+        ) || false
+        
+        setHasActiveSubscription(hasActiveCoachSub)
+        setSubscriptionStatus(hasActiveCoachSub ? 'active' : 'none')
+      } else {
+        setSubscriptionStatus('none')
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error)
+      setSubscriptionStatus('none')
+    }
+  }
+
+  const checkDeepReportPurchase = async () => {
+    if (!session?.user?.email) {
+      return
+    }
+    
+    try {
+      const response = await fetch('/api/user/purchases')
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Check if this assessment has a Deep Report purchase
+        const hasReportPurchase = data.purchases?.some((purchase: any) => 
+          purchase.assessmentId === params.id &&
+          (purchase.product === 'deep_report_oneoff' || purchase.product === 'deep_report') && 
+          purchase.status === 'completed'
+        ) || false
+        
+        setHasDeepReportPurchase(hasReportPurchase)
+      }
+    } catch (error) {
+      console.error('Error checking Deep Report purchase:', error)
+    }
+  }
 
   useEffect(() => {
     // Show account prompt after 3 seconds if user is not logged in
@@ -170,7 +233,7 @@ export default function ScorecardPage() {
             onClick={() => router.push('/')}
             className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
           >
-            Back to Home
+            {t('scorecard.backToHome')}
           </button>
         </div>
       </div>
@@ -211,7 +274,27 @@ export default function ScorecardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header with Language Selector */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {session?.user && (
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t('scorecard.backToDashboard')}
+                </button>
+              )}
+            </div>
+            <LanguageSelector />
+          </div>
+        </div>
+      </div>
       <div className="max-w-6xl mx-auto p-4 py-8 sm:py-12">
+
         {/* Header Card */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 animate-fade-scale">
           <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 sm:p-8 text-white">
@@ -443,26 +526,48 @@ export default function ScorecardPage() {
               </button>
               
               <button
-                onClick={() => router.push(`/paywall/report/${params.id}`)}
+                onClick={() => router.push(hasDeepReportPurchase ? `/report/${params.id}` : `/paywall/report/${params.id}`)}
                 className="w-full flex items-center justify-center px-6 py-4 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-sm group"
               >
-                <Lock className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
+                {hasDeepReportPurchase ? (
+                  <FileText className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
+                ) : (
+                  <Lock className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
+                )}
                 <div className="text-left">
-                  <div className="font-semibold">Deep Analysis</div>
-                  <div className="text-xs text-gray-300">$29 one-time</div>
+                  <div className="font-semibold">{hasDeepReportPurchase ? 'View Deep Report' : 'Deep Analysis'}</div>
+                  <div className="text-xs text-gray-300">
+                    {hasDeepReportPurchase ? 'Access your report' : '$29 one-time'}
+                  </div>
                 </div>
               </button>
               
-              <button
-                onClick={() => router.push(`/paywall/coach/${params.id}`)}
-                className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all shadow-sm group"
-              >
-                <TrendingUp className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
-                <div className="text-left">
-                  <div className="font-semibold">AI Life Coach</div>
-                  <div className="text-xs text-gray-300">$19/month</div>
-                </div>
-              </button>
+              {/* AI Coach Button - Only show if user doesn't have active subscription */}
+              {!hasActiveSubscription && (
+                subscriptionStatus === 'loading' ? (
+                  <button
+                    disabled
+                    className="w-full flex items-center justify-center px-6 py-4 bg-gray-600 text-white rounded-xl opacity-50 cursor-not-allowed shadow-sm"
+                  >
+                    <TrendingUp className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-semibold">AI Life Coach</div>
+                      <div className="text-xs text-gray-300">Loading...</div>
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => router.push(`/paywall/coach/${params.id}`)}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all shadow-sm group"
+                  >
+                    <TrendingUp className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
+                    <div className="text-left">
+                      <div className="font-semibold">AI Life Coach</div>
+                      <div className="text-xs text-gray-300">$19/month</div>
+                    </div>
+                  </button>
+                )
+              )}
             </div>
 
             {/* Stats */}
@@ -503,16 +608,16 @@ export default function ScorecardPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => router.push(`/paywall/report/${params.id}`)}
+                onClick={() => router.push(hasDeepReportPurchase ? `/report/${params.id}` : `/paywall/report/${params.id}`)}
                 className="px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-semibold"
               >
-                Get Deep Analysis
+                {hasDeepReportPurchase ? 'View Deep Report' : 'Get Deep Analysis'}
               </button>
               <button
                 onClick={() => router.push('/')}
                 className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
               >
-                Back to Home
+                {t('scorecard.backToHome')}
               </button>
             </div>
           </div>

@@ -40,6 +40,26 @@
         "type": "linear_map",
         "values": [0, 50, 75, 100],
         "reverse": false
+      },
+      "fin_retirement_savings": {
+        "type": "log_transform",
+        "bounds": { "min": 0, "max": 3000 },
+        "reverse": false
+      },
+      "fin_investment_portfolio": {
+        "type": "log_transform",
+        "bounds": { "min": 0, "max": 1000000 },
+        "reverse": false
+      },
+      "fin_financial_stress": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "fin_insurance_coverage": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
       }
     },
     "health_fitness": {
@@ -85,6 +105,31 @@
         "type": "linear_map",
         "values": [100, 80, 60, 30, 0],
         "reverse": false
+      },
+      "health_mental_health": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "health_stress_management": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "health_medical_checkups": {
+        "type": "linear_map",
+        "values": [0, 20, 40, 80, 100],
+        "reverse": false
+      },
+      "health_nutrition": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "health_energy_levels": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
       }
     },
     "social": {
@@ -127,6 +172,21 @@
         "type": "linear_map",
         "values": [100, 75, 50, 25, 0],
         "reverse": false
+      },
+      "social_family_relationships": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "social_conflict_resolution": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "social_giving_back": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
       }
     },
     "romantic": {
@@ -154,6 +214,80 @@
         "type": "linear_map",
         "values": [0, 25, 50, 75, 100],
         "reverse": false
+      },
+      "rom_communication": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "rom_emotional_intelligence": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "rom_future_planning": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      }
+    },
+    "career": {
+      "career_satisfaction": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "career_growth": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "career_skills_development": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "career_work_life_balance": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "career_leadership": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "career_networking": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      }
+    },
+    "personal_growth": {
+      "personal_goal_achievement": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "personal_learning": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "personal_creativity": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "personal_mindfulness": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
+      },
+      "personal_values_alignment": {
+        "type": "linear_map",
+        "values": [0, 25, 50, 75, 100],
+        "reverse": false
       }
     }
   },
@@ -163,6 +297,8 @@
       "health_fitness": { "mean": 50, "stddev": 20 },
       "social": { "mean": 50, "stddev": 20 },
       "romantic": { "mean": 50, "stddev": 20 },
+      "career": { "mean": 50, "stddev": 20 },
+      "personal_growth": { "mean": 50, "stddev": 20 },
       "overall": { "mean": 50, "stddev": 15 }
     }
   }

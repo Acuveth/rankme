@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { type, title, description, category, priority, estimatedMinutes, date, weekNumber } = body
+    const { type, title, description, category, priority, estimatedMinutes, date, weekNumber, assessmentId } = body
 
     if (!title || !category) {
       return NextResponse.json(
@@ -43,9 +43,52 @@ export async function POST(request: Request) {
         )
       }
 
+      // Use provided assessmentId or get the user's most recent assessment
+      let finalAssessmentId = assessmentId
+      
+      if (!finalAssessmentId) {
+        const assessment = await prisma.assessment.findFirst({
+          where: { userId: user.id },
+          orderBy: { createdAt: 'desc' }
+        })
+
+        if (!assessment) {
+          return NextResponse.json(
+            { error: 'No assessment found. Please complete an assessment first.' },
+            { status: 400 }
+          )
+        }
+        
+        finalAssessmentId = assessment.id
+      } else {
+        // Verify the provided assessmentId belongs to the user
+        const assessment = await prisma.assessment.findFirst({
+          where: { 
+            id: finalAssessmentId,
+            userId: user.id 
+          }
+        })
+        
+        if (!assessment) {
+          return NextResponse.json(
+            { error: 'Invalid assessment ID.' },
+            { status: 400 }
+          )
+        }
+      }
+
+      console.log('Creating daily task with:', {
+        userId: user.id,
+        assessmentId: finalAssessmentId,
+        title,
+        date: new Date(date),
+        category
+      })
+
       const task = await prisma.dailyTask.create({
         data: {
           userId: user.id,
+          assessmentId: finalAssessmentId,
           title,
           description: description || '',
           category,
@@ -55,6 +98,8 @@ export async function POST(request: Request) {
           date: new Date(date)
         }
       })
+
+      console.log('Daily task created successfully:', task.id)
 
       return NextResponse.json({
         success: true,
@@ -70,9 +115,44 @@ export async function POST(request: Request) {
         )
       }
 
+      // Use provided assessmentId or get the user's most recent assessment
+      let finalAssessmentId = assessmentId
+      
+      if (!finalAssessmentId) {
+        const assessment = await prisma.assessment.findFirst({
+          where: { userId: user.id },
+          orderBy: { createdAt: 'desc' }
+        })
+
+        if (!assessment) {
+          return NextResponse.json(
+            { error: 'No assessment found. Please complete an assessment first.' },
+            { status: 400 }
+          )
+        }
+        
+        finalAssessmentId = assessment.id
+      } else {
+        // Verify the provided assessmentId belongs to the user
+        const assessment = await prisma.assessment.findFirst({
+          where: { 
+            id: finalAssessmentId,
+            userId: user.id 
+          }
+        })
+        
+        if (!assessment) {
+          return NextResponse.json(
+            { error: 'Invalid assessment ID.' },
+            { status: 400 }
+          )
+        }
+      }
+
       const task = await prisma.weeklyTask.create({
         data: {
           userId: user.id,
+          assessmentId: finalAssessmentId,
           title,
           description: description || '',
           category,
@@ -98,7 +178,7 @@ export async function POST(request: Request) {
     console.error('Error creating user task:', error)
     
     // Handle unique constraint violations
-    if (error.code === 'P2002') {
+    if ((error as any).code === 'P2002') {
       return NextResponse.json(
         { error: 'A task with this title already exists for this date/week' },
         { status: 409 }

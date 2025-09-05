@@ -98,9 +98,7 @@ async function getTaskAnalytics(userId: string, startDate: Date, category?: stri
       by: ['category'],
       where: whereClause,
       _count: {
-        id: true
-      },
-      _sum: {
+        id: true,
         completed: true
       }
     }),
@@ -108,9 +106,7 @@ async function getTaskAnalytics(userId: string, startDate: Date, category?: stri
       by: ['date'],
       where: whereClause,
       _count: {
-        id: true
-      },
-      _sum: {
+        id: true,
         completed: true
       },
       orderBy: {
@@ -128,17 +124,17 @@ async function getTaskAnalytics(userId: string, startDate: Date, category?: stri
     byCategory: tasksByCategory.map(category => ({
       category: category.category,
       total: category._count.id,
-      completed: category._sum.completed || 0,
+      completed: category._count.completed || 0,
       completionRate: category._count.id > 0 
-        ? Math.round(((category._sum.completed || 0) / category._count.id) * 10000) / 100
+        ? Math.round(((category._count.completed || 0) / category._count.id) * 10000) / 100
         : 0
     })),
     dailyTrend: tasksByDay.map(day => ({
       date: day.date,
       total: day._count.id,
-      completed: day._sum.completed || 0,
+      completed: day._count.completed || 0,
       completionRate: day._count.id > 0 
-        ? Math.round(((day._sum.completed || 0) / day._count.id) * 10000) / 100
+        ? Math.round(((day._count.completed || 0) / day._count.id) * 10000) / 100
         : 0
     }))
   }
@@ -262,9 +258,7 @@ async function getCategoryTrends(userId: string, startDate: Date) {
       date: { gte: startDate }
     },
     _count: {
-      id: true
-    },
-    _sum: {
+      id: true,
       completed: true
     },
     orderBy: [
@@ -283,9 +277,9 @@ async function getCategoryTrends(userId: string, startDate: Date) {
     trends[data.category].push({
       date: data.date,
       total: data._count.id,
-      completed: data._sum.completed || 0,
+      completed: data._count.completed || 0,
       completionRate: data._count.id > 0 
-        ? Math.round(((data._sum.completed || 0) / data._count.id) * 10000) / 100
+        ? Math.round(((data._count.completed || 0) / data._count.id) * 10000) / 100
         : 0
     })
   })

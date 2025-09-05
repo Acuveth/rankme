@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import questions from '@/data/questions.json'
+import countries from '@/data/countries.json'
 import { ChevronLeft, ChevronRight, Check, User, Globe, Calendar } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
+import LanguageSelector from '@/components/LanguageSelector'
 
 interface CohortData {
   age: number
@@ -20,6 +23,7 @@ export default function AssessmentPage() {
   const router = useRouter()
   const { data: session } = useSession()
   const searchParams = useSearchParams()
+  const { t } = useLanguage()
   const [step, setStep] = useState<'cohort' | 'questions' | 'review'>('cohort')
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [cohortData, setCohortData] = useState<CohortData>({
@@ -35,13 +39,21 @@ export default function AssessmentPage() {
   const handleCohortSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    console.log('Creating assessment with cohort data:', cohortData)
+    
     const response = await fetch('/api/assessment/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cohortData)
     })
     
+    if (!response.ok) {
+      console.error('Failed to create assessment:', response.status, response.statusText)
+      return
+    }
+    
     const data = await response.json()
+    console.log('Assessment created with ID:', data.assessmentId)
     setAssessmentId(data.assessmentId)
     
     // If user is logged in, immediately connect the assessment
@@ -69,8 +81,13 @@ export default function AssessmentPage() {
     if (currentQuestion < questionList.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     } else {
-      await saveAnswers()
-      setStep('review')
+      try {
+        await saveAnswers()
+        // Skip review step and go directly to scoring and scorecard
+        await handleSubmit()
+      } catch (error) {
+        console.error('Failed to complete assessment:', error)
+      }
     }
   }
 
@@ -81,36 +98,71 @@ export default function AssessmentPage() {
   }
 
   const saveAnswers = async () => {
-    await fetch('/api/assessment/answers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        assessmentId,
-        answers: Object.entries(answers).map(([questionId, value]) => ({
-          questionId,
-          value
-        }))
+    try {
+      console.log('Saving answers for assessment:', assessmentId)
+      console.log('Answers to save:', answers)
+      
+      const response = await fetch('/api/assessment/answers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assessmentId,
+          answers: Object.entries(answers).map(([questionId, value]) => ({
+            questionId,
+            value
+          }))
+        })
       })
-    })
+      
+      if (!response.ok) {
+        console.error('Failed to save answers:', response.status, response.statusText)
+        const errorData = await response.json()
+        console.error('Save answers error:', errorData)
+        throw new Error('Failed to save answers')
+      }
+      
+      console.log('Answers saved successfully')
+    } catch (error) {
+      console.error('Error saving answers:', error)
+      alert('Failed to save answers. Please try again.')
+      throw error
+    }
   }
 
   const handleSubmit = async () => {
-    const response = await fetch('/api/assessment/score', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assessmentId })
-    })
-    
-    if (response.ok) {
-      const product = searchParams.get('product')
+    try {
+      console.log('Submitting assessment with ID:', assessmentId)
+      console.log('Current answers:', answers)
       
-      if (product === 'report') {
-        router.push(`/paywall/report/${assessmentId}`)
-      } else if (product === 'coach') {
-        router.push(`/paywall/coach/${assessmentId}`)
+      const response = await fetch('/api/assessment/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessmentId })
+      })
+      
+      console.log('Score response status:', response.status)
+      
+      if (response.ok) {
+        console.log('Assessment scored successfully, redirecting to scorecard...')
+        const product = searchParams.get('product')
+        
+        if (product === 'report') {
+          router.push(`/paywall/report/${assessmentId}`)
+        } else if (product === 'coach') {
+          router.push(`/paywall/coach/${assessmentId}`)
+        } else {
+          console.log('Redirecting to scorecard:', `/scorecard/${assessmentId}`)
+          router.push(`/scorecard/${assessmentId}`)
+        }
       } else {
-        router.push(`/scorecard/${assessmentId}`)
+        console.error('Error scoring assessment:', response.status, response.statusText)
+        const errorData = await response.json()
+        console.error('Error details:', errorData)
+        alert('Failed to score assessment. Please try again.')
       }
+    } catch (error) {
+      console.error('Error in handleSubmit:', error)
+      alert('An error occurred. Please try again.')
     }
   }
 
@@ -120,16 +172,20 @@ export default function AssessmentPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 w-full max-w-md animate-fade-scale">
+          {/* Language Selector */}
+          <div className="flex justify-end mb-4">
+            <LanguageSelector />
+          </div>
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <User className="h-8 w-8 text-gray-600" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-              Let's Get Started
+              {t('assessment.letsGetStarted')}
             </h2>
             <p className="text-gray-600 text-sm sm:text-base">
-              First, we need some basic information to compare you with your peers.
+              {t('assessment.basicInformationDesc')}
             </p>
           </div>
 
@@ -137,7 +193,7 @@ export default function AssessmentPage() {
             <div>
               <label className="flex items-center text-sm font-semibold text-gray-800 mb-2">
                 <Calendar className="h-4 w-4 mr-2" />
-                Age
+                {t('assessment.age')}
               </label>
               <input
                 type="number"
@@ -147,48 +203,46 @@ export default function AssessmentPage() {
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                 value={cohortData.age || ''}
                 onChange={(e) => setCohortData({ ...cohortData, age: parseInt(e.target.value) })}
-                placeholder="Enter your age"
+                placeholder={t('assessment.enterYourAge')}
               />
             </div>
 
             <div>
               <label className="flex items-center text-sm font-semibold text-gray-800 mb-2">
                 <Globe className="h-4 w-4 mr-2" />
-                Country
+                {t('assessment.country')}
               </label>
               <select
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                 value={cohortData.country}
                 onChange={(e) => setCohortData({ ...cohortData, country: e.target.value })}
               >
-                <option value="">Select your country</option>
-                <option value="US">United States</option>
-                <option value="UK">United Kingdom</option>
-                <option value="CA">Canada</option>
-                <option value="AU">Australia</option>
-                <option value="DE">Germany</option>
-                <option value="FR">France</option>
-                <option value="Other">Other</option>
+                <option value="">{t('assessment.selectYourCountry')}</option>
+                {countries.countries.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
               <label className="flex items-center text-sm font-semibold text-gray-800 mb-2">
                 <User className="h-4 w-4 mr-2" />
-                Gender
+                {t('assessment.gender')}
               </label>
               <select
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                 value={cohortData.sexGender}
                 onChange={(e) => setCohortData({ ...cohortData, sexGender: e.target.value })}
               >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-                <option value="PNTS">Prefer not to say</option>
+                <option value="">{t('assessment.selectGender')}</option>
+                <option value="Male">{t('assessment.male')}</option>
+                <option value="Female">{t('assessment.female')}</option>
+                <option value="Other">{t('assessment.other')}</option>
+                <option value="PNTS">{t('assessment.preferNotToSay')}</option>
               </select>
             </div>
 
@@ -196,12 +250,12 @@ export default function AssessmentPage() {
               type="submit"
               className="w-full bg-gray-900 text-white py-4 rounded-xl hover:bg-gray-800 transition-all font-semibold text-lg shadow-sm"
             >
-              Start Assessment
+              {t('assessment.startAssessment')}
             </button>
           </form>
 
           <p className="text-center text-xs text-gray-500 mt-6">
-            Your information is kept completely confidential
+            {t('assessment.informationConfidential')}
           </p>
         </div>
       </div>
@@ -218,20 +272,24 @@ export default function AssessmentPage() {
     }
 
     const categoryNames: { [key: string]: string } = {
-      financial: 'Financial',
-      health_fitness: 'Health & Fitness',
-      social: 'Social',
-      romantic: 'Personal'
+      financial: t('assessment.financial'),
+      health_fitness: t('assessment.healthFitness'),
+      social: t('assessment.social'),
+      romantic: t('assessment.personal')
     }
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 w-full max-w-2xl animate-fade-scale">
+          {/* Language Selector */}
+          <div className="flex justify-end mb-4">
+            <LanguageSelector />
+          </div>
           {/* Progress Section */}
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
               <span className="text-sm font-medium text-gray-600 mb-2 sm:mb-0">
-                Question {currentQuestion + 1} of {questionList.length}
+                {t('assessment.question')} {currentQuestion + 1} {t('assessment.of')} {questionList.length}
               </span>
               <span className={`px-4 py-1 rounded-full text-xs font-bold ${categoryColors[question.category]} w-fit`}>
                 {categoryNames[question.category]}
@@ -248,15 +306,15 @@ export default function AssessmentPage() {
             <div className="flex justify-between items-center">
               <div className="text-center">
                 <div className="text-sm font-semibold text-gray-800">
-                  {Math.round(progress)}% Complete
+                  {Math.round(progress)}% {t('assessment.complete')}
                 </div>
               </div>
               <div className="text-xs text-gray-500">
-                {progress < 25 ? "Just getting started..." :
-                 progress < 50 ? "Making great progress!" :
-                 progress < 75 ? "You're halfway there!" :
-                 progress < 90 ? "Almost finished!" :
-                 "Just a few more!"}
+                {progress < 25 ? t('assessment.justGettingStarted') :
+                 progress < 50 ? t('assessment.makingGreatProgress') :
+                 progress < 75 ? t('assessment.halfwayThere') :
+                 progress < 90 ? t('assessment.almostFinished') :
+                 t('assessment.justAFewMore')}
               </div>
             </div>
           </div>
@@ -317,7 +375,7 @@ export default function AssessmentPage() {
                           <Check className="w-3 h-3 text-white mx-auto mt-0.5" />
                         )}
                       </div>
-                      <span className="text-sm italic">Prefer not to say</span>
+                      <span className="text-sm italic">{t('assessment.preferNotToSay')}</span>
                     </div>
                   </button>
                 )}
@@ -333,7 +391,7 @@ export default function AssessmentPage() {
               className="flex items-center px-6 py-3 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-5 w-5 mr-1" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">{t('assessment.back')}</span>
             </button>
             
             <button
@@ -342,7 +400,7 @@ export default function AssessmentPage() {
               className="flex items-center px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none font-semibold"
             >
               <span className="mr-2">
-                {currentQuestion === questionList.length - 1 ? 'Review' : 'Next'}
+                {currentQuestion === questionList.length - 1 ? t('assessment.review') : t('assessment.next')}
               </span>
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -366,24 +424,28 @@ export default function AssessmentPage() {
     }, {} as { [key: string]: number })
 
     const categoryNames: { [key: string]: string } = {
-      financial: 'Financial Health',
-      health_fitness: 'Physical Wellness',
-      social: 'Social Network', 
-      romantic: 'Personal Growth'
+      financial: t('assessment.financialHealth'),
+      health_fitness: t('assessment.physicalWellness'),
+      social: t('assessment.socialNetwork'), 
+      romantic: t('assessment.personalGrowthCategory')
     }
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 w-full max-w-2xl animate-fade-scale">
+          {/* Language Selector */}
+          <div className="flex justify-end mb-4">
+            <LanguageSelector />
+          </div>
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 text-gray-600" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-              Review Your Assessment
+              {t('assessment.reviewYourAssessment')}
             </h2>
             <p className="text-gray-600">
-              Check your responses before getting your life score
+              {t('assessment.checkResponsesDesc')}
             </p>
           </div>
           
@@ -412,13 +474,13 @@ export default function AssessmentPage() {
               onClick={() => setStep('questions')}
               className="flex-1 px-6 py-3 text-gray-600 hover:text-gray-800 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
             >
-              Edit Answers
+              {t('assessment.editAnswers')}
             </button>
             <button
               onClick={handleSubmit}
               className="flex-1 px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm"
             >
-              Get My Results
+              {t('assessment.getMyResults')}
             </button>
           </div>
         </div>
