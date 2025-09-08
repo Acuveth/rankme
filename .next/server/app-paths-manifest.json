@@ -1,15 +1,5 @@
 {
   "/page": "app/page.js",
-  "/api/user/language/route": "app/api/user/language/route.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/user/assessments/route": "app/api/user/assessments/route.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/api/user/subscription/route": "app/api/user/subscription/route.js",
-  "/api/user/purchases/route": "app/api/user/purchases/route.js",
-  "/api/login-history/route": "app/api/login-history/route.js",
-  "/api/user/settings/route": "app/api/user/settings/route.js",
-  "/api/share/generate/route": "app/api/share/generate/route.js",
-  "/api/track-login/route": "app/api/track-login/route.js",
-  "/report/[id]/page": "app/report/[id]/page.js",
-  "/api/report/[id]/route": "app/api/report/[id]/route.js"
+  "/report/[id]/page": "app/report/[id]/page.js"
 }

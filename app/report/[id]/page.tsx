@@ -404,18 +404,18 @@ export default function DetailedReportPage() {
               
               {/* Enhanced AI Executive Summary */}
               {reportData.aiReport?.executiveSummary && (
-                <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 mt-4">
-                  <h3 className="font-semibold text-blue-900 mb-3">{t('report.personalizedInsights')}</h3>
-                  <div className="text-blue-800 text-sm leading-relaxed">
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mt-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">{t('report.personalizedInsights')}</h3>
+                  <div className="text-gray-800 text-sm leading-relaxed">
                     {reportData.aiReport.executiveSummary.overallAssessment}
                   </div>
                   
                   {reportData.aiReport.executiveSummary.keyStrengths.length > 0 && (
                     <div className="mt-4">
-                      <h4 className="font-medium text-blue-900 mb-2">{t('report.keyStrengths')}</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">{t('report.keyStrengths')}</h4>
                       <ul className="space-y-1">
                         {reportData.aiReport.executiveSummary.keyStrengths.map((strength, index) => (
-                          <li key={index} className="text-blue-700 text-sm">• {strength}</li>
+                          <li key={index} className="text-gray-700 text-sm">• {strength}</li>
                         ))}
                       </ul>
                     </div>
@@ -423,10 +423,10 @@ export default function DetailedReportPage() {
                   
                   {reportData.aiReport.executiveSummary.primaryGrowthAreas.length > 0 && (
                     <div className="mt-4">
-                      <h4 className="font-medium text-blue-900 mb-2">{t('report.primaryGrowthAreas')}</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">{t('report.primaryGrowthAreas')}</h4>
                       <ul className="space-y-1">
                         {reportData.aiReport.executiveSummary.primaryGrowthAreas.map((area, index) => (
-                          <li key={index} className="text-blue-700 text-sm">• {area}</li>
+                          <li key={index} className="text-gray-700 text-sm">• {area}</li>
                         ))}
                       </ul>
                     </div>
@@ -592,18 +592,18 @@ export default function DetailedReportPage() {
 
                 <div className="space-y-6">
                   {reportData.aiReport.personalizedInsights.crossCategoryPatterns && (
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
-                      <h3 className="font-semibold text-gray-900 mb-3">{t('report.crossCategoryPatterns')}</h3>
-                      <p className="text-gray-700 leading-relaxed">
+                    <div className="bg-black p-6 rounded-xl border border-gray-300">
+                      <h3 className="font-semibold text-white mb-3">{t('report.crossCategoryPatterns')}</h3>
+                      <p className="text-gray-300 leading-relaxed">
                         {reportData.aiReport.personalizedInsights.crossCategoryPatterns}
                       </p>
                     </div>
                   )}
 
                   {reportData.aiReport.personalizedInsights.surprisingFindings && (
-                    <div className="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-xl border border-green-200">
-                      <h3 className="font-semibold text-gray-900 mb-3">{t('report.surprisingFindings')}</h3>
-                      <p className="text-gray-700 leading-relaxed">
+                    <div className="bg-gray-100 p-6 rounded-xl border border-gray-300">
+                      <h3 className="font-semibold text-black mb-3">{t('report.surprisingFindings')}</h3>
+                      <p className="text-gray-800 leading-relaxed">
                         {reportData.aiReport.personalizedInsights.surprisingFindings}
                       </p>
                     </div>
