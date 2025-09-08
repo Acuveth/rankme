@@ -21,19 +21,30 @@ export const availableLanguages = [
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en')
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
     const loadLanguagePreference = async () => {
+      // Check if we're on the client side
+      if (typeof window === 'undefined') {
+        setIsInitialized(true)
+        return
+      }
+
       // First check localStorage for immediate loading
-      const savedLanguage = localStorage.getItem('preferred-language') as Language
-      if (savedLanguage && translations[savedLanguage]) {
-        setLanguageState(savedLanguage)
-      } else {
-        // Detect browser language as fallback
-        const browserLanguage = navigator.language.split('-')[0] as Language
-        if (translations[browserLanguage]) {
-          setLanguageState(browserLanguage)
+      try {
+        const savedLanguage = localStorage.getItem('preferred-language') as Language
+        if (savedLanguage && translations[savedLanguage]) {
+          setLanguageState(savedLanguage)
+        } else {
+          // Detect browser language as fallback
+          const browserLanguage = navigator.language.split('-')[0] as Language
+          if (translations[browserLanguage]) {
+            setLanguageState(browserLanguage)
+          }
         }
+      } catch (error) {
+        console.debug('Error accessing localStorage:', error)
       }
 
       // Then try to load from database (for logged-in users)
@@ -43,13 +54,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           const data = await response.json()
           if (data.language && translations[data.language]) {
             setLanguageState(data.language)
-            localStorage.setItem('preferred-language', data.language)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('preferred-language', data.language)
+            }
           }
         }
       } catch (error) {
         // Silently ignore errors (user might not be logged in)
         console.debug('Could not fetch language preference from database:', error)
       }
+
+      setIsInitialized(true)
     }
 
     loadLanguagePreference()
@@ -72,24 +87,52 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   const t = (key: TranslationKey): string => {
-    const keys = key.split('.')
-    let value: any = translations[language]
-    
-    for (const k of keys) {
-      value = value?.[k]
+    try {
+      const keys = key.split('.')
+      let value: any = translations[language]
+      
+      // Check if translations object exists
+      if (!translations || !translations[language]) {
+        console.warn('Translation object not found for language:', language)
+        return key
+      }
+      
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          value = value[k]
+        } else {
+          value = undefined
+          break
+        }
+      }
+      
+      if (typeof value === 'string' && value.length > 0) {
+        return value
+      }
+      
+      // Fallback to English if translation not found
+      if (language !== 'en' && translations.en) {
+        value = translations.en
+        for (const k of keys) {
+          if (value && typeof value === 'object' && k in value) {
+            value = value[k]
+          } else {
+            value = undefined
+            break
+          }
+        }
+        
+        if (typeof value === 'string' && value.length > 0) {
+          return value
+        }
+      }
+      
+      console.warn('Translation not found for key:', key)
+      return key
+    } catch (error) {
+      console.error('Error in translation function:', error, 'for key:', key)
+      return key
     }
-    
-    if (typeof value === 'string') {
-      return value
-    }
-    
-    // Fallback to English if translation not found
-    value = translations.en
-    for (const k of keys) {
-      value = value?.[k]
-    }
-    
-    return typeof value === 'string' ? value : key
   }
 
   return (

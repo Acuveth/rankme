@@ -5,8 +5,10 @@ import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 export default function SignInPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
@@ -110,7 +112,7 @@ export default function SignInPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder="Enter your email"
+                placeholder={t('auth.enterEmail')}
                 required
                 disabled={loading}
               />
@@ -129,7 +131,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder="Enter your password"
+                placeholder={t('auth.enterPassword')}
                 required
                 disabled={loading}
               />

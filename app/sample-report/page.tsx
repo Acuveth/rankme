@@ -3,8 +3,10 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, TrendingUp, Target, Brain, Heart, DollarSign, Users, ChevronRight, BarChart3, Award, Lightbulb, CheckCircle, AlertCircle, Star } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 export default function SampleReportPage() {
+  const { t } = useLanguage()
   // Sample data for demonstration
   const sampleData = {
     overall: 72,
@@ -33,12 +35,12 @@ export default function SampleReportPage() {
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-white mb-8 shadow-xl">
             <div className="flex items-center mb-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
-                <span className="text-sm font-semibold">SAMPLE REPORT</span>
+                <span className="text-sm font-semibold">{t('report.sampleReport')}</span>
               </div>
             </div>
-            <h1 className="text-4xl font-bold mb-4">Deep Life Analysis Report</h1>
+            <h1 className="text-4xl font-bold mb-4">{t('report.deepLifeAnalysisReport')}</h1>
             <p className="text-xl text-gray-300 mb-6">
-              This is a sample of what you'll receive with our comprehensive analysis upgrade
+              {t('report.sampleDescription')}
             </p>
             <div className="flex flex-wrap gap-4">
               <div className="bg-white/5 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/10">
@@ -66,7 +68,7 @@ export default function SampleReportPage() {
           
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="bg-gray-50 rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Overall Performance</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t('report.overallScore')} {t('report.performance')}</h3>
               <div className="flex items-baseline mb-2">
                 <span className="text-4xl font-bold text-gray-900">{sampleData.overall}</span>
                 <span className="text-xl text-gray-600 ml-2">/ 100</span>
@@ -108,12 +110,12 @@ export default function SampleReportPage() {
                 <div className="flex items-center">
                   <DollarSign className="h-8 w-8 text-gray-700 mr-3" />
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">Financial Health</h3>
-                    <p className="text-gray-600">Score: {sampleData.categories.financial.score} | Percentile: {sampleData.categories.financial.percentile}th</p>
+                    <h3 className="text-xl font-bold text-gray-900">{t('report.financialHealth')}</h3>
+                    <p className="text-gray-600">{t('report.score')}: {sampleData.categories.financial.score} | {t('report.percentile')}: {sampleData.categories.financial.percentile}th</p>
                   </div>
                 </div>
                 <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">
-                  Growth Area
+                  {t('report.growthAreas')}
                 </span>
               </div>
               
@@ -151,12 +153,12 @@ export default function SampleReportPage() {
                 <div className="flex items-center">
                   <Heart className="h-8 w-8 text-gray-700 mr-3" />
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">Physical Wellness</h3>
-                    <p className="text-gray-600">Score: {sampleData.categories.health.score} | Percentile: {sampleData.categories.health.percentile}th</p>
+                    <h3 className="text-xl font-bold text-gray-900">{t('report.healthWellness')}</h3>
+                    <p className="text-gray-600">{t('report.score')}: {sampleData.categories.health.score} | {t('report.percentile')}: {sampleData.categories.health.percentile}th</p>
                   </div>
                 </div>
                 <span className="bg-gray-900 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  Top Strength
+                  {t('report.keyStrengths')}
                 </span>
               </div>
               

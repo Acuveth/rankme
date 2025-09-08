@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generateDailyTasks, generateWeeklyTasks } from '@/lib/openai'
+// REMOVED: Basic task generation functions - using enhancedCoachingEngine.generateCustomTasks only
 import { enhancedCoachingEngine } from '@/lib/enhanced-coaching'
 
 export async function POST(request: Request) {
@@ -28,7 +28,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { type, date, weekNumber, assessmentId } = body
+    const { 
+      type, 
+      date, 
+      weekNumber, 
+      assessmentId,
+      // New customization options
+      focusAreas = [],
+      difficulty = 'moderate',
+      dailyCount,
+      weeklyCount,
+      specificGoals,
+      categories,
+      userRequest
+    } = body
 
     // Get user's assessment data for personalization
     let assessment = null
@@ -78,123 +91,147 @@ export async function POST(request: Request) {
       }
     }
 
-    if (type === 'daily') {
+    // Gather user context for personalized task generation
+    const context = await enhancedCoachingEngine.gatherUserContext(user.id, assessment.id)
+
+    // Determine focus areas
+    const effectiveFocusAreas = focusAreas.length > 0 ? focusAreas : ['financial', 'health', 'social', 'personal']
+    
+    // Get existing tasks to avoid duplicates
+    const existingTasks = []
+    if (type === 'daily' || !type) {
       if (!date) {
         return NextResponse.json(
-          { error: 'Date is required for daily tasks' },
+          { error: 'Date is required when generating daily tasks' },
           { status: 400 }
         )
       }
-
-      // Get existing tasks for this date to avoid duplicates
-      const existingTasks = await prisma.dailyTask.findMany({
-        where: {
-          userId: user.id,
-          date: new Date(date)
-        },
+      const existing = await prisma.dailyTask.findMany({
+        where: { userId: user.id, date: new Date(date) },
         select: { title: true }
       })
-
-      const existingTaskTitles = existingTasks.map(task => task.title)
-      const generatedTasks = await generateDailyTasks(assessmentData, date, existingTaskTitles)
-
-      // Get task adaptations for better personalization
-      const adaptations = await Promise.all(
-        ['financial', 'health', 'social', 'romantic'].map(category =>
-          enhancedCoachingEngine.adaptTaskDifficulty(user.id, category)
-        )
-      )
-      const allAdaptations = adaptations.flat()
-
-      // Apply adaptations to generated tasks
-      const adaptedTasks = generatedTasks.tasks.map((task: any) => {
-        const adaptation = allAdaptations.find(a => a.originalTask.toLowerCase().includes(task.title.toLowerCase().split(' ')[0]))
-        if (adaptation) {
-          return {
-            ...task,
-            title: adaptation.adaptedTask,
-            description: `${task.description} (Adapted: ${adaptation.explanation})`
-          }
-        }
-        return task
-      })
-
-      // Save generated tasks to database
-      const savedTasks = []
-      for (const task of adaptedTasks) {
-        const savedTask = await prisma.dailyTask.create({
-          data: {
-            userId: user.id,
-            assessmentId: assessmentId,
-            title: task.title,
-            description: task.description,
-            category: task.category,
-            source: 'llm',
-            priority: task.priority,
-            estimatedMinutes: task.estimatedMinutes,
-            date: new Date(date)
-          }
-        })
-        savedTasks.push(savedTask)
-      }
-
-      return NextResponse.json({
-        success: true,
-        tasks: savedTasks,
-        count: savedTasks.length
-      })
+      existingTasks.push(...existing.map(task => task.title))
     }
 
-    if (type === 'weekly') {
-      if (!weekNumber) {
-        return NextResponse.json(
-          { error: 'Week number is required for weekly tasks' },
-          { status: 400 }
+    if (type === 'weekly' || !type) {
+      const currentWeek = weekNumber || Math.ceil((Date.now() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000))
+      const existing = await prisma.weeklyTask.findMany({
+        where: { userId: user.id, week: currentWeek },
+        select: { title: true }
+      })
+      existingTasks.push(...existing.map(task => task.title))
+    }
+
+    // Set up task preferences for separate generation functions
+    const taskPreferences = {
+      difficulty: difficulty as 'easy' | 'moderate' | 'challenging',
+      specificGoals,
+      existingTasks,
+      userRequest: userRequest || `Generate ${type || 'daily and weekly'} tasks`,
+      timeframe: date ? new Date(date).toLocaleDateString() : `Week ${weekNumber || 'current'}`
+    }
+
+    try {
+      const savedTasks = { daily: [], weekly: [] }
+
+      // Generate and save daily tasks if requested
+      if ((type === 'daily' || !type) && dailyCount > 0 && date) {
+        const dailyTasksGenerated = await enhancedCoachingEngine.generateDailyTasks(
+          effectiveFocusAreas,
+          assessmentData,
+          context,
+          dailyCount,
+          taskPreferences
         )
-      }
 
-      const generatedTasks = await generateWeeklyTasks(assessmentData, weekNumber)
-
-      // Save generated tasks to database
-      const savedTasks = []
-      for (const task of generatedTasks.tasks) {
-        try {
-          const savedTask = await prisma.weeklyTask.create({
-            data: {
-              userId: user.id,
-              title: task.title,
-              description: task.description,
-              category: task.category,
-              source: 'llm',
-              priority: task.priority,
-              estimatedMinutes: task.estimatedMinutes,
-              week: weekNumber,
-              assessmentId: assessment.id
+        if (dailyTasksGenerated && dailyTasksGenerated.length > 0) {
+          for (const task of dailyTasksGenerated) {
+            try {
+              const savedTask = await prisma.dailyTask.create({
+                data: {
+                  userId: user.id,
+                  assessmentId: assessment.id,
+                  title: task.title,
+                  description: task.description,
+                  category: task.category,
+                  source: 'ai_coach_custom',
+                  priority: task.priority || 'medium',
+                  estimatedMinutes: task.estimatedMinutes,
+                  date: new Date(date)
+                }
+              })
+              savedTasks.daily.push(savedTask)
+            } catch (error) {
+              console.log(`Skipping duplicate daily task: ${task.title}`)
             }
-          })
-          savedTasks.push(savedTask)
-        } catch (error) {
-          // Skip duplicate tasks (based on unique constraint)
-          console.log(`Skipping duplicate task: ${task.title}`)
+          }
+        }
+      }
+
+      // Generate and save weekly tasks if requested
+      if ((type === 'weekly' || !type) && weeklyCount > 0) {
+        const currentWeek = weekNumber || Math.ceil((Date.now() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000))
+        
+        const weeklyTasksGenerated = await enhancedCoachingEngine.generateWeeklyTasks(
+          effectiveFocusAreas,
+          assessmentData,
+          context,
+          weeklyCount,
+          taskPreferences
+        )
+
+        if (weeklyTasksGenerated && weeklyTasksGenerated.length > 0) {
+          for (const task of weeklyTasksGenerated) {
+            try {
+              const savedTask = await prisma.weeklyTask.create({
+                data: {
+                  userId: user.id,
+                  assessmentId: assessment.id,
+                  title: task.title,
+                  description: task.description,
+                  category: task.category,
+                  source: 'ai_coach_custom',
+                  priority: task.priority || 'medium',
+                  estimatedMinutes: task.estimatedMinutes,
+                  week: currentWeek
+                }
+              })
+              savedTasks.weekly.push(savedTask)
+            } catch (error) {
+              console.log(`Skipping duplicate weekly task: ${task.title}`)
+            }
+          }
         }
       }
 
       return NextResponse.json({
         success: true,
         tasks: savedTasks,
-        count: savedTasks.length
+        dailyCount: savedTasks.daily.length,
+        weeklyCount: savedTasks.weekly.length,
+        totalCount: savedTasks.daily.length + savedTasks.weekly.length,
+        preferences: {
+          focusAreas: effectiveFocusAreas,
+          dailyCount,
+          weeklyCount,
+          difficulty,
+          specificGoals,
+          userRequest
+        }
       })
-    }
 
-    return NextResponse.json(
-      { error: 'Invalid task type. Use "daily" or "weekly"' },
-      { status: 400 }
-    )
+    } catch (error) {
+      console.error('Error generating tasks:', error)
+      return NextResponse.json(
+        { error: 'Failed to generate tasks. AI Coach may be temporarily unavailable.' },
+        { status: 500 }
+      )
+    }
 
   } catch (error) {
-    console.error('Error generating tasks:', error)
+    console.error('Error in task generation endpoint:', error)
     return NextResponse.json(
-      { error: 'Failed to generate tasks' },
+      { error: 'Failed to process task generation request' },
       { status: 500 }
     )
   }

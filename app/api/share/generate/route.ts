@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import crypto from 'crypto'
+import QRCode from 'qrcode'
 
 export async function POST(request: Request) {
   try {
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     // Generate SVG content for the shareable graphic
-    const svgContent = generateStoryGraphic(scoreData, format)
+    const svgContent = await generateStoryGraphic(scoreData, format)
 
     // Create share token
     const token = crypto.randomBytes(16).toString('hex')
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
   }
 }
 
-function generateStoryGraphic(scoreData: any, template: string) {
+async function generateStoryGraphic(scoreData: any, template: string) {
   const { overall, categories, cohort } = scoreData
 
   // Instagram Story dimensions: 1080x1920
@@ -85,7 +86,18 @@ function generateStoryGraphic(scoreData: any, template: string) {
     romantic: 'Personal Growth'
   }
 
-  const svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  // Generate QR code SVG
+  const qrCodeSvg = await QRCode.toString('http://localhost:3000', {
+    type: 'svg',
+    width: 300,
+    margin: 0,
+    color: {
+      dark: '#ffffff',
+      light: '#111827'
+    }
+  })
+
+  const svgContent = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
       <defs>
         <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
@@ -194,10 +206,9 @@ function generateStoryGraphic(scoreData: any, template: string) {
         Take your free life assessment
       </text>
 
-      <rect x="${width/2 - 50}" y="1810" width="100" height="100" rx="10" fill="white"/>
-      <text x="${width/2}" y="1870" text-anchor="middle" fill="black" font-size="16" font-family="Inter, sans-serif">
-        QR
-      </text>
+      <g transform="translate(${width/2 - 49}, 1800) scale(4)">
+        ${qrCodeSvg.replace(/<svg[^>]*>/, '').replace('</svg>', '')}
+      </g>
     </svg>`
 
   return svgContent

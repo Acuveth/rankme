@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generatePersonalizedCoaching, generateCoachResponse } from '@/lib/openai'
+// REMOVED: Basic coaching functions - using enhancedCoachingEngine only
 import { enhancedCoachingEngine } from '@/lib/enhanced-coaching'
 
 export async function GET(
@@ -115,20 +115,26 @@ export async function GET(
       completionTime: assessment.completionTime || undefined
     }
 
+    // Use enhanced coaching engine for all coach interactions
     let coachingData = null
-    
-    // Only call OpenAI if not explicitly skipped
     if (!skipOpenAI) {
       try {
-        coachingData = await generatePersonalizedCoaching(assessmentData)
+        // Enhanced coaching provides comprehensive coaching through chat interactions
+        // Basic coaching data is no longer generated here
+        coachingData = {
+          summary: "Welcome to your personalized AI coach! Start a conversation to get customized guidance and tasks.",
+          focus_area: focusArea,
+          available_features: [
+            "Personalized chat interactions with full context awareness",
+            "Custom task generation with detailed preferences",
+            "Progress tracking and adaptive recommendations"
+          ]
+        }
       } catch (error) {
-        console.error('OpenAI API error:', error)
-        // Continue without coaching data if OpenAI fails
+        console.error('Enhanced coaching initialization error:', error)
         coachingData = {
           summary: "AI coaching temporarily unavailable. Please try again later.",
-          goals: [],
-          focus_area: 'financial',
-          weekly_plan: []
+          focus_area: focusArea
         }
       }
     }
@@ -292,9 +298,60 @@ export async function POST(
 
       case 'chat':
         const startTime = Date.now()
-        const { message, taskPreferences } = data
+        const { message, taskPreferences, useAssistantsAPI } = data
         
-        // Save user message
+        // Determine which API to use (default to Assistants API for better performance)
+        const shouldUseAssistantsAPI = useAssistantsAPI !== false
+        
+        // Handle with Assistants API (persistent memory, optimal token usage)
+        if (shouldUseAssistantsAPI) {
+          try {
+            // Gather user context for assistant
+            const context = await enhancedCoachingEngine.gatherUserContext(user.id, assessment.id)
+            
+            // Use Assistants API for the conversation
+            const assistantsResponse = await enhancedCoachingEngine.generateEnhancedCoachResponseWithAssistants(
+              message,
+              user.id,
+              assessment.id,
+              assessmentData,
+              context
+            )
+            
+            const responseTime = Date.now() - startTime
+            
+            return NextResponse.json({
+              success: true,
+              response: {
+                message: assistantsResponse.message,
+                suggestions: assistantsResponse.suggestions,
+                apiType: 'assistants',
+                threadId: assistantsResponse.threadId,
+                assistantId: assistantsResponse.assistantId
+              },
+              insights: assistantsResponse.insights,
+              context: {
+                streak: context.weeklyProgress.currentStreak,
+                completionRate: context.weeklyProgress.weeklyCompletionRate,
+                activeGoals: context.goalProgress.length,
+                recentAchievements: context.achievements.length
+              },
+              optimization: {
+                apiType: 'assistants',
+                tokenUsage: assistantsResponse.tokenUsage,
+                persistentMemory: true,
+                contextStored: true
+              },
+              responseTime
+            })
+            
+          } catch (error) {
+            console.error('Assistants API error, falling back to standard API:', error)
+            // Fall through to standard API on error
+          }
+        }
+
+        // Save user message for standard API flow
         await enhancedCoachingEngine.saveChatMessage(
           user.id,
           'user',
@@ -809,13 +866,17 @@ export async function POST(
           }
         }
         
-        // Generate enhanced response with proactive insights
+        // Check if we should force context refresh (e.g., first message of session)
+        const forceContextRefresh = data.additionalContext?.forceContextRefresh || false
+        
+        // Generate enhanced response with proactive insights and context optimization
         const enhancedResponse = await enhancedCoachingEngine.generateEnhancedCoachResponse(
           message,
           assessmentData,
           context,
           isFocusAreaTaskRequest || isTaskRequest,
-          effectiveTaskPreferences
+          effectiveTaskPreferences,
+          forceContextRefresh
         )
         
         const responseTime = Date.now() - startTime
@@ -925,7 +986,9 @@ export async function POST(
             suggestions: enhancedResponse.suggestions,
             needsMoreInfo: enhancedResponse.needsMoreInfo,
             questionsForUser: enhancedResponse.questionsForUser,
-            awaitingConfirmation: enhancedResponse.awaitingConfirmation
+            awaitingConfirmation: enhancedResponse.awaitingConfirmation,
+            contextSent: enhancedResponse.contextSent,
+            apiType: 'standard'
           },
           taskPreview: enhancedResponse.taskPreview,
           insights: enhancedResponse.insights,
@@ -936,28 +999,48 @@ export async function POST(
             recentAchievements: context.achievements.length
           },
           createdGoals: createdGoals,
-          createdTasks: createdTasks
+          createdTasks: createdTasks,
+          optimization: {
+            apiType: 'standard',
+            contextSent: enhancedResponse.contextSent,
+            tokensSaved: enhancedResponse.contextSent ? 0 : 600, // Approximate tokens saved
+            persistentMemory: false
+          }
         })
 
       case 'generate_weekly_plan':
-        const newCoachingData = await generatePersonalizedCoaching(assessmentData)
+        // Use enhanced coaching engine for weekly planning
         return NextResponse.json({ 
           success: true, 
-          weeklyPlan: newCoachingData.weeklyPlan
+          message: "Weekly planning is now integrated into the chat experience. Ask your AI coach to create a weekly plan for you!",
+          suggestion: "Try saying: 'Create a weekly plan focused on my lowest scoring areas'"
         })
 
       case 'update_focus_area':
         const { focusArea, preferences } = data
-        // Generate new coaching data based on updated focus area
-        const updatedAssessmentData = {
-          ...assessmentData,
-          preferences: preferences
-        }
-        const updatedCoachingData = await generatePersonalizedCoaching(updatedAssessmentData)
+        // Update focus area in coach settings
+        await prisma.coachSettings.upsert({
+          where: { 
+            userId_assessmentId: {
+              userId: user.id,
+              assessmentId: assessment.id
+            }
+          },
+          create: {
+            userId: user.id,
+            assessmentId: assessment.id,
+            primaryFocus: focusArea,
+            ...preferences
+          },
+          update: {
+            primaryFocus: focusArea,
+            ...preferences
+          }
+        })
         return NextResponse.json({ 
           success: true, 
-          message: `Focus area updated to ${focusArea}. New weekly plan generated!`,
-          coachingData: updatedCoachingData
+          message: `Focus area updated to ${focusArea}. Your AI coach will now prioritize this area in conversations and task generation.`,
+          focusArea
         })
 
       case 'adapt_tasks':

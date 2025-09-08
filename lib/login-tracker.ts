@@ -89,10 +89,15 @@ export class LoginTracker {
         })
       }
 
-      // Calculate unique login days
+      // Calculate unique login days using consistent date handling
       const uniqueLoginDays = new Set<string>()
       loginHistory.forEach(login => {
-        const dateKey = login.loginTime.toISOString().split('T')[0]
+        // Convert to local date to avoid timezone issues
+        const loginDate = new Date(login.loginTime)
+        const year = loginDate.getFullYear()
+        const month = String(loginDate.getMonth() + 1).padStart(2, '0')
+        const day = String(loginDate.getDate()).padStart(2, '0')
+        const dateKey = `${year}-${month}-${day}`
         uniqueLoginDays.add(dateKey)
       })
 
@@ -101,28 +106,37 @@ export class LoginTracker {
       // Calculate current streak with better date handling
       let currentStreak = 0
       const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const todayString = today.toISOString().split('T')[0]
+      const todayYear = today.getFullYear()
+      const todayMonth = String(today.getMonth() + 1).padStart(2, '0')
+      const todayDay = String(today.getDate()).padStart(2, '0')
+      const todayString = `${todayYear}-${todayMonth}-${todayDay}`
       
       const yesterday = new Date(today)
       yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayString = yesterday.toISOString().split('T')[0]
+      const yesterdayYear = yesterday.getFullYear()
+      const yesterdayMonth = String(yesterday.getMonth() + 1).padStart(2, '0')
+      const yesterdayDayNum = String(yesterday.getDate()).padStart(2, '0')
+      const yesterdayString = `${yesterdayYear}-${yesterdayMonth}-${yesterdayDayNum}`
       
       // Check if user logged in today or yesterday to continue streak
       if (sortedDays.includes(todayString) || sortedDays.includes(yesterdayString)) {
         // Start with most recent login day
-        let currentDate = sortedDays.includes(todayString) ? todayString : yesterdayString
+        let currentDateString = sortedDays.includes(todayString) ? todayString : yesterdayString
         currentStreak = 1
         
         // Count consecutive days backwards
         for (let i = 1; i < sortedDays.length; i++) {
-          const expectedPrevDay = new Date(currentDate)
-          expectedPrevDay.setDate(expectedPrevDay.getDate() - 1)
-          const expectedPrevDayString = expectedPrevDay.toISOString().split('T')[0]
+          // Calculate expected previous day
+          const currentDateObj = new Date(currentDateString + 'T00:00:00')
+          currentDateObj.setDate(currentDateObj.getDate() - 1)
+          const expectedYear = currentDateObj.getFullYear()
+          const expectedMonth = String(currentDateObj.getMonth() + 1).padStart(2, '0')
+          const expectedDay = String(currentDateObj.getDate()).padStart(2, '0')
+          const expectedPrevDayString = `${expectedYear}-${expectedMonth}-${expectedDay}`
           
           if (sortedDays[i] === expectedPrevDayString) {
             currentStreak++
-            currentDate = expectedPrevDayString
+            currentDateString = expectedPrevDayString
           } else {
             break
           }
@@ -133,6 +147,9 @@ export class LoginTracker {
       // Only update if current streak is higher than stored longest streak
       let longestStreak = Math.max(currentStreak, progressStats.longestStreak)
 
+      // Get the most recent login date from the actual login history
+      const mostRecentLoginDate = loginHistory.length > 0 ? loginHistory[0].loginTime : new Date()
+
       // Update progress stats
       await prisma.userProgressStats.update({
         where: { userId },
@@ -141,7 +158,7 @@ export class LoginTracker {
           longestStreak,
           consecutiveLoginDays: currentStreak,
           totalLoginDays: uniqueLoginDays.size,
-          lastLoginDate: new Date()
+          lastLoginDate: mostRecentLoginDate
         }
       })
 
@@ -177,16 +194,23 @@ export class LoginTracker {
 
       // Check if streak is still valid (user logged in today or yesterday)
       if (progressStats.lastLoginDate) {
-        const lastLoginDate = progressStats.lastLoginDate.toISOString().split('T')[0]
+        // Convert lastLoginDate to just date part for comparison
+        const lastLoginDate = new Date(progressStats.lastLoginDate)
+        lastLoginDate.setHours(0, 0, 0, 0)
+        
+        // Get today's date at midnight
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        const todayString = today.toISOString().split('T')[0]
         
+        // Get yesterday's date at midnight
         const yesterday = new Date(today)
         yesterday.setDate(yesterday.getDate() - 1)
-        const yesterdayString = yesterday.toISOString().split('T')[0]
         
-        if (lastLoginDate !== todayString && lastLoginDate !== yesterdayString) {
+        // Calculate the difference in days
+        const daysDifference = Math.floor((today.getTime() - lastLoginDate.getTime()) / (24 * 60 * 60 * 1000))
+        
+        // If more than 1 day has passed since last login, streak is broken
+        if (daysDifference > 1) {
           // Streak is broken, reset to 0
           await prisma.userProgressStats.update({
             where: { userId },

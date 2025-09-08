@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import { Share2, Lock, TrendingUp, Users, Heart, DollarSign, Award, Target, BarChart3, Mail, UserPlus, ArrowLeft, FileText } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
 import LanguageSelector from '@/components/LanguageSelector'
+import GaussianChart from '@/components/GaussianChart'
 
 interface ScoreData {
   cohort: {
@@ -243,7 +244,7 @@ export default function ScorecardPage() {
   if (!scoreData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-600">Score data not found</p>
+        <p className="text-gray-600">{t('report.scoreDataNotFound')}</p>
       </div>
     )
   }
@@ -255,11 +256,51 @@ export default function ScorecardPage() {
     romantic: TrendingUp
   }
 
+  const translateCategoryName = (categoryId: string): string => {
+    const categoryMap: { [key: string]: string } = {
+      'financial': t('scorecard.financialHealth'),
+      'health_fitness': t('scorecard.physicalWellness'),
+      'social': t('scorecard.socialNetwork'),
+      'romantic': t('scorecard.personalGrowth')
+    }
+    return categoryMap[categoryId] || categoryId
+  }
+
+
+  // Helper function to translate performance levels
+  const translatePerformanceLevel = (level: string): string => {
+    const levelMap: { [key: string]: string } = {
+      'Exceptional': t('scorecard.excellent'), // Using 'excellent' as closest match
+      'Excellent': t('scorecard.excellent'),
+      'Good': t('scorecard.good'),
+      'Fair': t('scorecard.average'), // Using 'average' as closest match
+      'Needs Attention': t('scorecard.needsImprovement')
+    }
+    return levelMap[level] || level
+  }
+
   const categoryNames: { [key: string]: string } = {
-    financial: 'Financial Health',
-    health_fitness: 'Physical Wellness',
-    social: 'Social Network',
-    romantic: 'Personal Growth'
+    'financial': t('scorecard.financialHealth'),
+    'health_fitness': t('scorecard.physicalWellness'),
+    'social': t('scorecard.socialNetwork'),
+    'romantic': t('scorecard.personalGrowth')
+  }
+
+  const translateSex = (sex: string): string => {
+    const sexMap: { [key: string]: string } = {
+      'Male': t('settings.male'),
+      'Female': t('settings.female'),
+      'male': t('settings.male'),
+      'female': t('settings.female'),
+      'MALE': t('settings.male'),
+      'FEMALE': t('settings.female'),
+      'M': t('settings.male'),
+      'F': t('settings.female'),
+      'Other': t('settings.other'),
+      'other': t('settings.other'),
+      'OTHER': t('settings.other')
+    }
+    return sexMap[sex] || sex
   }
 
   const getScoreLevel = (score: number) => {
@@ -305,29 +346,38 @@ export default function ScorecardPage() {
                     <Award className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold">Your Life Score</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold">{t('report.yourLifeScore')}</h1>
                     <p className="text-gray-200 text-sm">
-                      {scoreData.cohort.sex} • {scoreData.cohort.age_band} • {scoreData.cohort.region}
+                      {translateSex(scoreData.cohort.sex)} • {scoreData.cohort.age_band} • {scoreData.cohort.region}
                     </p>
                   </div>
                 </div>
-                <div className="bg-white/10 rounded-xl p-4 inline-block">
+                <div className="bg-white/10 rounded-2xl p-8 border border-white/20">
                   <div className="text-center">
-                    <div className="text-4xl sm:text-5xl font-bold mb-1">
-                      {Math.round(scoreData.overall.score_0_100)}
+                    <div className="mb-6">
+                      <div className="text-7xl sm:text-8xl font-black text-white mb-3 tracking-tight">
+                        {Math.round(scoreData.overall.score_0_100)}
+                      </div>
+                      <div className="w-20 h-px bg-white/40 mx-auto mb-4"></div>
+                      <div className="text-sm text-white/80 font-medium uppercase tracking-widest">
+                        {t('dashboard.outOf100')}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-200">out of 100</div>
+                    <div className="px-6 py-2 bg-white/15 rounded-lg border border-white/20">
+                      <div className="text-sm font-semibold text-white">
+                        {translatePerformanceLevel(overallLevel.level)}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="text-center lg:text-right">
-                <div className="text-3xl sm:text-4xl font-bold mb-2">
-                  {formatPercentile(scoreData.overall.percentile)}
-                </div>
-                <div className="text-lg text-gray-200 mb-1">percentile</div>
-                <div className={`text-lg font-semibold ${overallLevel.color.replace('text-', 'text-white')}`}>
-                  {overallLevel.level}
+              <div className="lg:flex-1 lg:max-w-sm">
+                <div className="bg-white/10 rounded-xl p-4">
+                  <GaussianChart 
+                    percentile={scoreData.overall.percentile} 
+                    title={t('report.overallPerformanceDistribution')}
+                  />
                 </div>
               </div>
             </div>
@@ -341,46 +391,36 @@ export default function ScorecardPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
               <div className="flex items-center mb-6">
                 <BarChart3 className="h-6 w-6 text-gray-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Performance Breakdown</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t('report.performanceBreakdown')}</h2>
               </div>
               
-              <div className="grid gap-6">
+              <div className="grid md:grid-cols-2 gap-6">
                 {scoreData.categories.map((category) => {
                   const IconComponent = categoryIcons[category.id] || TrendingUp
                   const level = getScoreLevel(category.percentile)
                   
                   return (
                     <div key={category.id} className="bg-gray-50 rounded-xl p-6 hover:shadow-sm transition-all">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center mb-4 sm:mb-0">
-                          <div className="bg-white p-3 rounded-lg shadow-sm mr-4">
-                            <IconComponent className="h-6 w-6 text-gray-700" />
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {categoryNames[category.id]}
-                            </h3>
-                            <p className={`text-sm font-medium ${level.color}`}>
-                              {level.level}
-                            </p>
-                          </div>
+                      <div className="flex items-center mb-4">
+                        <div className="bg-white p-3 rounded-lg shadow-sm mr-4">
+                          <IconComponent className="h-6 w-6 text-gray-700" />
                         </div>
-                        
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-gray-900">
-                              {formatPercentile(category.percentile)}
-                            </div>
-                            <div className="text-xs text-gray-500">percentile</div>
-                          </div>
-                          <div className="w-24 h-2 bg-gray-200 rounded-full">
-                            <div
-                              className="h-2 bg-gradient-to-r from-gray-600 to-gray-900 rounded-full transition-all duration-1000"
-                              style={{ width: `${Math.min(category.percentile, 100)}%` }}
-                            />
-                          </div>
+                        <div className="flex-1 w-full">
+                          <h3 className="text-lg font-semibold text-gray-900 w-full">
+                            {translateCategoryName(category.id)}
+                          </h3>
+                          <p className={`text-sm font-medium ${level.color}`}>
+                            {translatePerformanceLevel(level.level)}
+                          </p>
                         </div>
                       </div>
+                      
+                      <GaussianChart 
+                        percentile={category.percentile} 
+                        title={`${translateCategoryName(category.id)} Distribution`}
+                        width={300}
+                        height={160}
+                      />
                     </div>
                   )
                 })}
@@ -389,15 +429,15 @@ export default function ScorecardPage() {
 
             {/* Insights Section */}
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Insights</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('report.keyInsights')}</h2>
               
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Top Strength</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('report.topStrength')}</h3>
                   <p className="text-gray-700">
-                    {categoryNames[scoreData.categories.reduce((max, cat) => 
+                    {translateCategoryName(scoreData.categories.reduce((max, cat) => 
                       cat.percentile > max.percentile ? cat : max
-                    ).id]}
+                    ).id)}
                   </p>
                   <div className="text-2xl font-bold text-gray-800 mt-2">
                     {formatPercentile(Math.max(...scoreData.categories.map(c => c.percentile)))}
@@ -405,11 +445,11 @@ export default function ScorecardPage() {
                 </div>
                 
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Growth Area</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('report.growthArea')}</h3>
                   <p className="text-gray-700">
-                    {categoryNames[scoreData.categories.reduce((min, cat) => 
+                    {translateCategoryName(scoreData.categories.reduce((min, cat) => 
                       cat.percentile < min.percentile ? cat : min
-                    ).id]}
+                    ).id)}
                   </p>
                   <div className="text-2xl font-bold text-gray-800 mt-2">
                     {formatPercentile(Math.min(...scoreData.categories.map(c => c.percentile)))}
@@ -426,21 +466,21 @@ export default function ScorecardPage() {
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 animate-fade-scale">
                 <div className="text-center mb-4">
                   <UserPlus className="h-8 w-8 text-gray-600 mx-auto mb-2" />
-                  <h3 className="font-bold text-gray-900 mb-2">Save Your Results</h3>
+                  <h3 className="font-bold text-gray-900 mb-2">{t('scorecard.saveYourResults')}</h3>
                   <p className="text-sm text-gray-600 mb-4">
-                    Create a free account to track your progress and access your results anytime.
+                    {t('scorecard.trackProgressOverTime')}
                   </p>
                   <button
                     onClick={() => router.push(`/auth/signup?assessmentId=${params.id}&redirect=/dashboard`)}
                     className="w-full px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm mb-2"
                   >
-                    Create Free Account
+                    {t('scorecard.createFreeAccount')}
                   </button>
                   <button
                     onClick={() => router.push(`/auth/signin?assessmentId=${params.id}&redirect=/dashboard`)}
                     className="w-full px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all border border-gray-300"
                   >
-                    Sign In to Existing Account
+                    {t('scorecard.signInToExistingAccount')}
                   </button>
                 </div>
               </div>
@@ -450,9 +490,9 @@ export default function ScorecardPage() {
             <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-6 border">
               <div className="text-center mb-4">
                 <Target className="h-8 w-8 text-gray-600 mx-auto mb-2" />
-                <h3 className="font-bold text-gray-900 mb-2">Free Assessment</h3>
+                <h3 className="font-bold text-gray-900 mb-2">{t('pricing.freeAssessment')}</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  This scorecard shows your percentile rankings. Unlock deeper insights with our premium features.
+                  {t('scorecard.scorecardShowsPercentiles')}
                 </p>
               </div>
             </div>
@@ -461,7 +501,7 @@ export default function ScorecardPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center mb-4">
                 <Mail className="h-5 w-5 text-gray-600 mr-2" />
-                <h3 className="font-bold text-gray-900">Email Your Results</h3>
+                <h3 className="font-bold text-gray-900">{t('scorecard.emailYourResults')}</h3>
               </div>
               
               {emailSent ? (
@@ -471,13 +511,13 @@ export default function ScorecardPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="text-gray-700 font-medium">Results sent successfully!</p>
-                  <p className="text-sm text-gray-600 mt-1">Check your inbox for your detailed life score.</p>
+                  <p className="text-gray-700 font-medium">{t('scorecard.resultsSentSuccessfully')}</p>
+                  <p className="text-sm text-gray-600 mt-1">{t('scorecard.checkYourInbox')}</p>
                   <button
                     onClick={() => setEmailSent(false)}
                     className="text-sm text-gray-500 hover:text-gray-700 mt-2 underline"
                   >
-                    Send to another email
+                    {t('scorecard.sendToAnotherEmail')}
                   </button>
                 </div>
               ) : (
@@ -487,7 +527,7 @@ export default function ScorecardPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
+                      placeholder={t('scorecard.enterEmailAddress')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
                       required
                       disabled={emailLoading}
@@ -503,7 +543,7 @@ export default function ScorecardPage() {
                     ) : (
                       <>
                         <Mail className="h-5 w-5 mr-2" />
-                        Send My Results
+                        {t('scorecard.sendMyResults')}
                       </>
                     )}
                   </button>
@@ -511,7 +551,7 @@ export default function ScorecardPage() {
               )}
               
               <p className="text-xs text-gray-500 mt-3 text-center">
-                Get a beautifully formatted email with your complete assessment results and insights.
+                {t('scorecard.emailResultsDesc')}
               </p>
             </div>
 
@@ -522,7 +562,7 @@ export default function ScorecardPage() {
                 className="w-full flex items-center justify-center px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all group"
               >
                 <Share2 className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
-                <span className="font-semibold">Share Results</span>
+                <span className="font-semibold">{t('scorecard.shareResults')}</span>
               </button>
               
               <button
@@ -535,9 +575,9 @@ export default function ScorecardPage() {
                   <Lock className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
                 )}
                 <div className="text-left">
-                  <div className="font-semibold">{hasDeepReportPurchase ? 'View Deep Report' : 'Deep Analysis'}</div>
+                  <div className="font-semibold">{hasDeepReportPurchase ? t('dashboard.viewReport') : t('scorecard.deepAnalysis')}</div>
                   <div className="text-xs text-gray-300">
-                    {hasDeepReportPurchase ? 'Access your report' : '$29 one-time'}
+                    {hasDeepReportPurchase ? t('scorecard.accessYourReport') : `${t('pricing.deepPrice')} ${t('pricing.oneTimePurchase').toLowerCase()}`}
                   </div>
                 </div>
               </button>
@@ -551,8 +591,8 @@ export default function ScorecardPage() {
                   >
                     <TrendingUp className="h-5 w-5 mr-3" />
                     <div className="text-left">
-                      <div className="font-semibold">AI Life Coach</div>
-                      <div className="text-xs text-gray-300">Loading...</div>
+                      <div className="font-semibold">{t('pricing.aiLifeCoach')}</div>
+                      <div className="text-xs text-gray-300">{t('scorecard.loading')}</div>
                     </div>
                   </button>
                 ) : (
@@ -562,8 +602,8 @@ export default function ScorecardPage() {
                   >
                     <TrendingUp className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
                     <div className="text-left">
-                      <div className="font-semibold">AI Life Coach</div>
-                      <div className="text-xs text-gray-300">$19/month</div>
+                      <div className="font-semibold">{t('pricing.aiLifeCoach')}</div>
+                      <div className="text-xs text-gray-300">{t('pricing.monthlyPrice')}/{t('pricing.perMonth')}</div>
                     </div>
                   </button>
                 )
@@ -572,14 +612,14 @@ export default function ScorecardPage() {
 
             {/* Stats */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Assessment Stats</h3>
+              <h3 className="font-bold text-gray-900 mb-4">{t('scorecard.assessmentStats')}</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Questions Answered</span>
+                  <span className="text-sm text-gray-600">{t('report.questionsAnswered')}</span>
                   <span className="font-semibold text-gray-900">32/32</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Completion Time</span>
+                  <span className="text-sm text-gray-600">{t('report.completionTime')}</span>
                   <span className="font-semibold text-gray-900">
                     {scoreData.completionTime ? (
                       scoreData.completionTime < 60 
@@ -589,7 +629,7 @@ export default function ScorecardPage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Peer Group</span>
+                  <span className="text-sm text-gray-600">{t('report.peerGroup')}</span>
                   <span className="font-semibold text-gray-900">{scoreData.cohort.age_band}</span>
                 </div>
               </div>
@@ -601,17 +641,17 @@ export default function ScorecardPage() {
         <div className="mt-12 text-center">
           <div className="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Ready to Improve Your Score?
+              {t('report.readyToImproveYourScore')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Get personalized insights and actionable recommendations to boost your life performance.
+              {t('report.improveScoreDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => router.push(hasDeepReportPurchase ? `/report/${params.id}` : `/paywall/report/${params.id}`)}
                 className="px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-semibold"
               >
-                {hasDeepReportPurchase ? 'View Deep Report' : 'Get Deep Analysis'}
+                {hasDeepReportPurchase ? t('scorecard.viewDeepReport') : t('pricing.getDeepAnalysis')}
               </button>
               <button
                 onClick={() => router.push('/')}
@@ -632,46 +672,46 @@ export default function ScorecardPage() {
                   <UserPlus className="h-8 w-8 text-gray-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                  Great Job! Save Your Results
+                  {t('scorecard.greatJobSaveResults')}
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Create a free account to:
+                  {t('scorecard.createFreeAccountTo')}
                 </p>
                 <ul className="text-left text-sm text-gray-600 mb-6 space-y-2">
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">✓</span>
-                    Track your progress over time
+                    {t('scorecard.trackProgressOverTime')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">✓</span>
-                    Access your results from any device
+                    {t('scorecard.accessResultsAnyDevice')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">✓</span>
-                    Compare improvements between assessments
+                    {t('scorecard.compareImprovements')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-gray-600 mr-2">✓</span>
-                    Get personalized recommendations
+                    {t('scorecard.getPersonalizedRecs')}
                   </li>
                 </ul>
                 <button
                   onClick={() => router.push(`/auth/signup?assessmentId=${params.id}&redirect=/dashboard`)}
                   className="w-full px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm mb-3"
                 >
-                  Create Free Account
+                  {t('scorecard.createFreeAccount')}
                 </button>
                 <button
                   onClick={() => router.push(`/auth/signin?assessmentId=${params.id}&redirect=/dashboard`)}
                   className="w-full px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all border border-gray-300 mb-3"
                 >
-                  I Have an Account
+                  {t('scorecard.iHaveAnAccount')}
                 </button>
                 <button
                   onClick={() => setShowAccountPrompt(false)}
                   className="text-sm text-gray-500 hover:text-gray-700 underline"
                 >
-                  Continue without account
+                  {t('scorecard.continueWithoutAccount')}
                 </button>
               </div>
             </div>
@@ -680,44 +720,46 @@ export default function ScorecardPage() {
 
         {/* Share Modal */}
         {showShareModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">Share Your Life Score</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md lg:max-w-2xl max-h-[95vh] overflow-y-auto">
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{t('report.shareYourLifeScore')}</h3>
                   <button
                     onClick={() => setShowShareModal(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-2"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
                 {shareLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                  <div className="flex items-center justify-center py-8 sm:py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-gray-900"></div>
                   </div>
                 ) : shareSvg ? (
                   <div>
-                    <div className="bg-gray-100 rounded-xl p-4 mb-6">
-                      <div 
-                        className="w-full max-w-xs mx-auto"
-                        dangerouslySetInnerHTML={{ __html: shareSvg }}
-                        style={{ aspectRatio: '9/16' }}
-                      />
+                    <div className="bg-gray-100 rounded-xl p-2 sm:p-4 mb-4 sm:mb-6 overflow-hidden">
+                      <div className="w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[400px] mx-auto">
+                        <div 
+                          className="w-full h-auto"
+                          dangerouslySetInnerHTML={{ __html: shareSvg.replace(/width="1080"/, 'width="100%"').replace(/height="1920"/, 'height="auto"') }}
+                          style={{ display: 'block' }}
+                        />
+                      </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       <button
                         onClick={downloadShareImage}
-                        className="w-full flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all"
+                        className="w-full flex items-center justify-center px-4 sm:px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all text-sm sm:text-base"
                       >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Download for Stories
+                        {t('scorecard.downloadForStories')}
                       </button>
 
                       <button
@@ -733,26 +775,23 @@ export default function ScorecardPage() {
                             alert('Link copied to clipboard!')
                           }
                         }}
-                        className="w-full flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                        className="w-full flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all text-sm sm:text-base"
                       >
-                        <Share2 className="w-5 h-5 mr-2" />
-                        Share Link
+                        <Share2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        {t('scorecard.shareLink')}
                       </button>
                     </div>
 
-                    <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                      <h4 className="font-semibold text-gray-900 mb-2">How to use:</h4>
-                      <ul className="text-sm text-gray-600 space-y-1">
-                        <li>• Download the image to your phone</li>
-                        <li>• Open Instagram and create a new Story</li>
-                        <li>• Upload the downloaded image</li>
-                        <li>• Share with your followers!</li>
+                    <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-xl">
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">{t('scorecard.howToUse')}</h4>
+                      <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
+                        <li>• {t('scorecard.uploadToInstagram')}</li>
                       </ul>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">Something went wrong generating your share image.</p>
+                    <p className="text-gray-600">{t('scorecard.somethingWentWrong')}</p>
                   </div>
                 )}
               </div>

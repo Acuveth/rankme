@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Target, Heart, Users, Star, DollarSign, Brain, Zap, Calendar, CheckCircle } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 interface PreferenceData {
   primaryFocus: string
@@ -23,6 +24,7 @@ interface CoachPreferenceSetupProps {
 }
 
 export default function CoachPreferenceSetup({ onComplete, assessmentId, initialPreferences }: CoachPreferenceSetupProps) {
+  const { t } = useLanguage()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [preferences, setPreferences] = useState<PreferenceData>({
@@ -39,17 +41,17 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
   })
 
   const focusAreas = [
-    { id: 'financial', name: 'Financial Health', icon: DollarSign, description: 'Budget management & wealth building' },
-    { id: 'health', name: 'Physical Health', icon: Heart, description: 'Fitness, nutrition & wellness habits' },
-    { id: 'social', name: 'Social Life', icon: Users, description: 'Relationships & social connections' },
-    { id: 'personal', name: 'Personal Growth', icon: Star, description: 'Self-improvement & skill development' }
+    { id: 'financial', name: t('coach.financialHealth'), icon: DollarSign, description: t('coach.financialHealthDesc') },
+    { id: 'health', name: t('coach.physicalHealth'), icon: Heart, description: t('coach.physicalHealthDesc') },
+    { id: 'social', name: t('coach.socialLife'), icon: Users, description: t('coach.socialLifeDesc') },
+    { id: 'personal', name: t('coach.personalGrowth'), icon: Star, description: t('coach.personalGrowthDesc') }
   ]
 
   const coachingStyles = [
-    { id: 'supportive', name: 'Supportive', description: 'Gentle encouragement and empathetic guidance' },
-    { id: 'direct', name: 'Direct', description: 'Straightforward, action-oriented coaching' },
-    { id: 'motivational', name: 'Motivational', description: 'High-energy, inspiring approach' },
-    { id: 'analytical', name: 'Analytical', description: 'Data-driven, logical guidance' }
+    { id: 'supportive', name: t('coach.supportive'), description: t('coach.supportiveDesc') },
+    { id: 'direct', name: t('coach.direct'), description: t('coach.directDesc') },
+    { id: 'motivational', name: t('coach.motivational'), description: t('coach.motivationalDesc') },
+    { id: 'analytical', name: t('coach.analytical'), description: t('coach.analyticalDesc') }
   ]
 
   const handleNext = async () => {
@@ -105,8 +107,8 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between mb-2">
-          <span className="text-sm font-medium text-gray-600">Setup Progress</span>
-          <span className="text-sm font-medium text-gray-600">Step {step} of 4</span>
+          <span className="text-sm font-medium text-gray-600">{t('coach.setupProgress')}</span>
+          <span className="text-sm font-medium text-gray-600">{t('coach.step')} {step} {t('coach.of')} 4</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
@@ -120,13 +122,13 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
       {step === 1 && (
         <div>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Your AI Life Coach!</h2>
-            <p className="text-gray-600">Let's personalize your experience. What area would you like to focus on?</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('coach.welcomeToAICoach')}</h2>
+            <p className="text-gray-600">{t('coach.letsPersonalize')}</p>
           </div>
 
           <div className="space-y-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Primary Focus Area</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('coach.primaryFocusArea')}</label>
               <div className="grid grid-cols-2 gap-4">
                 {focusAreas.map(area => {
                   const Icon = area.icon
@@ -153,7 +155,7 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Secondary Focus Area (Optional)
+                {t('coach.secondaryFocusArea')}
               </label>
               <div className="grid grid-cols-2 gap-4">
                 {focusAreas.filter(a => a.id !== preferences.primaryFocus).map(area => {
@@ -189,14 +191,14 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
       {step === 2 && (
         <div>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Task Preferences</h2>
-            <p className="text-gray-600">How many tasks would you like to work on?</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('coach.taskPreferences')}</h2>
+            <p className="text-gray-600">{t('coach.howManyTasks')}</p>
           </div>
 
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Daily Tasks: {preferences.dailyTaskCount}
+                {t('coach.dailyTasks')}: {preferences.dailyTaskCount}
               </label>
               <input
                 type="range"
@@ -207,15 +209,15 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>1 task</span>
-                <span>3 tasks (recommended)</span>
-                <span>5 tasks</span>
+                <span>{t('coach.oneTask')}</span>
+                <span>{t('coach.threeTasksRecommended')}</span>
+                <span>{t('coach.fiveTasks')}</span>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Weekly Tasks: {preferences.weeklyTaskCount}
+                {t('coach.weeklyTasks')}: {preferences.weeklyTaskCount}
               </label>
               <input
                 type="range"
@@ -226,14 +228,14 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>No weekly tasks</span>
-                <span>2-3 (recommended)</span>
-                <span>5 tasks</span>
+                <span>{t('coach.noWeeklyTasks')}</span>
+                <span>{t('coach.twoThreeRecommended')}</span>
+                <span>{t('coach.fiveTasks')}</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Task Difficulty</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('coach.taskDifficulty')}</label>
               <div className="grid grid-cols-3 gap-3">
                 {['easy', 'moderate', 'challenging'].map(level => (
                   <button
@@ -245,7 +247,7 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    {level}
+                    {t(`coach.${level}`)}
                   </button>
                 ))}
               </div>
@@ -253,12 +255,12 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Specific Goals or Challenges (Optional)
+                {t('coach.specificGoals')}
               </label>
               <textarea
                 value={preferences.specificGoals}
                 onChange={(e) => setPreferences({ ...preferences, specificGoals: e.target.value })}
-                placeholder="E.g., 'I want to save $5000 this year' or 'I need help with budgeting and reducing debt'"
+                placeholder={t('coach.specificGoalsPlaceholder')}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={3}
               />
@@ -271,13 +273,13 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
       {step === 3 && (
         <div>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Coaching Style</h2>
-            <p className="text-gray-600">How would you like me to interact with you?</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('coach.coachingStyle')}</h2>
+            <p className="text-gray-600">{t('coach.howToInteract')}</p>
           </div>
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Coaching Approach</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('coach.coachingApproach')}</label>
               <div className="space-y-3">
                 {coachingStyles.map(style => (
                   <button
@@ -297,12 +299,12 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Motivation Level</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('coach.motivationLevel')}</label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: 'gentle', name: 'Gentle', description: 'Soft encouragement' },
-                  { id: 'balanced', name: 'Balanced', description: 'Mixed approach' },
-                  { id: 'intense', name: 'Intense', description: 'Push me hard' }
+                  { id: 'gentle', name: t('coach.gentle'), description: t('coach.gentleDesc') },
+                  { id: 'balanced', name: t('coach.balanced'), description: t('coach.balancedDesc') },
+                  { id: 'intense', name: t('coach.intense'), description: t('coach.intenseDesc') }
                 ].map(level => (
                   <button
                     key={level.id}
@@ -327,13 +329,13 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
       {step === 4 && (
         <div>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check-in Preferences</h2>
-            <p className="text-gray-600">How often would you like to check in on your progress?</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('coach.checkinPreferences')}</h2>
+            <p className="text-gray-600">{t('coach.howOftenCheckIn')}</p>
           </div>
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Check-in Frequency</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('coach.checkInFrequency')}</label>
               <div className="grid grid-cols-3 gap-3">
                 {['daily', 'weekly', 'biweekly'].map(freq => (
                   <button
@@ -345,7 +347,7 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    {freq}
+                    {t(`coach.${freq}`)}
                   </button>
                 ))}
               </div>
@@ -353,7 +355,7 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Preferred Check-in Time
+                {t('coach.preferredCheckInTime')}
               </label>
               <input
                 type="time"
@@ -367,10 +369,9 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
               <div className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-gray-700 mt-0.5 mr-3 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-gray-900">You're all set!</h3>
+                  <h3 className="font-semibold text-gray-900">{t('coach.youreAllSet')}</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    Your preferences will be saved and used to personalize your coaching experience. 
-                    You can always update these settings later.
+                    {t('coach.preferencesWillBeSaved')}
                   </p>
                 </div>
               </div>
@@ -390,7 +391,7 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
-          Back
+          {t('coach.back')}
         </button>
         <button
           onClick={handleNext}
@@ -401,7 +402,7 @@ export default function CoachPreferenceSetup({ onComplete, assessmentId, initial
               : 'bg-gray-900 text-white hover:bg-gray-800'
           }`}
         >
-          {loading ? 'Saving...' : (step === 4 ? 'Complete Setup' : 'Next')}
+          {loading ? t('coach.saving') : (step === 4 ? t('coach.completeSetup') : t('coach.next'))}
         </button>
       </div>
     </div>

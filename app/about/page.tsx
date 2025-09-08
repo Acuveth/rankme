@@ -20,7 +20,7 @@ export default function AboutPage() {
               className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('about.backToHome')}
+              {t('scorecard.backToHome')}
             </Link>
             <LanguageSelector />
           </div>

@@ -18,7 +18,7 @@ import {
   Calendar, MessageSquare, TrendingUp, Target, Award, Clock, 
   ArrowLeft, Settings, Star, CheckCircle, Play, Users,
   DollarSign, Heart, BarChart3, Zap, Trophy, ChevronDown, ChevronUp,
-  Trash2, X, Folder
+  Trash2, X, Folder, Activity, Briefcase, Brain
 } from 'lucide-react'
 
 interface CoachData {
@@ -66,7 +66,7 @@ export default function CoachDashboard() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [coachData, setCoachData] = useState<CoachData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -147,6 +147,14 @@ export default function CoachDashboard() {
     recentActivity: any
     lastUpdated: string
   } | null>(null)
+  const [focusAreaScores, setFocusAreaScores] = useState<{
+    financial: number
+    health_fitness: number
+    social: number
+    romantic: number
+    career?: number
+    personal_growth?: number
+  } | null>(null)
   const [newAchievement, setNewAchievement] = useState<any>(null)
   const [showContactSupport, setShowContactSupport] = useState(false)
   const [showCheckIn, setShowCheckIn] = useState(false)
@@ -222,6 +230,7 @@ export default function CoachDashboard() {
     fetchCoachData()
     loadProgressData()
     loadUserProgress()
+    loadFocusAreaScores()
     loadSettings()
     loadCheckIns()
     loadCoachPreferences()
@@ -302,6 +311,26 @@ export default function CoachDashboard() {
       }
     } catch (error) {
       console.error('Error loading user progress:', error)
+    }
+  }
+
+  const loadFocusAreaScores = async () => {
+    try {
+      console.log('LOADING FOCUS AREA SCORES for assessment:', params.id)
+      const response = await fetch(`/api/scorecard/${params.id}`)
+      if (response.ok) {
+        const scoreData = await response.json()
+        console.log('RECEIVED SCORE DATA:', scoreData)
+        if (scoreData.categories) {
+          const scores = scoreData.categories.reduce((acc: any, category: any) => {
+            acc[category.id] = category.percentile
+            return acc
+          }, {})
+          setFocusAreaScores(scores)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading focus area scores:', error)
     }
   }
 
@@ -1117,7 +1146,7 @@ export default function CoachDashboard() {
       }
     } catch (error) {
       console.error('Error saving preferences:', error)
-      alert('Failed to save preferences. Please try again.')
+      alert(t('coach.failedToSavePreferences'))
     }
   }
 
@@ -1169,11 +1198,11 @@ export default function CoachDashboard() {
         setShowCheckIn(false)
         setCurrentCheckInId(null)
         await loadCheckIns()
-        alert('Check-in completed successfully!')
+        alert(t('coach.checkInCompletedSuccess'))
       }
     } catch (error) {
       console.error('Error completing check-in:', error)
-      alert('Failed to complete check-in. Please try again.')
+      alert(t('coach.failedToCompleteCheckIn'))
     }
   }
 
@@ -1272,11 +1301,11 @@ export default function CoachDashboard() {
         await loadUserProgress()
       } else {
         console.error('Failed to delete daily goal')
-        alert('Failed to delete daily goal. Please try again.')
+        alert(t('coach.failedToDeleteTask'))
       }
     } catch (error) {
       console.error('Error deleting daily goal:', error)
-      alert('Error deleting daily goal. Please try again.')
+      alert(t('coach.failedToDeleteTask'))
     }
   }
 
@@ -1303,11 +1332,11 @@ export default function CoachDashboard() {
         await loadWeeklyTasks()
       } else {
         console.error('Failed to delete weekly task')
-        alert('Failed to delete weekly task. Please try again.')
+        alert(t('coach.failedToDeleteTask'))
       }
     } catch (error) {
       console.error('Error deleting weekly task:', error)
-      alert('Error deleting weekly task. Please try again.')
+      alert(t('coach.failedToDeleteTask'))
     }
   }
 
@@ -1477,7 +1506,7 @@ export default function CoachDashboard() {
         goal.id === goalId ? { ...goal, completed: !newCompletedState } : goal
       )
       setDailyGoals(revertedGoals)
-      alert('Failed to update task. Please try again.')
+      alert(t('coach.failedToUpdateTask'))
     }
   }
 
@@ -1495,7 +1524,7 @@ export default function CoachDashboard() {
 
     setGoals(prev => [...prev, goalToAdd])
     setNewGoal({category: '', title: '', description: '', target: '', deadline: ''})
-    alert('Goal created successfully! Keep working towards it.')
+    alert(t('coach.goalCreatedSuccess'))
   }
 
   const removeGoal = (goalId: string) => {
@@ -1568,11 +1597,11 @@ export default function CoachDashboard() {
       }
       
       // In a real app, save to database
-      alert('Settings saved successfully! Your preferences have been updated.')
+      alert(t('coach.settingsSavedSuccess'))
       setShowSettings(false)
     } catch (error) {
       console.error('Error saving settings:', error)
-      alert('Error saving settings. Please try again.')
+      alert(t('coach.errorSavingSettings'))
     }
   }
 
@@ -1891,58 +1920,58 @@ export default function CoachDashboard() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Primary Focus</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('coach.primaryFocus')}</label>
                             <select
                               value={coachPreferences.primaryFocus}
                               onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, primaryFocus: e.target.value }))}
                               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                             >
-                              <option value="financial">Financial</option>
-                              <option value="health">Health</option>
-                              <option value="social">Social</option>
-                              <option value="personal">Personal</option>
+                              <option value="financial">{t('coach.financial')}</option>
+                              <option value="health">{t('coach.health')}</option>
+                              <option value="social">{t('coach.social')}</option>
+                              <option value="personal">{t('coach.personal')}</option>
                             </select>
                           </div>
                           
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Secondary</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('coach.secondary')}</label>
                             <select
                               value={coachPreferences.secondaryFocus || ''}
                               onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, secondaryFocus: e.target.value || null }))}
                               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                             >
-                              <option value="">None</option>
-                              <option value="financial">Financial</option>
-                              <option value="health">Health</option>
-                              <option value="social">Social</option>
-                              <option value="personal">Personal</option>
+                              <option value="">{t('coach.none')}</option>
+                              <option value="financial">{t('coach.financial')}</option>
+                              <option value="health">{t('coach.health')}</option>
+                              <option value="social">{t('coach.social')}</option>
+                              <option value="personal">{t('coach.personal')}</option>
                             </select>
                           </div>
                           
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Style</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('coach.style')}</label>
                             <select
                               value={coachPreferences.coachingStyle}
                               onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, coachingStyle: e.target.value }))}
                               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                             >
-                              <option value="supportive">Supportive</option>
-                              <option value="analytical">Analytical</option>
-                              <option value="direct">Direct</option>
-                              <option value="encouraging">Encouraging</option>
+                              <option value="supportive">{t('coach.supportive')}</option>
+                              <option value="analytical">{t('coach.analytical')}</option>
+                              <option value="direct">{t('coach.direct')}</option>
+                              <option value="encouraging">{t('coach.encouraging')}</option>
                             </select>
                           </div>
                           
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Motivation</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('coach.motivation')}</label>
                             <select
                               value={coachPreferences.motivationLevel}
                               onChange={(e) => setCoachPreferences((prev: any) => ({ ...prev, motivationLevel: e.target.value }))}
                               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                             >
-                              <option value="gentle">Gentle</option>
-                              <option value="balanced">Balanced</option>
-                              <option value="intense">Intense</option>
+                              <option value="gentle">{t('coach.gentle')}</option>
+                              <option value="balanced">{t('coach.balanced')}</option>
+                              <option value="intense">{t('coach.intense')}</option>
                             </select>
                           </div>
                         </div>
@@ -1989,36 +2018,36 @@ export default function CoachDashboard() {
                       <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                           <div className="space-y-2">
-                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Focus Area</span>
-                            <div className="text-lg font-semibold text-gray-900 capitalize">{coachPreferences.primaryFocus}</div>
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('coach.focusArea')}</span>
+                            <div className="text-lg font-semibold text-gray-900 capitalize">{t(`coach.${coachPreferences.primaryFocus}` as any) || coachPreferences.primaryFocus}</div>
                             {coachPreferences.secondaryFocus && (
-                              <div className="text-sm text-gray-600">Secondary: {coachPreferences.secondaryFocus}</div>
+                              <div className="text-sm text-gray-600">{t('coach.secondary')} {t(`coach.${coachPreferences.secondaryFocus}` as any) || coachPreferences.secondaryFocus}</div>
                             )}
                           </div>
                           
                           <div className="space-y-2">
-                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Coaching Style</span>
-                            <div className="text-lg font-semibold text-gray-900 capitalize">{coachPreferences.coachingStyle}</div>
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('coach.coachingStyleLabel')}</span>
+                            <div className="text-lg font-semibold text-gray-900 capitalize">{t(`coach.${coachPreferences.coachingStyle}` as any) || coachPreferences.coachingStyle}</div>
                           </div>
                           
                           <div className="space-y-2">
-                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Task Frequency</span>
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('coach.taskFrequency')}</span>
                             <div className="text-lg font-semibold text-gray-900">
-                              {coachPreferences.dailyTaskCount} daily, {coachPreferences.weeklyTaskCount} weekly
+                              {coachPreferences.dailyTaskCount} {t('coach.daily')}, {coachPreferences.weeklyTaskCount} {t('coach.weekly')}
                             </div>
                           </div>
                           
                           <div className="space-y-2">
-                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Motivation Level</span>
-                            <div className="text-lg font-semibold text-gray-900 capitalize">{coachPreferences.motivationLevel}</div>
+                            <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('coach.motivationLevel')}</span>
+                            <div className="text-lg font-semibold text-gray-900 capitalize">{t(`coach.${coachPreferences.motivationLevel}` as any) || coachPreferences.motivationLevel}</div>
                           </div>
                         </div>
                         
                         <div className="pt-4 border-t border-gray-200">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-500">Assessment-specific settings</span>
+                            <span className="text-gray-500">{t('coach.assessmentSpecificSettings')}</span>
                             <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-medium capitalize">
-                              {coachPreferences.taskDifficulty} difficulty
+                              {t(`coach.${coachPreferences.taskDifficulty}` as any) || coachPreferences.taskDifficulty} {t('coach.difficulty')}
                             </span>
                           </div>
                         </div>
@@ -2086,9 +2115,9 @@ export default function CoachDashboard() {
                       (userProgress.currentScore.improvement >= 0 ? '+' : '') + userProgress.currentScore.improvement : 
                       '+' + coachData.progress.improvement}
                   </div>
-                  <div className="text-sm text-gray-600">Points Improved</div>
+                  <div className="text-sm text-gray-600">{t('coach.pointsImproved')}</div>
                   <div className="text-xs text-gray-400 mt-1">
-                    Since you started
+                    {t('coach.sinceYouStarted')}
                   </div>
                 </div>
               </div>
@@ -2097,7 +2126,7 @@ export default function CoachDashboard() {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Daily Progress by Day */}
                 <div className="bg-gray-50 p-4 rounded-xl">
-                  <h4 className="font-semibold text-gray-900 mb-3">Daily Progress by Day</h4>
+                  <h4 className="font-semibold text-gray-900 mb-3">{t('coach.dailyProgressByDay')}</h4>
                   <div className="space-y-2">
                     {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => {
                       if (!day) return null;
@@ -2139,15 +2168,15 @@ export default function CoachDashboard() {
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                        <span>Past days</span>
+                        <span>{t('coach.pastDays')}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
-                        <span>Today</span>
+                        <span>{t('coach.todayText')}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                        <span>Future</span>
+                        <span>{t('coach.futureText')}</span>
                       </div>
                     </div>
                   </div>
@@ -2155,13 +2184,13 @@ export default function CoachDashboard() {
 
                 {/* Combined Weekly Task Progress */}
                 <div className="bg-gray-50 p-4 rounded-xl">
-                  <h4 className="font-semibold text-gray-900 mb-3">Combined Weekly Progress</h4>
+                  <h4 className="font-semibold text-gray-900 mb-3">{t('coach.combinedWeeklyProgress')}</h4>
                   <div className="text-center mb-4">
                     <div className="text-4xl font-bold text-gray-900 mb-1">
                       {Math.round(combinedWeeklyProgress)}%
                     </div>
                     <div className="text-sm text-gray-600">
-                      All tasks for this week
+                      {t('coach.allTasksForThisWeek')}
                     </div>
                   </div>
                   
@@ -2176,7 +2205,7 @@ export default function CoachDashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <div className="w-3 h-3 bg-gray-900 rounded-full"></div>
-                        <span className="text-gray-700">Weekly Tasks</span>
+                        <span className="text-gray-700">{t('coach.weeklyTasks')}</span>
                       </div>
                       <span className="text-gray-600 font-medium">
                         {Math.round(actualWeeklyProgress)}%
@@ -2185,7 +2214,7 @@ export default function CoachDashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
-                        <span className="text-gray-700">Daily Goals (Week)</span>
+                        <span className="text-gray-700">{t('coach.dailyGoals')} ({t('coach.weekly')})</span>
                       </div>
                       <span className="text-gray-600 font-medium">
                         {weeklyDailyGoalsProgress}%
@@ -2194,10 +2223,71 @@ export default function CoachDashboard() {
                   </div>
                   
                   <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
-                    Combines all weekly tasks + daily goals for the entire week
+                    {t('coach.combinesAllTasks')}
                   </div>
                 </div>
               </div>
+
+              {/* Focus Area Scores */}
+              {focusAreaScores && (
+                <div className="mt-8">
+                  <div className="flex justify-center">
+                    <div className="flex flex-wrap justify-center gap-6 max-w-4xl">
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <DollarSign className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">{Math.round(focusAreaScores.financial || 0)}</div>
+                      <div className="text-xs text-gray-600 w-full text-center">{t('coach.financial')}</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Activity className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">{Math.round(focusAreaScores.health_fitness || 0)}</div>
+                      <div className="text-xs text-gray-600 w-full text-center">{t('coach.health')}</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Users className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">{Math.round(focusAreaScores.social || 0)}</div>
+                      <div className="text-xs text-gray-600 w-full text-center">{t('coach.social')}</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Heart className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">{Math.round(focusAreaScores.romantic || 0)}</div>
+                      <div className="text-xs text-gray-600 w-full text-center">{t('scorecard.romantic')}</div>
+                    </div>
+                    
+                    {focusAreaScores.career !== undefined && (
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Briefcase className="h-6 w-6 text-gray-600" />
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">{Math.round(focusAreaScores.career)}</div>
+                        <div className="text-xs text-gray-600 w-full text-center">{t('coach.career')}</div>
+                      </div>
+                    )}
+                    
+                    {focusAreaScores.personal_growth !== undefined && (
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Brain className="h-6 w-6 text-gray-600" />
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">{Math.round(focusAreaScores.personal_growth)}</div>
+                        <div className="text-xs text-gray-600 w-full text-center">{t('coach.personal')}</div>
+                      </div>
+                    )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* This Week's Plan */}
@@ -2217,7 +2307,7 @@ export default function CoachDashboard() {
                         </svg>
                       </button>
                       <h2 className="text-2xl font-bold text-gray-900">
-                        Week {currentWeek}: All Focus Areas
+                        {t('coach.weekNumber')} {currentWeek}: {t('coach.allFocusAreas')}
                       </h2>
                       <div className="flex items-center space-x-3">
                         <button
@@ -2233,13 +2323,13 @@ export default function CoachDashboard() {
                           }}
                           className="px-3 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                         >
-                          {Object.values(expandedAreas).every(expanded => expanded) ? 'Collapse All' : 'Expand All'}
+                          {Object.values(expandedAreas).every(expanded => expanded) ? t('coach.collapseAll') : t('coach.expandAll')}
                         </button>
                         <button
                           onClick={() => setShowTaskCreator(true)}
                           className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm"
                         >
-                          + Create Tasks
+                          {t('coach.createTasks')}
                         </button>
                       </div>
                       <button
@@ -2252,12 +2342,12 @@ export default function CoachDashboard() {
                       </button>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                      Work on all areas of your life simultaneously
+                      {t('coach.workOnAllAreas')}
                     </p>
                   </div>
                 </div>
                 <div className="text-sm text-gray-600">
-                  {Math.round(actualWeeklyProgress)}% Complete
+                  {Math.round(actualWeeklyProgress)}% {t('coach.complete')}
                 </div>
               </div>
 
@@ -2291,7 +2381,7 @@ export default function CoachDashboard() {
                         </div>
                         <div className="flex items-center space-x-3">
                           <span className="text-sm text-gray-500">
-                            {completedTasks}/{areaTasks.length} completed
+                            {completedTasks}/{areaTasks.length} {t('coach.completed')}
                           </span>
                           <button
                             onClick={() => toggleAreaExpanded(area)}
@@ -2355,7 +2445,7 @@ export default function CoachDashboard() {
                                     deleteWeeklyTask(action.id)
                                   }}
                                   className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
-                                  title="Delete task"
+                                  title={t('coach.deleteTask')}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </button>
@@ -2376,13 +2466,13 @@ export default function CoachDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
                   <CheckCircle className="h-6 w-6 text-gray-600 mr-3" />
-                  <h2 className="text-2xl font-bold text-gray-900">Completed Tasks</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{t('coach.completedTasks')}</h2>
                 </div>
                 <button
                   onClick={() => setShowCompletedTasks(!showCompletedTasks)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
-                  {showCompletedTasks ? 'Hide' : 'Show'} Completed
+                  {showCompletedTasks ? t('coach.hideCompleted') : t('coach.showCompleted')}
                 </button>
               </div>
 
@@ -2391,16 +2481,16 @@ export default function CoachDashboard() {
                   {/* Completed Weekly Tasks */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-gray-800">Weekly Tasks</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">{t('coach.weeklyTasks')}</h3>
                       <div className="flex items-center space-x-3">
                         <span className="text-sm text-gray-600">
-                          {Math.round(actualWeeklyProgress)}% Complete
+                          {Math.round(actualWeeklyProgress)}% {t('coach.complete')}
                         </span>
                         <button
                           onClick={() => setShowTaskCreator(true)}
                           className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                         >
-                          + Add Task
+                          + {t('coach.addTask')}
                         </button>
                       </div>
                     </div>
@@ -2412,7 +2502,7 @@ export default function CoachDashboard() {
                         
                         if (completedWeeklyTasks.length === 0) {
                           return (
-                            <p className="text-gray-500 text-sm py-3">No weekly tasks completed yet</p>
+                            <p className="text-gray-500 text-sm py-3">{t('coach.noWeeklyTasksCompleted')}</p>
                           )
                         }
                         
@@ -2424,11 +2514,11 @@ export default function CoachDashboard() {
                               <p className="text-gray-600 text-sm">{task.description}</p>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span className="text-gray-600 text-xs">Week {currentWeek}</span>
+                              <span className="text-gray-600 text-xs">{t('coach.weekNumber')} {currentWeek}</span>
                               <button
                                 onClick={() => deleteWeeklyTask(task.id)}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
-                                title="Delete task"
+                                title={t('coach.deleteTask')}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -2442,9 +2532,9 @@ export default function CoachDashboard() {
                   {/* Completed Daily Goals */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-gray-800">Daily Goals</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">{t('coach.dailyGoals')}</h3>
                       <span className="text-sm text-gray-600">
-                        {weeklyDailyGoalsProgress}% Complete (Week)
+                        {weeklyDailyGoalsProgress}% {t('coach.complete')} ({t('coach.weekly')})
                       </span>
                     </div>
                     <div className="space-y-2">
@@ -2453,7 +2543,7 @@ export default function CoachDashboard() {
                         
                         if (completedDailyGoals.length === 0) {
                           return (
-                            <p className="text-gray-500 text-sm py-3">No daily goals completed yet</p>
+                            <p className="text-gray-500 text-sm py-3">{t('coach.noDailyGoalsCompleted')}</p>
                           )
                         }
                         
@@ -2469,7 +2559,7 @@ export default function CoachDashboard() {
                               <button
                                 onClick={() => deleteDailyGoal(goal.id)}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
-                                title="Delete goal"
+                                title={t('coach.deleteGoal')}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -2487,7 +2577,7 @@ export default function CoachDashboard() {
                         <p className="text-2xl font-bold text-gray-900">
                           {getCurrentWeekTasks().filter(task => task.completed).length}
                         </p>
-                        <p className="text-xs text-gray-600 mb-1">Weekly Tasks</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('coach.weeklyTasks')}</p>
                         <div className="text-xs font-medium text-green-600">
                           {Math.round(actualWeeklyProgress)}%
                         </div>
@@ -2496,18 +2586,18 @@ export default function CoachDashboard() {
                         <p className="text-2xl font-bold text-gray-900">
                           {dailyGoals.filter(goal => goal && goal.completed).length}
                         </p>
-                        <p className="text-xs text-gray-600 mb-1">Daily Goals Today</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('coach.dailyGoalsToday')}</p>
                         <div className="text-xs font-medium text-blue-600">
-                          {weeklyDailyGoalsProgress}% Week
+                          {weeklyDailyGoalsProgress}% {t('coach.week')}
                         </div>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-gray-900">
                           {Math.round(combinedWeeklyProgress)}%
                         </p>
-                        <p className="text-xs text-gray-600 mb-1">Overall Progress</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('coach.overallProgress')}</p>
                         <div className="text-xs font-medium text-purple-600">
-                          Combined
+                          {t('coach.combined')}
                         </div>
                       </div>
                     </div>
@@ -2516,7 +2606,7 @@ export default function CoachDashboard() {
                         Total: {
                           getCurrentWeekTasks().filter(task => task.completed).length +
                           dailyGoals.filter(goal => goal && goal.completed).length
-                        } Tasks Completed This Week
+                        } {t('coach.totalTasksCompletedThisWeek')}
                       </p>
                     </div>
                   </div>
@@ -2527,9 +2617,9 @@ export default function CoachDashboard() {
                 <div className="text-center py-4">
                   <p className="text-gray-500 text-sm">
                     {getCurrentWeekTasks().filter(task => task.completed).length + 
-                     dailyGoals.filter(goal => goal && goal.completed).length} total tasks completed
+                     dailyGoals.filter(goal => goal && goal.completed).length} {t('coach.totalTasksCompletedThis')}
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">Click "Show Completed" to view details</p>
+                  <p className="text-gray-400 text-xs mt-1">{t('coach.clickShowCompleted')}</p>
                 </div>
               )}
             </div>
@@ -2573,7 +2663,7 @@ export default function CoachDashboard() {
                     <button
                       onClick={navigateToYesterday}
                       className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                      title="Yesterday"
+                      title={t('coach.yesterday')}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -2591,7 +2681,7 @@ export default function CoachDashboard() {
                     <button
                       onClick={navigateToTomorrow}
                       className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                      title="Tomorrow"
+                      title={t('coach.tomorrow')}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -2607,7 +2697,7 @@ export default function CoachDashboard() {
                   <div className="text-center py-8 text-gray-500">
                     <p className="text-sm">
                       {selectedDate.toDateString() === new Date().toDateString() 
-                        ? "No goals set for today" 
+                        ? t('coach.noGoalsSetToday') 
                         : selectedDate > new Date()
                         ? `No goals planned for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
                         : `No goals were set for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
@@ -2618,7 +2708,7 @@ export default function CoachDashboard() {
                         onClick={() => setShowDailyTaskCreator(true)}
                         className="mt-3 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
                       >
-                        Create your first goal
+                        {t('coach.createYourFirstGoal')}
                       </button>
                     )}
                   </div>
@@ -2662,7 +2752,7 @@ export default function CoachDashboard() {
                           deleteDailyGoal(goal.id)
                         }}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
-                        title="Delete goal"
+                        title={t('coach.deleteGoal')}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -2674,14 +2764,14 @@ export default function CoachDashboard() {
               {dailyGoals.length > 0 && (
                 <div className="mt-4 text-center space-y-3">
                   <div className="text-xs text-gray-500">
-                    {dailyGoals.filter(g => g.completed).length} of {dailyGoals.length} completed
+                    {dailyGoals.filter(g => g.completed).length} of {dailyGoals.length} {t('coach.completedTasksCount')}
                   </div>
                   {(selectedDate.toDateString() === new Date().toDateString() || isTomorrow()) && (
                     <button
                       onClick={() => setShowDailyTaskCreator(true)}
                       className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
                     >
-                      Add a new daily goal
+                      {t('coach.addNewGoal')}
                     </button>
                   )}
                 </div>
@@ -2691,12 +2781,12 @@ export default function CoachDashboard() {
             {/* Upcoming Check-ins */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-gray-900">Upcoming Check-ins</h3>
+                <h3 className="font-bold text-gray-900">{t('coach.upcomingCheckIns')}</h3>
                 <button
                   onClick={() => setShowCheckInSetup(true)}
                   className="text-xs text-gray-600 hover:text-gray-700 font-medium"
                 >
-                  Edit Schedule
+                  {t('coach.editSchedule')}
                 </button>
               </div>
               <div className="space-y-3">
@@ -2711,11 +2801,11 @@ export default function CoachDashboard() {
                           <div className="flex items-center">
                             <MessageSquare className="h-4 w-4 text-gray-600 mr-2" />
                             <span className="font-semibold text-gray-900 text-sm capitalize">
-                              {checkin.type} Check-in
+                              {checkin.type} {t('coach.checkInType')}
                             </span>
                           </div>
                           {isOverdue && (
-                            <span className="text-xs text-gray-800 font-medium">Overdue</span>
+                            <span className="text-xs text-gray-800 font-medium">{t('coach.overdue')}</span>
                           )}
                         </div>
                         <div className="text-xs text-gray-500 mb-2">
@@ -2733,7 +2823,7 @@ export default function CoachDashboard() {
                             }}
                             className="text-xs bg-gray-900 text-white px-3 py-1 rounded-lg hover:bg-gray-800 transition-all"
                           >
-                            Complete Now
+                            {t('coach.completeNow')}
                           </button>
                         )}
                       </div>
@@ -2746,7 +2836,7 @@ export default function CoachDashboard() {
                       onClick={() => setShowCheckInSetup(true)}
                       className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-all"
                     >
-                      Set Up Check-ins
+                      {t('coach.setUpCheckIns')}
                     </button>
                   </div>
                 )}
@@ -2755,7 +2845,7 @@ export default function CoachDashboard() {
 
             {/* Quick Actions */}
             <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
+              <h3 className="font-bold text-gray-900 mb-4">{t('coach.quickActions')}</h3>
               <div className="space-y-3">
                 <button 
                   onClick={() => setShowJournal(true)}
@@ -2763,8 +2853,8 @@ export default function CoachDashboard() {
                 >
                   <Play className="h-4 w-4 text-gray-600 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm">Daily Journal</div>
-                    <div className="text-xs text-gray-600">Reflect on your progress</div>
+                    <div className="font-semibold text-gray-900 text-sm">{t('coach.dailyJournal')}</div>
+                    <div className="text-xs text-gray-600">{t('coach.reflectOnProgress')}</div>
                   </div>
                 </button>
                 
@@ -2774,8 +2864,8 @@ export default function CoachDashboard() {
                 >
                   <BarChart3 className="h-4 w-4 text-gray-600 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm">View Full Report</div>
-                    <div className="text-xs text-gray-600">Deep analysis & insights</div>
+                    <div className="font-semibold text-gray-900 text-sm">{t('coach.viewFullReport')}</div>
+                    <div className="text-xs text-gray-600">{t('coach.deepAnalysisInsights')}</div>
                   </div>
                 </button>
                 
@@ -2785,8 +2875,8 @@ export default function CoachDashboard() {
                 >
                   <Target className="h-4 w-4 text-gray-600 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm">Set New Goals</div>
-                    <div className="text-xs text-gray-600">Update your objectives</div>
+                    <div className="font-semibold text-gray-900 text-sm">{t('coach.setNewGoals')}</div>
+                    <div className="text-xs text-gray-600">{t('coach.updateYourObjectives')}</div>
                   </div>
                 </button>
               </div>
@@ -2794,15 +2884,15 @@ export default function CoachDashboard() {
 
             {/* Support */}
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 text-white">
-              <h3 className="font-bold mb-3">Need Help?</h3>
+              <h3 className="font-bold mb-3">{t('coach.needHelp')}</h3>
               <p className="text-sm text-gray-200 mb-4">
-                Questions about your coaching plan or progress? We're here to help.
+                {t('coach.questionsAboutCoachingPlan')}
               </p>
               <button
                 onClick={() => setShowContactSupport(true)}
                 className="w-full bg-white text-gray-900 py-3 rounded-lg hover:bg-gray-100 transition-all font-semibold text-sm"
               >
-                Contact Support
+                {t('coach.contactSupport')}
               </button>
             </div>
           </div>
@@ -2820,7 +2910,7 @@ export default function CoachDashboard() {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900">AI Life Coach</h3>
-                  <p className="text-sm text-gray-600">Here to help you grow</p>
+                  <p className="text-sm text-gray-600">{t('coach.hereToHelpGrow')}</p>
                 </div>
               </div>
               <button
@@ -2840,26 +2930,26 @@ export default function CoachDashboard() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MessageSquare className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Start a conversation</h3>
-                  <p className="text-gray-600 mb-4">Ask me about your progress, goals, or anything related to your personal development.</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">{t('coach.startAConversation')}</h3>
+                  <p className="text-gray-600 mb-4">{t('coach.askMeAboutProgress')}</p>
                   <div className="space-y-2">
                     <button
-                      onClick={() => setChatInput("How can I improve my lowest scoring area?")}
+                      onClick={() => setChatInput(t('coach.howCanIImprove'))}
                       className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
                     >
-                      "How can I improve my lowest scoring area?"
+                      "{t('coach.howCanIImprove')}"
                     </button>
                     <button
-                      onClick={() => setChatInput("What should I focus on this week?")}
+                      onClick={() => setChatInput(t('coach.whatShouldIFocus'))}
                       className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
                     >
-                      "What should I focus on this week?"
+                      "{t('coach.whatShouldIFocus')}"
                     </button>
                     <button
-                      onClick={() => setChatInput("I'm feeling stuck. Any advice?")}
+                      onClick={() => setChatInput(t('coach.feelingStuck'))}
                       className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
                     >
-                      "I'm feeling stuck. Any advice?"
+                      "{t('coach.feelingStuck')}"
                     </button>
                   </div>
                 </div>
@@ -2921,7 +3011,7 @@ export default function CoachDashboard() {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
-                  placeholder="Type your message..."
+                  placeholder={t('coach.typeMessage')}
                   className="flex-1 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none"
                   disabled={chatLoading}
                 />
@@ -2930,7 +3020,7 @@ export default function CoachDashboard() {
                   disabled={!chatInput.trim() || chatLoading}
                   className="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send
+                  {t('coach.sendMessage')}
                 </button>
               </div>
             </div>
@@ -2949,8 +3039,8 @@ export default function CoachDashboard() {
                   <Play className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Daily Journal</h3>
-                  <p className="text-sm text-gray-600">Reflect on today's progress</p>
+                  <h3 className="font-bold text-gray-900">{t('coach.dailyJournal')}</h3>
+                  <p className="text-sm text-gray-600">{t('coach.reflectOnTodaysProgress')}</p>
                 </div>
               </div>
               <button
@@ -2970,7 +3060,7 @@ export default function CoachDashboard() {
             {/* Journal Content */}
             <div className="flex-1 overflow-y-auto p-6">
               <div className="mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2">Today's Reflection</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">{t('coach.todaysReflection')}</h4>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                   <p className="text-gray-800 text-sm leading-relaxed">{journalQuestion}</p>
                 </div>
@@ -2978,13 +3068,13 @@ export default function CoachDashboard() {
 
               <div className="mb-6">
                 <label htmlFor="journal-entry" className="block font-semibold text-gray-900 mb-2">
-                  Your Thoughts
+                  {t('coach.yourThoughts')}
                 </label>
                 <textarea
                   id="journal-entry"
                   value={journalEntry}
                   onChange={(e) => setJournalEntry(e.target.value)}
-                  placeholder="Take a moment to reflect on your day, progress, challenges, and insights..."
+                  placeholder={t('coach.takeAMomentToReflect')}
                   className="w-full h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
                   rows={8}
                 />
@@ -2994,12 +3084,12 @@ export default function CoachDashboard() {
               </div>
 
               <div className="bg-gray-50 p-4 rounded-xl">
-                <h5 className="font-semibold text-gray-900 mb-2">💡 Journaling Tips</h5>
+                <h5 className="font-semibold text-gray-900 mb-2">{t('coach.journalingTips')}</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Be honest and authentic with your thoughts</li>
-                  <li>• Focus on specific examples and experiences</li>
-                  <li>• Consider what you learned and how you can improve</li>
-                  <li>• Celebrate small wins and progress made</li>
+                  <li>• {t('coach.beHonestAuthentic')}</li>
+                  <li>• {t('coach.focusOnSpecificExamples')}</li>
+                  <li>• {t('coach.considerWhatYouLearned')}</li>
+                  <li>• {t('coach.celebrateSmallWins')}</li>
                 </ul>
               </div>
             </div>
@@ -3015,14 +3105,14 @@ export default function CoachDashboard() {
                   }}
                   className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all"
                 >
-                  Cancel
+                  {t('coach.cancel')}
                 </button>
                 <button
                   onClick={saveJournalEntry}
                   disabled={!journalEntry.trim()}
                   className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Entry
+                  {t('coach.saveEntry')}
                 </button>
               </div>
             </div>
@@ -3041,8 +3131,8 @@ export default function CoachDashboard() {
                   <Target className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Personal Goals</h3>
-                  <p className="text-sm text-gray-600">Set and track your objectives</p>
+                  <h3 className="font-bold text-gray-900">{t('coach.personalGoals')}</h3>
+                  <p className="text-sm text-gray-600">{t('coach.setAndTrackObjectives')}</p>
                 </div>
               </div>
               <button
@@ -3060,12 +3150,12 @@ export default function CoachDashboard() {
               <div className="grid lg:grid-cols-2 gap-8">
                 {/* Existing Goals */}
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-4">Your Current Goals</h4>
+                  <h4 className="font-semibold text-gray-900 mb-4">{t('coach.yourCurrentGoals')}</h4>
                   {goals.length === 0 ? (
                     <div className="text-center py-8 bg-gray-50 rounded-xl">
                       <Target className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-600">No goals set yet</p>
-                      <p className="text-sm text-gray-500">Create your first goal to get started</p>
+                      <p className="text-gray-600">{t('coach.noGoalsSetYet')}</p>
+                      <p className="text-sm text-gray-500">{t('coach.createYourFirstGoal')}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -3102,59 +3192,59 @@ export default function CoachDashboard() {
 
                 {/* New Goal Form */}
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-4">Create New Goal</h4>
+                  <h4 className="font-semibold text-gray-900 mb-4">{t('coach.addNewGoal')}</h4>
                   <div className="bg-gray-50 p-6 rounded-xl">
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('coach.category')}</label>
                         <select
                           value={newGoal.category}
                           onChange={(e) => setNewGoal(prev => ({...prev, category: e.target.value}))}
                           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         >
-                          <option value="">Select a category</option>
-                          <option value="Financial Health">Financial Health</option>
+                          <option value="">{t('coach.selectCategory')}</option>
+                          <option value="Financial Health">{t('coach.financialHealth')}</option>
                           <option value="Physical Wellness">Physical Wellness</option>
-                          <option value="Social Network">Social Network</option>
+                          <option value="Social Network">{t('coach.socialNetwork')}</option>
                           <option value="Personal Development">Personal Development</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Goal Title</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('coach.goalTitle')}</label>
                         <input
                           type="text"
                           value={newGoal.title}
                           onChange={(e) => setNewGoal(prev => ({...prev, title: e.target.value}))}
-                          placeholder="e.g., Save $5,000 for emergency fund"
+                          placeholder={t('coach.goalTitlePlaceholder')}
                           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Description (optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('coach.descriptionOptional')}</label>
                         <textarea
                           value={newGoal.description}
                           onChange={(e) => setNewGoal(prev => ({...prev, description: e.target.value}))}
-                          placeholder="Describe your goal and why it's important to you..."
+                          placeholder={t('coach.goalDescriptionPlaceholder')}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
                           rows={3}
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Target (optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('coach.targetOptional')}</label>
                         <input
                           type="text"
                           value={newGoal.target}
                           onChange={(e) => setNewGoal(prev => ({...prev, target: e.target.value}))}
-                          placeholder="e.g., $5,000, 10 lbs, 30 minutes daily"
+                          placeholder={t('coach.goalTargetPlaceholder')}
                           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Deadline (optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('coach.deadlineOptional')}</label>
                         <input
                           type="date"
                           value={newGoal.deadline}
@@ -3168,7 +3258,7 @@ export default function CoachDashboard() {
                         disabled={!newGoal.title.trim() || !newGoal.category}
                         className="w-full py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg hover:from-green-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                       >
-                        Create Goal
+                        {t('coach.createGoal')}
                       </button>
                     </div>
                   </div>
@@ -3269,15 +3359,15 @@ export default function CoachDashboard() {
                   <h4 className="font-semibold text-gray-900 mb-4">Coaching Style</h4>
                   <div className="space-y-4">
                     <div>
-                      <label className="block font-medium text-gray-700 mb-2">Primary Focus Area</label>
+                      <label className="block font-medium text-gray-700 mb-2">{t('coach.primaryFocusArea')}</label>
                       <select
                         value={settings.focusArea}
                         onChange={(e) => setSettings(prev => ({...prev, focusArea: e.target.value}))}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
                       >
-                        <option value="financial">Financial Health</option>
+                        <option value="financial">{t('coach.financialHealth')}</option>
                         <option value="health">Physical Wellness</option>
-                        <option value="social">Social Network</option>
+                        <option value="social">{t('coach.socialNetwork')}</option>
                         <option value="personal">Personal Development</option>
                       </select>
                     </div>
@@ -3348,7 +3438,7 @@ export default function CoachDashboard() {
                   onClick={() => setShowSettings(false)}
                   className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all"
                 >
-                  Cancel
+                  {t('coach.cancel')}
                 </button>
                 <button
                   onClick={saveSettings}
@@ -3446,7 +3536,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-bold text-gray-900">Create Daily Task</h3>
+          <h3 className="text-xl font-bold text-gray-900">{t('coach.createDailyTask')}</h3>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -3459,46 +3549,46 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('coach.taskTitle')}</label>
             <input
               type="text"
               value={taskData.title}
               onChange={(e) => setTaskData(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
-              placeholder="Enter task title..."
+              placeholder={t('coach.taskTitlePlaceholder')}
               required
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('coach.descriptionOptional')}</label>
             <textarea
               value={taskData.description}
               onChange={(e) => setTaskData(prev => ({ ...prev, description: e.target.value }))}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
-              placeholder="Describe the task..."
+              placeholder={t('coach.taskDescriptionPlaceholder')}
               rows={3}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('coach.category')}</label>
               <select
                 value={taskData.category}
                 onChange={(e) => setTaskData(prev => ({ ...prev, category: e.target.value }))}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all bg-white font-medium text-gray-900"
               >
-                <option value="financial">Financial</option>
-                <option value="health">Health</option>
-                <option value="social">Social</option>
+                <option value="financial">{t('coach.financial')}</option>
+                <option value="health">{t('coach.health')}</option>
+                <option value="social">{t('coach.social')}</option>
                 <option value="personal">Personal</option>
                 <option value="other">Other</option>
               </select>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('coach.priority')}</label>
               <select
                 value={taskData.priority}
                 onChange={(e) => setTaskData(prev => ({ ...prev, priority: e.target.value }))}
@@ -3513,7 +3603,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('coach.date')}</label>
               <input
                 type="date"
                 value={taskData.date}
@@ -3523,7 +3613,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Est. Minutes</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('coach.estMinutes')}</label>
               <input
                 type="number"
                 value={taskData.estimatedMinutes}
@@ -3541,7 +3631,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
               onClick={onClose}
               className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all"
             >
-              Cancel
+              {t('coach.cancel')}
             </button>
             <button
               type="submit"

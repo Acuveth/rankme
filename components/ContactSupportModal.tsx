@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { X, Send, HelpCircle, MessageSquare, Bug, Lightbulb } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 interface ContactSupportModalProps {
   isOpen: boolean
@@ -12,6 +13,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
   onClose,
   userEmail 
 }) => {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     subject: '',
     category: 'general',
@@ -21,10 +23,10 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
   const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   const categories = [
-    { value: 'general', label: 'General Question', icon: HelpCircle },
-    { value: 'technical', label: 'Technical Issue', icon: Bug },
-    { value: 'feedback', label: 'Feedback', icon: MessageSquare },
-    { value: 'feature', label: 'Feature Request', icon: Lightbulb }
+    { value: 'general', label: t('coach.generalQuestion'), icon: HelpCircle },
+    { value: 'technical', label: t('coach.technicalIssue'), icon: Bug },
+    { value: 'feedback', label: t('coach.feedback'), icon: MessageSquare },
+    { value: 'feature', label: t('coach.featureRequest'), icon: Lightbulb }
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,7 +79,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Contact Support</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('coach.contactSupport')}</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -91,7 +93,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           {/* Category Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              How can we help?
+              {t('coach.howCanWeHelp')}
             </label>
             <div className="grid grid-cols-2 gap-3">
               {categories.map((cat) => {
@@ -118,7 +120,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           {/* Subject */}
           <div>
             <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-              Subject
+              {t('coach.subject')}
             </label>
             <input
               id="subject"
@@ -127,14 +129,14 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-              placeholder="Brief description of your issue or question"
+              placeholder={t('coach.briefDescription')}
             />
           </div>
 
           {/* Message */}
           <div>
             <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-              Message
+              {t('coach.message')}
             </label>
             <textarea
               id="message"
@@ -143,7 +145,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
-              placeholder="Please provide as much detail as possible..."
+              placeholder={t('coach.pleaseProvideDetails')}
             />
           </div>
 
@@ -151,7 +153,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           {userEmail && (
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-xs text-gray-600">
-                We'll respond to: <span className="font-medium text-gray-900">{userEmail}</span>
+                {t('coach.weWillRespondTo')} <span className="font-medium text-gray-900">{userEmail}</span>
               </p>
             </div>
           )}
@@ -185,7 +187,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Send Message
+                {t('coach.sendMessage')}
               </>
             )}
           </button>

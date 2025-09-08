@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Plus, Trash2, Save } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 interface Task {
   title: string
@@ -20,17 +21,18 @@ export default function WeeklyTaskCreatorModal({
   onClose,
   onSubmit
 }: WeeklyTaskCreatorModalProps) {
+  const { t } = useLanguage()
   const [tasks, setTasks] = useState<Task[]>([
     { title: '', description: '', category: 'financial' }
   ])
   const [loading, setLoading] = useState(false)
 
   const categories = [
-    { value: 'financial', label: 'Financial Health', color: 'bg-green-100 text-green-800' },
-    { value: 'health', label: 'Physical Wellness', color: 'bg-blue-100 text-blue-800' },
-    { value: 'social', label: 'Social Connection', color: 'bg-purple-100 text-purple-800' },
-    { value: 'personal', label: 'Personal Development', color: 'bg-orange-100 text-orange-800' },
-    { value: 'other', label: 'Other', color: 'bg-gray-100 text-gray-800' }
+    { value: 'financial', label: t('coach.financialHealth'), color: 'bg-green-100 text-green-800' },
+    { value: 'health', label: t('coach.physicalWellness'), color: 'bg-blue-100 text-blue-800' },
+    { value: 'social', label: t('coach.socialConnection'), color: 'bg-purple-100 text-purple-800' },
+    { value: 'personal', label: t('coach.personalDevelopment'), color: 'bg-orange-100 text-orange-800' },
+    { value: 'other', label: t('coach.other'), color: 'bg-gray-100 text-gray-800' }
   ]
 
   const addTask = () => {
@@ -85,7 +87,7 @@ export default function WeeklyTaskCreatorModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Create Weekly Tasks</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('coach.createWeeklyTasks')}</h2>
             <p className="text-gray-600 mt-1">Week of {currentWeek}</p>
           </div>
           <button
@@ -102,7 +104,7 @@ export default function WeeklyTaskCreatorModal({
             {tasks.map((task, index) => (
               <div key={index} className="border border-gray-200 rounded-xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Task {index + 1}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('coach.taskNumber')} {index + 1}</h3>
                   {tasks.length > 1 && (
                     <button
                       type="button"
@@ -118,7 +120,7 @@ export default function WeeklyTaskCreatorModal({
                   {/* Category Selection */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category
+                      {t('coach.category')}
                     </label>
                     <select
                       value={task.category}
@@ -142,7 +144,7 @@ export default function WeeklyTaskCreatorModal({
                   {/* Task Title */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Task Title *
+                      {t('coach.taskTitleRequired')}
                     </label>
                     <input
                       type="text"
@@ -157,7 +159,7 @@ export default function WeeklyTaskCreatorModal({
                   {/* Task Description */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description *
+                      {t('coach.descriptionRequired')}
                     </label>
                     <textarea
                       value={task.description}
@@ -189,7 +191,7 @@ export default function WeeklyTaskCreatorModal({
                 onClick={onClose}
                 className="px-6 py-3 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium"
               >
-                Cancel
+                {t('coach.cancel')}
               </button>
               <button
                 type="submit"

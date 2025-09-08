@@ -65,7 +65,12 @@
       "Read(/C:\\Users\\gaberscekl\\rankme\\rankme\\app\\coach\\[id]/**)",
       "Read(/C:\\Users\\gaberscekl\\rankme\\rankme\\app\\coach\\[id]/**)",
       "Read(/C:\\Users\\gaberscekl\\rankme\\rankme\\lib/**)",
-      "Read(/C:\\Users\\gaberscekl\\rankme\\rankme\\components/**)"
+      "Read(/C:\\Users\\gaberscekl\\rankme\\rankme\\components/**)",
+      "Bash(del test-streak-logic.js)",
+      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\test-streak-logic.js\")",
+      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\components\\ClientOnlyLanguageProvider.tsx\")",
+      "Bash(del test-qr.js)",
+      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\app\\api\\report\\[id]\\generate-deep-report\\route.ts\")"
     ],
     "deny": [],
     "ask": [],

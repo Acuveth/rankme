@@ -7,6 +7,14 @@ export interface CoachContext {
   weeklyProgress: ProgressMetrics
   recentCheckIns: CheckIn[]
   achievements: Achievement[]
+  categorizedAnswers?: {
+    financial?: any[]
+    health_fitness?: any[]
+    social?: any[]
+    romantic?: any[]
+    career?: any[]
+    personal_growth?: any[]
+  }
 }
 
 export interface JournalEntry {

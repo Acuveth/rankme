@@ -60,6 +60,20 @@ export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
+  
+  // Helper function to translate day of week
+  const translateDayOfWeek = (day: string): string => {
+    const dayMap: { [key: string]: string } = {
+      'Monday': t('dashboard.monday'),
+      'Tuesday': t('dashboard.tuesday'),
+      'Wednesday': t('dashboard.wednesday'),
+      'Thursday': t('dashboard.thursday'),
+      'Friday': t('dashboard.friday'),
+      'Saturday': t('dashboard.saturday'),
+      'Sunday': t('dashboard.sunday')
+    }
+    return dayMap[day] || day
+  }
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [purchasedReports, setPurchasedReports] = useState<Set<string>>(new Set())
@@ -162,11 +176,9 @@ export default function DashboardPage() {
 
   const fetchLoginStreak = async () => {
     try {
-      // Trigger a login track to make sure today's login is recorded
-      await fetch('/api/track-login', { method: 'POST' })
-      
-      // Then get the streak information
-      const response = await fetch('/api/track-login', { method: 'POST' })
+      // Get streak information without triggering additional login tracking
+      // The LoginTrackerComponent handles the initial login tracking automatically
+      const response = await fetch('/api/login-history')
       if (response.ok) {
         const data = await response.json()
         setLoginStreak({
@@ -604,7 +616,7 @@ export default function DashboardPage() {
                       <div className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{login.dayOfWeek}</p>
+                          <p className="text-sm font-medium text-gray-900">{translateDayOfWeek(login.dayOfWeek)}</p>
                           <p className="text-xs text-gray-600">{login.date}</p>
                         </div>
                       </div>
