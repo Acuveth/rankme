@@ -100,14 +100,92 @@ export async function GET(
     }, {})
 
     // Analyze each category with detailed question-by-question insights
+    const generateCategoryFallbackStrengths = (categoryId: string, percentile: number): string[] => {
+      if (percentile >= 70) {
+        const strengthMap: { [key: string]: string } = {
+          financial: "Strong financial foundation with above-average performance across key metrics",
+          health_fitness: "Excellent health and fitness habits that support long-term wellbeing",
+          social: "Well-developed social connections and relationship-building skills",
+          romantic: "Strong personal growth mindset and emotional intelligence",
+          career: "Solid career trajectory with good professional development",
+          personal_growth: "Committed to continuous improvement and self-development"
+        }
+        return [strengthMap[categoryId] || "Strong performance in this life area"]
+      } else if (percentile >= 50) {
+        const strengthMap: { [key: string]: string } = {
+          financial: "Stable financial management with some areas of strength",
+          health_fitness: "Decent health awareness and some good fitness habits",
+          social: "Basic social connections with some relationship strengths",
+          romantic: "Some areas of personal growth and self-awareness",
+          career: "Foundational career skills with some professional strengths",
+          personal_growth: "Some commitment to personal development"
+        }
+        return [strengthMap[categoryId] || "Some strengths in this life area"]
+      } else {
+        const strengthMap: { [key: string]: string } = {
+          financial: "Basic financial awareness with potential for significant improvement",
+          health_fitness: "Some health consciousness that can be built upon",
+          social: "Existing social connections that can be strengthened and expanded",
+          romantic: "Self-awareness that provides foundation for personal growth",
+          career: "Professional experience that can be leveraged for advancement",
+          personal_growth: "Willingness to assess areas for improvement"
+        }
+        return [strengthMap[categoryId] || "Foundation for growth in this area"]
+      }
+    }
+
+    const generateCategoryFallbackOpportunities = (categoryId: string, percentile: number): string[] => {
+      const opportunityMap: { [key: string]: string[] } = {
+        financial: ["Optimize investment strategy for long-term wealth building", "Improve debt-to-income ratio for greater financial flexibility", "Build stronger emergency fund for financial security"],
+        health_fitness: ["Establish more consistent exercise routine for improved fitness", "Optimize nutrition for better energy and health outcomes", "Improve sleep quality for better recovery and performance"],
+        social: ["Expand social network to create more diverse relationships", "Develop stronger communication skills for deeper connections", "Build professional networking for career advancement"],
+        romantic: ["Develop better emotional intelligence and self-awareness", "Improve communication skills in personal relationships", "Build confidence through personal achievement and growth"],
+        career: ["Expand skill set to increase market value and opportunities", "Build stronger professional network for career advancement", "Develop leadership abilities for increased responsibility"],
+        personal_growth: ["Set clearer goals and tracking systems for consistent progress", "Develop better habits for sustained personal improvement", "Build accountability systems to maintain growth momentum"]
+      }
+      
+      const opportunities = opportunityMap[categoryId] || ["Significant potential for improvement in this life area"]
+      
+      // Return different opportunities based on percentile
+      if (percentile >= 70) {
+        return [opportunities[0]] // High performers get optimization suggestions
+      } else if (percentile >= 50) {
+        return [opportunities[1]] // Average performers get improvement suggestions
+      } else {
+        return opportunities.slice(0, 2) // Low performers get multiple fundamental improvements
+      }
+    }
+
+    const generateCategoryFallbackRecommendations = (categoryId: string, percentile: number): string[] => {
+      const recommendationMap: { [key: string]: string[] } = {
+        financial: ["Automate savings and investments to ensure consistent progress", "Track all expenses for 30 days to identify optimization opportunities", "Meet with financial advisor to create comprehensive wealth plan"],
+        health_fitness: ["Schedule specific workout times and treat them as unmovable appointments", "Meal prep on weekends to ensure consistent healthy nutrition", "Track daily steps and gradually increase weekly targets"],
+        social: ["Schedule one social activity per week to maintain and build relationships", "Practice active listening skills in all conversations for deeper connections", "Join one new activity or group to expand social network"],
+        romantic: ["Practice daily gratitude and self-reflection for increased self-awareness", "Read one personal development book monthly and implement key insights", "Seek feedback from trusted friends on areas for personal growth"],
+        career: ["Identify 3 key skills needed for next career level and create learning plan", "Schedule monthly coffee meetings with industry contacts for networking", "Document achievements and create portfolio to showcase professional value"],
+        personal_growth: ["Set up daily 10-minute reflection practice to maintain self-awareness", "Choose one area for focused improvement and track progress weekly", "Create accountability system with friend or coach for sustained progress"]
+      }
+      
+      const recommendations = recommendationMap[categoryId] || ["Focus on consistent daily actions in this life area"]
+      
+      // Return different recommendations based on percentile
+      if (percentile >= 70) {
+        return [recommendations[2] || recommendations[0]] // High performers get advanced strategies
+      } else if (percentile >= 50) {
+        return [recommendations[1] || recommendations[0]] // Average performers get structured approaches
+      } else {
+        return [recommendations[0]] // Low performers get fundamental first steps
+      }
+    }
+
     const generateCategoryAnalysis = (categoryId: string, categoryName: string) => {
       const categoryQuestions = questions.questions.filter((q: any) => q.category === categoryId)
       const categoryPercentile = categoryId === 'financial' ? assessment.scoreOverall?.percentileFinancial :
                                 categoryId === 'health_fitness' ? assessment.scoreOverall?.percentileHealth :
                                 categoryId === 'social' ? assessment.scoreOverall?.percentileSocial :
                                 categoryId === 'romantic' ? assessment.scoreOverall?.percentileRomantic :
-                                categoryId === 'career' ? 50 : // Add career if needed
-                                categoryId === 'personal_growth' ? 50 : 50 // Add personal_growth if needed
+                                categoryId === 'career' ? assessment.scoreOverall?.percentileCareer :
+                                categoryId === 'personal_growth' ? assessment.scoreOverall?.percentilePersonalGrowth : 50
 
       const questionInsights: any[] = []
       const strengths: string[] = []
@@ -162,6 +240,20 @@ export async function GET(
               } else {
                 insight = `Your income of ${selectedOption} requires strategic focus on both earning potential and expense optimization.`
                 opportunity = "Prioritize skill development that directly increases earning capacity in your field"
+              }
+              break
+
+            case 'fin_income_trend':
+              if (selectedIndex >= 3) {
+                insight = `Your income having ${selectedOption} demonstrates excellent career trajectory and financial momentum.`
+                strength = "Positive income growth indicates career advancement and expanding opportunities"
+              } else if (selectedIndex === 2) {
+                insight = `Your income ${selectedOption} provides stability but limited growth momentum.`
+                recommendation = "Explore opportunities for income growth through skill development, certifications, or new responsibilities"
+              } else {
+                insight = `Your income having ${selectedOption} creates financial pressure and limits wealth building capacity.`
+                opportunity = "Reversing income decline is critical for long-term financial security and stress reduction"
+                recommendation = "Assess causes of income reduction and create action plan to restore earning growth through skills, networking, or career pivot"
               }
               break
 
@@ -908,9 +1000,9 @@ export async function GET(
         name: categoryName,
         percentile: Math.round(categoryPercentile || 50),
         score: Math.round((categoryPercentile || 50) * 2),
-        strengths: strengths.length > 0 ? strengths : [`Solid foundation in ${categoryName.toLowerCase()}`],
-        opportunities: opportunities.length > 0 ? opportunities : [`Room for growth in ${categoryName.toLowerCase()}`],
-        recommendations: recommendations.length > 0 ? recommendations : [`Focus on consistency in ${categoryName.toLowerCase()}`],
+        strengths: strengths.length > 0 ? strengths : generateCategoryFallbackStrengths(categoryId, categoryPercentile || 50),
+        opportunities: opportunities.length > 0 ? opportunities : generateCategoryFallbackOpportunities(categoryId, categoryPercentile || 50),
+        recommendations: recommendations.length > 0 ? recommendations : generateCategoryFallbackRecommendations(categoryId, categoryPercentile || 50),
         questionInsights: questionInsights
       }
     }
@@ -920,7 +1012,9 @@ export async function GET(
       financial: 'Financial Health',
       health_fitness: 'Health & Fitness', 
       social: 'Social Network',
-      romantic: 'Personal Growth'
+      romantic: 'Romantic Life',
+      career: 'Career & Professional Life',
+      personal_growth: 'Personal Growth & Development'
     }
 
     const detailedCategories = Object.entries(categoryNames).map(([key, name]) => 
