@@ -681,11 +681,11 @@ export default function DetailedReportPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">{t('report.questionsAnalyzed')}</span>
-                  <span className="font-semibold text-gray-900">32/32</span>
+                  <span className="font-semibold text-gray-900">57/57</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">{t('report.categoriesCovered')}</span>
-                  <span className="font-semibold text-gray-900">4 {t('report.areas')}</span>
+                  <span className="font-semibold text-gray-900">6 {t('report.areas')}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">{t('report.peerGroupSize')}</span>

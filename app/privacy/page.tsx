@@ -52,7 +52,7 @@ export default function PrivacyPolicyPage() {
                 <div className="bg-gray-50 p-6 rounded-xl mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Assessment Data</h3>
                   <ul className="list-disc list-inside text-gray-700 space-y-2">
-                    <li>Your responses to our 32-question life assessment</li>
+                    <li>Your responses to our 57-question life assessment</li>
                     <li>Calculated scores and percentile rankings</li>
                     <li>Progress tracking and coaching interactions (if subscribed)</li>
                     <li>Usage patterns and feature interactions</li>

@@ -135,7 +135,7 @@ export default function SignUpPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder={t('auth.enterFullName')}
+                placeholder={t('coach.enterFullName')}
                 disabled={loading}
               />
             </div>
@@ -153,7 +153,7 @@ export default function SignUpPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder={t('auth.enterEmail')}
+                placeholder={t('coach.enterEmail')}
                 required
                 disabled={loading}
               />
@@ -172,7 +172,7 @@ export default function SignUpPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder={t('auth.createPassword')}
+                placeholder={t('coach.createPassword')}
                 required
                 disabled={loading}
               />
@@ -199,7 +199,7 @@ export default function SignUpPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder={t('auth.confirmPassword')}
+                placeholder={t('coach.confirmPassword')}
                 required
                 disabled={loading}
               />

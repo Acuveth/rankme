@@ -258,7 +258,7 @@ export default function AboutPage() {
             </div>
             
             <div>
-              <div className="text-4xl font-bold mb-2">32</div>
+              <div className="text-4xl font-bold mb-2">57</div>
               <div className="text-gray-200">{t('about.dataPointsAnalyzed')}</div>
             </div>
           </div>

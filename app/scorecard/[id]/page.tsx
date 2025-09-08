@@ -616,7 +616,7 @@ export default function ScorecardPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">{t('report.questionsAnswered')}</span>
-                  <span className="font-semibold text-gray-900">32/32</span>
+                  <span className="font-semibold text-gray-900">57/57</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">{t('report.completionTime')}</span>

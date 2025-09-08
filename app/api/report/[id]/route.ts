@@ -29,6 +29,16 @@ export async function GET(
       )
     }
 
+    // Check if a deep report already exists for this assessment
+    const existingReport = await prisma.deepReport.findUnique({
+      where: { assessmentId }
+    })
+
+    if (existingReport) {
+      // Return the cached report
+      return NextResponse.json(JSON.parse(existingReport.reportData))
+    }
+
     // Get assessment with all data
     const assessment = await prisma.assessment.findUnique({
       where: { id: assessmentId },
@@ -178,7 +188,7 @@ export async function GET(
       }
     }
 
-    const generateCategoryAnalysis = (categoryId: string, categoryName: string) => {
+    const generateCategoryAnalysis = async (categoryId: string, categoryName: string) => {
       const categoryQuestions = questions.questions.filter((q: any) => q.category === categoryId)
       const categoryPercentile = categoryId === 'financial' ? assessment.scoreOverall?.percentileFinancial :
                                 categoryId === 'health_fitness' ? assessment.scoreOverall?.percentileHealth :
@@ -188,9 +198,9 @@ export async function GET(
                                 categoryId === 'personal_growth' ? assessment.scoreOverall?.percentilePersonalGrowth : 50
 
       const questionInsights: any[] = []
-      const strengths: string[] = []
-      const opportunities: string[] = []
-      const recommendations: string[] = []
+      let strengths: string[] = []
+      let opportunities: string[] = []
+      let recommendations: string[] = []
 
       categoryQuestions.forEach((question: any) => {
         const userAnswer = userAnswers[question.id]
@@ -995,6 +1005,95 @@ export async function GET(
         if (recommendation) recommendations.push(recommendation)
       })
 
+      // Generate LLM-based personalized advice based on user's specific answers
+      try {
+        // Prepare question-answer pairs for this category
+        const categoryAnswerDetails = categoryQuestions.map((q: any) => {
+          const answer = userAnswers[q.id]
+          if (!answer) return null
+          return {
+            question: q.label,
+            userAnswer: answer.selectedOption,
+            score: Math.round(
+              q.reverse ? 
+              ((q.options.length - 1 - answer.selectedIndex) / (q.options.length - 1)) * 100 :
+              (answer.selectedIndex / (q.options.length - 1)) * 100
+            )
+          }
+        }).filter(Boolean)
+
+        // Generate personalized strengths based on high-scoring answers
+        const highScoringAnswers = categoryAnswerDetails.filter((a: any) => a.score >= 70)
+        const lowScoringAnswers = categoryAnswerDetails.filter((a: any) => a.score < 50)
+        const midScoringAnswers = categoryAnswerDetails.filter((a: any) => a.score >= 50 && a.score < 70)
+
+        if (highScoringAnswers.length > 0 || lowScoringAnswers.length > 0) {
+          const prompt = `Based on this person's ${categoryName} assessment:
+
+High Performance Areas (70%+ scores):
+${highScoringAnswers.map((a: any) => `- ${a.question}: "${a.userAnswer}" (${a.score}% score)`).join('\n') || 'None'}
+
+Areas Needing Improvement (Below 50%):
+${lowScoringAnswers.map((a: any) => `- ${a.question}: "${a.userAnswer}" (${a.score}% score)`).join('\n') || 'None'}
+
+Moderate Performance (50-70%):
+${midScoringAnswers.map((a: any) => `- ${a.question}: "${a.userAnswer}" (${a.score}% score)`).join('\n') || 'None'}
+
+Generate personalized advice that references their SPECIFIC answers:
+
+1. STRENGTHS (2-3 items): Highlight what they're doing well based on their high-scoring answers. Reference specific answers they gave.
+
+2. OPPORTUNITIES (2-3 items): Identify improvement areas based on their low-scoring answers. Be specific about what needs work.
+
+3. QUICK WINS (2-3 items): Provide actionable recommendations that directly address their weak areas while leveraging their strengths. Reference their specific situation.
+
+Important:
+- Always reference the user's specific answers (e.g., "Since you mentioned...", "Given that you...", "Your answer about...")
+- Make advice specific to their situation, not generic
+- For Quick Wins, provide concrete actions they can take TODAY or THIS WEEK
+- Keep each item concise (1-2 sentences max)
+
+Format as JSON:
+{
+  "strengths": ["strength1", "strength2"],
+  "opportunities": ["opportunity1", "opportunity2"],
+  "quickWins": ["action1", "action2"]
+}`
+
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are an expert life coach analyzing assessment results. Provide personalized, specific advice based on the user\'s actual answers. Always reference their specific responses to make the advice relevant and actionable.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature: 0.7,
+            response_format: { type: 'json_object' }
+          })
+
+          const aiAdvice = JSON.parse(completion.choices[0].message.content || '{}')
+          
+          // Use AI-generated advice if available, otherwise fall back to hardcoded
+          if (aiAdvice.strengths && aiAdvice.strengths.length > 0) {
+            strengths = aiAdvice.strengths
+          }
+          if (aiAdvice.opportunities && aiAdvice.opportunities.length > 0) {
+            opportunities = aiAdvice.opportunities
+          }
+          if (aiAdvice.quickWins && aiAdvice.quickWins.length > 0) {
+            recommendations = aiAdvice.quickWins
+          }
+        }
+      } catch (aiError) {
+        console.error('Error generating AI advice for category:', categoryId, aiError)
+        // Fall back to existing logic if AI generation fails
+      }
+
       return {
         id: categoryId,
         name: categoryName,
@@ -1017,8 +1116,10 @@ export async function GET(
       personal_growth: 'Personal Growth & Development'
     }
 
-    const detailedCategories = Object.entries(categoryNames).map(([key, name]) => 
-      generateCategoryAnalysis(key, name)
+    const detailedCategories = await Promise.all(
+      Object.entries(categoryNames).map(([key, name]) => 
+        generateCategoryAnalysis(key, name)
+      )
     )
 
     // Generate peer comparison
@@ -1031,112 +1132,253 @@ export async function GET(
       )?.name || 'balanced lifestyle'
     }
 
-    // Generate 30-day action plan based on lowest scoring categories
+    // Generate AI-powered 30-day action plan based on user's specific assessment
     const sortedCategories = [...detailedCategories].sort((a, b) => a.percentile - b.percentile)
     const focusAreas = sortedCategories.slice(0, 2) // Focus on bottom 2 categories
+    
+    let actionPlan = []
+    
+    try {
+      // Prepare data for AI generation
+      const categoryInsights = detailedCategories.map(cat => ({
+        category: cat.name,
+        percentile: cat.percentile,
+        strengths: cat.strengths.slice(0, 2),
+        opportunities: cat.opportunities.slice(0, 2),
+        recommendations: cat.recommendations.slice(0, 2)
+      }))
 
-    const actionPlan = [
-      {
-        week: 1,
-        focus: 'Foundation Assessment & Goal Setting',
-        actions: [
-          'Complete daily self-reflection for baseline understanding',
-          `Focus specifically on improving ${focusAreas[0]?.name.toLowerCase()}`,
-          'Set up tracking systems for progress measurement',
-          'Identify 3 specific, measurable improvement goals'
+      const actionPlanPrompt = `Based on this person's life assessment results, create a personalized 30-day action plan:
+
+ASSESSMENT OVERVIEW:
+Overall Percentile: ${overallPercentile}%
+Weakest Areas: ${focusAreas[0]?.name} (${focusAreas[0]?.percentile}%), ${focusAreas[1]?.name} (${focusAreas[1]?.percentile}%)
+Strongest Area: ${sortedCategories[sortedCategories.length - 1]?.name} (${sortedCategories[sortedCategories.length - 1]?.percentile}%)
+
+CATEGORY DETAILS:
+${categoryInsights.map(cat => `
+${cat.category} (${cat.percentile}th percentile):
+Strengths: ${cat.strengths.join('; ')}
+Opportunities: ${cat.opportunities.join('; ')}
+Quick Wins: ${cat.recommendations.join('; ')}
+`).join('\n')}
+
+Create a PERSONALIZED 30-day action plan that:
+1. Focuses primarily on their 2 weakest areas
+2. Leverages their strengths from high-performing areas
+3. References their specific assessment results
+4. Provides concrete, actionable daily/weekly tasks
+5. Is realistic and achievable given their current situation
+
+Return a JSON object with a "weeks" array containing exactly 4 week objects:
+{
+  "weeks": [
+    {
+      "week": 1,
+      "focus": "string - specific focus for week 1",
+      "actions": ["action1", "action2", "action3", "action4"],
+      "timeCommitment": "string - e.g., '30-45 minutes daily'"
+    },
+    // ... weeks 2, 3, 4 with same structure
+  ]
+}
+
+Make it specific to THEIR situation, not generic. Reference their actual strengths and weaknesses.`
+
+      const actionPlanCompletion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert life coach creating personalized 30-day action plans. Return a JSON object with a "weeks" array containing exactly 4 week objects. Make recommendations specific to the user\'s assessment results, not generic advice.'
+          },
+          {
+            role: 'user',
+            content: actionPlanPrompt
+          }
         ],
-        timeCommitment: '30-45 minutes daily'
-      },
-      {
-        week: 2,
-        focus: `${focusAreas[0]?.name} Quick Wins Implementation`,
-        actions: [
-          'Implement 2 high-impact daily habits from week 1 insights',
-          'Schedule weekly review sessions for accountability',
-          'Connect with support network or find accountability partner',
-          'Track daily progress using simple measurement system'
-        ],
-        timeCommitment: '45-60 minutes daily'
-      },
-      {
-        week: 3,
-        focus: `${focusAreas[1]?.name} Integration & Expansion`,
-        actions: [
-          'Scale successful habits from week 2 to second focus area',
-          `Address secondary improvement areas in ${focusAreas[1]?.name.toLowerCase()}`,
-          'Measure and document progress across both focus areas',
-          'Adjust strategies based on week 2 results'
-        ],
-        timeCommitment: '45-60 minutes daily'
-      },
-      {
-        week: 4,
-        focus: 'Optimization & Future Planning',
-        actions: [
-          'Refine all routines for long-term sustainability',
-          'Plan next 30-day improvement cycle based on results',
-          'Celebrate achievements and assess goal completion',
-          'Set up systems for continued progress monitoring'
-        ],
-        timeCommitment: '30-45 minutes daily'
+        temperature: 0.7,
+        response_format: { type: 'json_object' }
+      })
+
+      const aiActionPlan = JSON.parse(actionPlanCompletion.choices[0].message.content || '{}')
+      
+      // Try multiple possible response formats
+      if (aiActionPlan.weeks && Array.isArray(aiActionPlan.weeks)) {
+        actionPlan = aiActionPlan.weeks
+      } else if (Array.isArray(aiActionPlan)) {
+        actionPlan = aiActionPlan
+      } else if (aiActionPlan.actionPlan && Array.isArray(aiActionPlan.actionPlan)) {
+        actionPlan = aiActionPlan.actionPlan
+      } else if (aiActionPlan.plan && Array.isArray(aiActionPlan.plan)) {
+        actionPlan = aiActionPlan.plan
       }
-    ]
+      
+      // Validate the structure
+      if (!Array.isArray(actionPlan) || actionPlan.length !== 4) {
+        console.error('Unexpected AI response format:', aiActionPlan)
+        throw new Error('Invalid action plan format from AI')
+      }
+      
+      // Ensure each week has the required properties
+      actionPlan = actionPlan.map((week: any, index: number) => ({
+        week: week.week || index + 1,
+        focus: week.focus || `Week ${index + 1} Focus`,
+        actions: Array.isArray(week.actions) ? week.actions : [],
+        timeCommitment: week.timeCommitment || '30-60 minutes daily'
+      }))
+    } catch (aiError) {
+      console.error('Error generating AI action plan:', aiError)
+      // Fallback to basic action plan if AI fails
+      actionPlan = [
+        {
+          week: 1,
+          focus: 'Foundation Assessment & Goal Setting',
+          actions: [
+            'Complete daily self-reflection for baseline understanding',
+            `Focus specifically on improving ${focusAreas[0]?.name.toLowerCase()}`,
+            'Set up tracking systems for progress measurement',
+            'Identify 3 specific, measurable improvement goals'
+          ],
+          timeCommitment: '30-45 minutes daily'
+        },
+        {
+          week: 2,
+          focus: `${focusAreas[0]?.name} Quick Wins Implementation`,
+          actions: [
+            'Implement 2 high-impact daily habits from week 1 insights',
+            'Schedule weekly review sessions for accountability',
+            'Connect with support network or find accountability partner',
+            'Track daily progress using simple measurement system'
+          ],
+          timeCommitment: '45-60 minutes daily'
+        },
+        {
+          week: 3,
+          focus: `${focusAreas[1]?.name} Integration & Expansion`,
+          actions: [
+            'Scale successful habits from week 2 to second focus area',
+            `Address secondary improvement areas in ${focusAreas[1]?.name.toLowerCase()}`,
+            'Measure and document progress across both focus areas',
+            'Adjust strategies based on week 2 results'
+          ],
+          timeCommitment: '45-60 minutes daily'
+        },
+        {
+          week: 4,
+          focus: 'Optimization & Future Planning',
+          actions: [
+            'Refine all routines for long-term sustainability',
+            'Plan next 30-day improvement cycle based on results',
+            'Celebrate achievements and assess goal completion',
+            'Set up systems for continued progress monitoring'
+          ],
+          timeCommitment: '30-45 minutes daily'
+        }
+      ]
+    }
 
-    // Generate personalized AI insights based on actual question responses
-    const generatePersonalizedInsights = () => {
+    // Generate AI-powered personalized insights based on actual question responses
+    const generatePersonalizedInsights = async () => {
       const strongestCategory = detailedCategories.reduce((max, cat) => cat.percentile > max.percentile ? cat : max)
       const weakestCategory = detailedCategories.reduce((min, cat) => cat.percentile < min.percentile ? cat : min)
       const strongCategories = detailedCategories.filter(c => c.percentile > 70)
       const weakCategories = detailedCategories.filter(c => c.percentile < 50)
       
-      // Generate specific insights based on question patterns
-      let specificInsights = []
-      let crossCategoryPatterns = []
-      
-      // Analyze specific question combinations for deeper insights
-      detailedCategories.forEach(category => {
-        if (category.questionInsights && category.questionInsights.length > 0) {
-          // Look for patterns in high-scoring questions
-          const highScoreQuestions = category.questionInsights.filter(q => q.score >= 80)
-          const lowScoreQuestions = category.questionInsights.filter(q => q.score < 40)
+      try {
+        // Prepare detailed data for AI analysis
+        const categoryBreakdown = detailedCategories.map(cat => {
+          const highScoreQuestions = cat.questionInsights?.filter(q => q.score >= 80) || []
+          const lowScoreQuestions = cat.questionInsights?.filter(q => q.score < 40) || []
           
-          if (highScoreQuestions.length > 0) {
-            specificInsights.push(`Your excellence in ${category.name.toLowerCase()} is particularly evident in areas like ${highScoreQuestions.map(q => q.questionText.toLowerCase().slice(0, 50) + '...').slice(0, 2).join(' and ')}.`)
+          return {
+            name: cat.name,
+            percentile: cat.percentile,
+            topStrengths: highScoreQuestions.map(q => ({
+              question: q.questionText,
+              answer: q.userAnswer,
+              score: q.score
+            })).slice(0, 3),
+            biggestWeaknesses: lowScoreQuestions.map(q => ({
+              question: q.questionText,
+              answer: q.userAnswer,
+              score: q.score
+            })).slice(0, 3)
           }
-          
-          if (lowScoreQuestions.length > 0) {
-            specificInsights.push(`Your biggest opportunity in ${category.name.toLowerCase()} lies in ${lowScoreQuestions.map(q => q.questionText.toLowerCase().slice(0, 50) + '...').slice(0, 1).join('')}.`)
-          }
+        })
+
+        const insightsPrompt = `Analyze this person's comprehensive life assessment results and generate personalized insights:
+
+OVERALL PERFORMANCE:
+- Total Questions Answered: ${assessment.answers.length}
+- Overall Percentile: ${overallPercentile}%
+- Demographics: ${assessment.cohortSex}, ${assessment.cohortAge}, ${assessment.cohortRegion}
+
+CATEGORY PERFORMANCE:
+${categoryBreakdown.map(cat => `
+${cat.name}: ${cat.percentile}th percentile
+Top Strengths: ${cat.topStrengths.map(s => `"${s.question}" - answered "${s.answer}" (${s.score}%)`).join('; ') || 'N/A'}
+Biggest Weaknesses: ${cat.biggestWeaknesses.map(w => `"${w.question}" - answered "${w.answer}" (${w.score}%)`).join('; ') || 'N/A'}
+`).join('\n')}
+
+Generate personalized insights that:
+1. Reference their SPECIFIC answers and scores
+2. Identify surprising patterns across categories
+3. Provide unique observations about their profile
+4. Compare them meaningfully to their demographic cohort
+5. Highlight unexpected strengths or concerning weaknesses
+
+Return as JSON:
+{
+  "overallAssessment": "2-3 sentence comprehensive assessment referencing specific answers",
+  "keyStrengths": ["strength1 with specific reference", "strength2 with specific reference", "strength3 with specific reference"],
+  "primaryGrowthAreas": ["growth area 1 with specific context", "growth area 2 with specific context"],
+  "crossCategoryPatterns": "Insights about relationships between their different life areas based on actual data",
+  "surprisingFindings": "1-2 unexpected or notable patterns from their specific answers",
+  "peerComparison": "Specific comparison to their demographic with meaningful context"
+}`
+
+        const insightsCompletion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert psychologist and life coach analyzing assessment results. Provide deep, personalized insights that reference specific answers and patterns. Avoid generic observations - make every insight specific to this individual\'s data.'
+            },
+            {
+              role: 'user',
+              content: insightsPrompt
+            }
+          ],
+          temperature: 0.7,
+          response_format: { type: 'json_object' }
+        })
+
+        const aiInsights = JSON.parse(insightsCompletion.choices[0].message.content || '{}')
+        
+        return {
+          overallAssessment: aiInsights.overallAssessment || `Based on your comprehensive analysis of ${assessment.answers.length} detailed questions, you demonstrate a ${overallPercentile > 70 ? 'strong' : overallPercentile > 50 ? 'solid' : 'developing'} foundation across key life areas.`,
+          keyStrengths: aiInsights.keyStrengths || detailedCategories.filter(c => c.percentile > 60).map(c => `Strong performance in ${c.name.toLowerCase()} (${c.percentile}th percentile)`).slice(0, 3),
+          primaryGrowthAreas: aiInsights.primaryGrowthAreas || detailedCategories.filter(c => c.percentile < 60).map(c => `${c.name} optimization potential`).slice(0, 2),
+          crossCategoryPatterns: aiInsights.crossCategoryPatterns || `Your assessment reveals interesting connections between life areas.`,
+          surprisingFindings: aiInsights.surprisingFindings || `Your performance patterns suggest unique opportunities for growth.`,
+          peerComparison: aiInsights.peerComparison || `Compared to your demographic, you perform better than ${overallPercentile}% of similar individuals.`
         }
-      })
-
-      // Generate cross-category patterns
-      if (strongCategories.length > 1) {
-        crossCategoryPatterns.push(`Your strength in both ${strongCategories.map(c => c.name.toLowerCase()).join(' and ')} suggests you have excellent foundational habits that could be applied to other life areas.`)
-      }
-
-      return {
-        overallAssessment: `Based on your comprehensive analysis of ${assessment.answers.length} detailed questions, you demonstrate a ${overallPercentile > 70 ? 'strong' : overallPercentile > 50 ? 'solid' : 'developing'} foundation across key life areas. Your standout area is ${strongestCategory.name.toLowerCase()}, where you rank in the ${strongestCategory.percentile}th percentile, indicating excellent performance compared to your demographic peers (${assessment.cohortSex}, ${assessment.cohortAge}, ${assessment.cohortRegion}). Your primary growth opportunity lies in ${weakestCategory.name.toLowerCase()}, where targeted improvements could significantly impact your overall life satisfaction and performance.`,
-        
-        keyStrengths: detailedCategories
-          .filter(c => c.percentile > 60)
-          .map(c => `Strong performance in ${c.name.toLowerCase()} (${c.percentile}th percentile)`)
-          .slice(0, 3),
-          
-        primaryGrowthAreas: detailedCategories
-          .filter(c => c.percentile < 60)
-          .map(c => `${c.name} optimization potential`)
-          .slice(0, 2),
-          
-        crossCategoryPatterns: crossCategoryPatterns.length > 0 ? crossCategoryPatterns.join(' ') : `Your assessment reveals interesting connections between life areas. High ${strongestCategory.name.toLowerCase()} performance often correlates with improved outcomes in other categories. Focus on leveraging your strongest areas to support growth in developing areas.`,
-        
-        surprisingFindings: specificInsights.length > 0 ? specificInsights.slice(0, 2).join(' ') : `Notably, your ${strongestCategory.name.toLowerCase()} performance exceeds typical expectations for your demographic, suggesting effective strategies that could be applied to other life areas.`,
-        
-        peerComparison: `Compared to ${assessment.cohortSex.toLowerCase()} individuals in the ${assessment.cohortAge} age range from ${assessment.cohortRegion}, you perform better than ${overallPercentile}% of similar individuals. This places you in the ${overallPercentile > 80 ? 'top tier' : overallPercentile > 60 ? 'above average' : 'developing'} category for overall life performance.`
+      } catch (aiError) {
+        console.error('Error generating AI personalized insights:', aiError)
+        // Fallback to basic insights
+        return {
+          overallAssessment: `Based on your comprehensive analysis of ${assessment.answers.length} detailed questions, you demonstrate a ${overallPercentile > 70 ? 'strong' : overallPercentile > 50 ? 'solid' : 'developing'} foundation across key life areas. Your standout area is ${strongestCategory.name.toLowerCase()}, where you rank in the ${strongestCategory.percentile}th percentile.`,
+          keyStrengths: detailedCategories.filter(c => c.percentile > 60).map(c => `Strong performance in ${c.name.toLowerCase()} (${c.percentile}th percentile)`).slice(0, 3),
+          primaryGrowthAreas: detailedCategories.filter(c => c.percentile < 60).map(c => `${c.name} optimization potential`).slice(0, 2),
+          crossCategoryPatterns: `High ${strongestCategory.name.toLowerCase()} performance often correlates with improved outcomes in other categories.`,
+          surprisingFindings: `Your ${strongestCategory.name.toLowerCase()} performance exceeds typical expectations for your demographic.`,
+          peerComparison: `Compared to ${assessment.cohortSex.toLowerCase()} individuals in the ${assessment.cohortAge} age range from ${assessment.cohortRegion}, you perform better than ${overallPercentile}% of similar individuals.`
+        }
       }
     }
 
-    const personalizedInsights = generatePersonalizedInsights()
+    const personalizedInsights = await generatePersonalizedInsights()
     
     const mockAiReport = {
       executiveSummary: personalizedInsights,
@@ -1147,7 +1389,7 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({
+    const reportData = {
       assessment_id: assessment.id,
       cohort: {
         age_band: assessment.cohortAge || '20-29',
@@ -1162,7 +1404,22 @@ export async function GET(
       peerComparison,
       actionPlan,
       aiReport: mockAiReport
-    })
+    }
+
+    // Save the report to database for future retrieval
+    try {
+      await prisma.deepReport.create({
+        data: {
+          assessmentId,
+          reportData: JSON.stringify(reportData)
+        }
+      })
+    } catch (saveError) {
+      console.error('Error saving deep report to database:', saveError)
+      // Continue even if saving fails - user still gets their report
+    }
+
+    return NextResponse.json(reportData)
 
   } catch (error) {
     console.error('Error fetching report:', error)

@@ -3,8 +3,19 @@ import { stripe, PRODUCTS } from '@/lib/stripe'
 
 export async function POST(request: Request) {
   try {
+    // Check if Stripe key is configured
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('STRIPE_SECRET_KEY is not configured')
+      return NextResponse.json(
+        { error: 'Stripe is not configured. Please add STRIPE_SECRET_KEY to your environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const body = await request.json()
     const { product, assessmentId, userId } = body
+
+    console.log('Checkout request:', { product, assessmentId, userId })
 
     const productInfo = product === 'deep_report_oneoff' 
       ? PRODUCTS.DEEP_REPORT 
@@ -21,7 +32,7 @@ export async function POST(request: Request) {
               description: productInfo.description,
             },
             unit_amount: productInfo.price,
-            ...(productInfo.type === 'subscription' && 'interval' in productInfo && {
+            ...(productInfo.type === 'subscription' && productInfo.interval && {
               recurring: {
                 interval: productInfo.interval
               }
@@ -52,13 +63,26 @@ export async function POST(request: Request) {
       }
     }
 
+    console.log('Creating Stripe session with config:', JSON.stringify(sessionConfig, null, 2))
+    
     const session = await stripe.checkout.sessions.create(sessionConfig)
 
+    console.log('Stripe session created:', session.id)
+
     return NextResponse.json({ sessionId: session.id })
-  } catch (error) {
-    console.error('Checkout error:', error)
+  } catch (error: any) {
+    console.error('Detailed checkout error:', {
+      message: error.message,
+      type: error.type,
+      statusCode: error.statusCode,
+      stack: error.stack
+    })
+    
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { 
+        error: error.message || 'Failed to create checkout session',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     )
   }

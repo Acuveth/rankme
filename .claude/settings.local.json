@@ -70,7 +70,8 @@
       "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\test-streak-logic.js\")",
       "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\components\\ClientOnlyLanguageProvider.tsx\")",
       "Bash(del test-qr.js)",
-      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\app\\api\\report\\[id]\\generate-deep-report\\route.ts\")"
+      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\app\\api\\report\\[id]\\generate-deep-report\\route.ts\")",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": [],

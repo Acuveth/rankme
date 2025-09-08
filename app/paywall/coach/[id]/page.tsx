@@ -14,6 +14,7 @@ export default function CoachPaywallPage() {
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [selectedFocus, setSelectedFocus] = useState('financial')
+  const [error, setError] = useState<string | null>(null)
 
   const focusAreas = [
     { id: 'financial', label: 'Financial Growth', icon: TrendingUp, description: 'Improve income, savings, and investments' },
@@ -52,6 +53,7 @@ export default function CoachPaywallPage() {
 
   const handleSubscribe = async () => {
     setLoading(true)
+    setError(null)
     try {
       // Store assessment ID for fallback redirect
       localStorage.setItem('lastAssessmentId', params.id as string)
@@ -68,7 +70,17 @@ export default function CoachPaywallPage() {
         })
       })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create checkout session')
+      }
+
       const { sessionId } = await response.json()
+      
+      if (!sessionId) {
+        throw new Error('No session ID received from server')
+      }
+      
       const stripe = await stripePromise
       
       if (stripe) {
@@ -77,8 +89,9 @@ export default function CoachPaywallPage() {
           console.error('Stripe error:', error)
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error)
+      setError(error.message || 'Failed to start checkout process')
     } finally {
       setLoading(false)
     }
@@ -206,6 +219,12 @@ export default function CoachPaywallPage() {
                 <p className="text-gray-600">per month</p>
                 <p className="text-sm text-gray-500 mt-2">Cancel anytime</p>
               </div>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center text-sm">

@@ -13,12 +13,13 @@ export default function ReportPaywallPage() {
   const router = useRouter()
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const features = [
     {
       icon: BarChart3,
       title: 'Complete Performance Analysis',
-      description: 'Detailed breakdown of all 32 assessment items with individual scores and rankings'
+      description: 'Detailed breakdown of all 57 assessment items with individual scores and rankings'
     },
     {
       icon: TrendingUp,
@@ -44,6 +45,7 @@ export default function ReportPaywallPage() {
 
   const handlePurchase = async () => {
     setLoading(true)
+    setError(null)
     try {
       // Store product type and assessment ID for success page redirect
       localStorage.setItem('lastProductType', 'deep_report_oneoff')
@@ -59,7 +61,17 @@ export default function ReportPaywallPage() {
         })
       })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create checkout session')
+      }
+
       const { sessionId } = await response.json()
+      
+      if (!sessionId) {
+        throw new Error('No session ID received from server')
+      }
+      
       const stripe = await stripePromise
       
       if (stripe) {
@@ -68,8 +80,9 @@ export default function ReportPaywallPage() {
           console.error('Stripe error:', error)
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error)
+      setError(error.message || 'Failed to start checkout process')
     } finally {
       setLoading(false)
     }
@@ -176,6 +189,12 @@ export default function ReportPaywallPage() {
                 <div className="text-5xl font-bold text-gray-900 mb-2">$29</div>
                 <p className="text-gray-600">One-time purchase</p>
               </div>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center text-sm">
