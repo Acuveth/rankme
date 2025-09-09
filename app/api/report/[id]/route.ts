@@ -3,12 +3,27 @@ import { prisma } from '@/lib/prisma'
 import { openai } from '@/lib/openai'
 import questions from '@/data/questions.json'
 
+// Helper function to get language instruction for AI prompts
+function getLanguageInstruction(languageCode: string): string {
+  const languageMap: { [key: string]: string } = {
+    'en': 'Respond in English.',
+    'es': 'Respond in Spanish (Español).',
+    'fr': 'Respond in French (Français).',
+    'de': 'Respond in German (Deutsch).'
+  }
+  return languageMap[languageCode] || languageMap['en']
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const assessmentId = params.id
+    
+    // Get user language preference from query parameters
+    const url = new URL(request.url)
+    const userLanguage = url.searchParams.get('lang') || 'en'
 
     // Check if user has purchased the report
     const purchase = await prisma.purchase.findFirst({
@@ -30,13 +45,18 @@ export async function GET(
     }
 
     // Check if a deep report already exists for this assessment
-    const existingReport = await prisma.deepReport.findUnique({
-      where: { assessmentId }
-    })
+    // Add ability to bypass cache with ?refresh=true
+    const shouldRefresh = url.searchParams.get('refresh') === 'true'
+    
+    if (!shouldRefresh) {
+      const existingReport = await prisma.deepReport.findUnique({
+        where: { assessmentId }
+      })
 
-    if (existingReport) {
-      // Return the cached report
-      return NextResponse.json(JSON.parse(existingReport.reportData))
+      if (existingReport) {
+        // Return the cached report
+        return NextResponse.json(JSON.parse(existingReport.reportData))
+      }
     }
 
     // Get assessment with all data
@@ -1028,7 +1048,7 @@ export async function GET(
         const midScoringAnswers = categoryAnswerDetails.filter((a: any) => a.score >= 50 && a.score < 70)
 
         if (highScoringAnswers.length > 0 || lowScoringAnswers.length > 0) {
-          const prompt = `Based on this person's ${categoryName} assessment:
+          const prompt = `Based on your ${categoryName} assessment:
 
 High Performance Areas (70%+ scores):
 ${highScoringAnswers.map((a: any) => `- ${a.question}: "${a.userAnswer}" (${a.score}% score)`).join('\n') || 'None'}
@@ -1041,16 +1061,16 @@ ${midScoringAnswers.map((a: any) => `- ${a.question}: "${a.userAnswer}" (${a.sco
 
 Generate personalized advice that references their SPECIFIC answers:
 
-1. STRENGTHS (2-3 items): Highlight what they're doing well based on their high-scoring answers. Reference specific answers they gave.
+1. STRENGTHS (2-3 items): Highlight what you're doing well based on your high-scoring answers. Reference specific answers you gave.
 
-2. OPPORTUNITIES (2-3 items): Identify improvement areas based on their low-scoring answers. Be specific about what needs work.
+2. OPPORTUNITIES (2-3 items): Identify improvement areas based on your low-scoring answers. Be specific about what needs work.
 
-3. QUICK WINS (2-3 items): Provide actionable recommendations that directly address their weak areas while leveraging their strengths. Reference their specific situation.
+3. QUICK WINS (2-3 items): Provide actionable recommendations that directly address your weak areas while leveraging your strengths. Reference your specific situation.
 
 Important:
 - Always reference the user's specific answers (e.g., "Since you mentioned...", "Given that you...", "Your answer about...")
-- Make advice specific to their situation, not generic
-- For Quick Wins, provide concrete actions they can take TODAY or THIS WEEK
+- Make advice specific to your situation, not generic
+- For Quick Wins, provide concrete actions you can take TODAY or THIS WEEK
 - Keep each item concise (1-2 sentences max)
 
 Format as JSON:
@@ -1065,7 +1085,7 @@ Format as JSON:
             messages: [
               {
                 role: 'system',
-                content: 'You are an expert life coach analyzing assessment results. Provide personalized, specific advice based on the user\'s actual answers. Always reference their specific responses to make the advice relevant and actionable.'
+                content: `You are an expert life coach analyzing assessment results. Provide personalized, specific advice using second person ("you", "your") based on the user's actual answers. Always reference their specific responses to make the advice relevant and actionable. Write directly to the person being assessed. ${getLanguageInstruction(userLanguage)}`
               },
               {
                 role: 'user',
@@ -1109,11 +1129,11 @@ Format as JSON:
     // Generate detailed analysis for each category
     const categoryNames: { [key: string]: string } = {
       financial: 'Financial Health',
-      health_fitness: 'Health & Fitness', 
+      health_fitness: 'Physical Wellness', 
       social: 'Social Network',
-      romantic: 'Romantic Life',
-      career: 'Career & Professional Life',
-      personal_growth: 'Personal Growth & Development'
+      romantic: 'Romantic',
+      career: 'Career',
+      personal_growth: 'Personal Growth'
     }
 
     const detailedCategories = await Promise.all(
@@ -1148,7 +1168,7 @@ Format as JSON:
         recommendations: cat.recommendations.slice(0, 2)
       }))
 
-      const actionPlanPrompt = `Based on this person's life assessment results, create a personalized 30-day action plan:
+      const actionPlanPrompt = `Based on your life assessment results, create a personalized 30-day action plan:
 
 ASSESSMENT OVERVIEW:
 Overall Percentile: ${overallPercentile}%
@@ -1164,11 +1184,11 @@ Quick Wins: ${cat.recommendations.join('; ')}
 `).join('\n')}
 
 Create a PERSONALIZED 30-day action plan that:
-1. Focuses primarily on their 2 weakest areas
-2. Leverages their strengths from high-performing areas
-3. References their specific assessment results
+1. Focuses primarily on your 2 weakest areas
+2. Leverages your strengths from high-performing areas
+3. References your specific assessment results
 4. Provides concrete, actionable daily/weekly tasks
-5. Is realistic and achievable given their current situation
+5. Is realistic and achievable given your current situation
 
 Return a JSON object with a "weeks" array containing exactly 4 week objects:
 {
@@ -1183,14 +1203,14 @@ Return a JSON object with a "weeks" array containing exactly 4 week objects:
   ]
 }
 
-Make it specific to THEIR situation, not generic. Reference their actual strengths and weaknesses.`
+Make it specific to YOUR situation, not generic. Reference your actual strengths and weaknesses.`
 
       const actionPlanCompletion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: 'You are an expert life coach creating personalized 30-day action plans. Return a JSON object with a "weeks" array containing exactly 4 week objects. Make recommendations specific to the user\'s assessment results, not generic advice.'
+            content: `You are an expert life coach creating personalized 30-day action plans. Return a JSON object with a "weeks" array containing exactly 4 week objects. Make recommendations specific to the user's assessment results using second person ("you", "your"), not generic advice. Write directly to the person being assessed. ${getLanguageInstruction(userLanguage)}`
           },
           {
             role: 'user',
@@ -1307,7 +1327,7 @@ Make it specific to THEIR situation, not generic. Reference their actual strengt
           }
         })
 
-        const insightsPrompt = `Analyze this person's comprehensive life assessment results and generate personalized insights:
+        const insightsPrompt = `Analyze your comprehensive life assessment results and generate personalized insights:
 
 OVERALL PERFORMANCE:
 - Total Questions Answered: ${assessment.answers.length}
@@ -1322,10 +1342,10 @@ Biggest Weaknesses: ${cat.biggestWeaknesses.map(w => `"${w.question}" - answered
 `).join('\n')}
 
 Generate personalized insights that:
-1. Reference their SPECIFIC answers and scores
+1. Reference your SPECIFIC answers and scores
 2. Identify surprising patterns across categories
-3. Provide unique observations about their profile
-4. Compare them meaningfully to their demographic cohort
+3. Provide unique observations about your profile
+4. Compare you meaningfully to your demographic cohort
 5. Highlight unexpected strengths or concerning weaknesses
 
 Return as JSON:
@@ -1333,9 +1353,9 @@ Return as JSON:
   "overallAssessment": "2-3 sentence comprehensive assessment referencing specific answers",
   "keyStrengths": ["strength1 with specific reference", "strength2 with specific reference", "strength3 with specific reference"],
   "primaryGrowthAreas": ["growth area 1 with specific context", "growth area 2 with specific context"],
-  "crossCategoryPatterns": "Insights about relationships between their different life areas based on actual data",
-  "surprisingFindings": "1-2 unexpected or notable patterns from their specific answers",
-  "peerComparison": "Specific comparison to their demographic with meaningful context"
+  "crossCategoryPatterns": "Insights about relationships between your different life areas based on actual data",
+  "surprisingFindings": "1-2 unexpected or notable patterns from your specific answers",
+  "peerComparison": "Specific comparison to your demographic with meaningful context"
 }`
 
         const insightsCompletion = await openai.chat.completions.create({
@@ -1343,7 +1363,7 @@ Return as JSON:
           messages: [
             {
               role: 'system',
-              content: 'You are an expert psychologist and life coach analyzing assessment results. Provide deep, personalized insights that reference specific answers and patterns. Avoid generic observations - make every insight specific to this individual\'s data.'
+              content: `You are an expert psychologist and life coach analyzing assessment results. Provide deep, personalized insights using second person ("you", "your") that reference specific answers and patterns. Avoid generic observations - make every insight specific to the individual's data. Write directly to the person being assessed, not about them. ${getLanguageInstruction(userLanguage)}`
             },
             {
               role: 'user',
@@ -1406,10 +1426,14 @@ Return as JSON:
       aiReport: mockAiReport
     }
 
-    // Save the report to database for future retrieval
+    // Save the report to database for future retrieval (use upsert to handle refresh case)
     try {
-      await prisma.deepReport.create({
-        data: {
+      await prisma.deepReport.upsert({
+        where: { assessmentId },
+        update: {
+          reportData: JSON.stringify(reportData)
+        },
+        create: {
           assessmentId,
           reportData: JSON.stringify(reportData)
         }

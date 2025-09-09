@@ -75,6 +75,7 @@ model Assessment {
   checkIns       CheckIn[]
   progressStats  AssessmentProgressStats?
   deepReport     DeepReport?
+  scoreUpdateLogs ScoreUpdateLog[]
 }
 
 model Answer {
@@ -538,4 +539,21 @@ model DeepReport {
   assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   
   @@index([assessmentId])
+}
+
+model ScoreUpdateLog {
+  id                  String   @id @default(cuid())
+  assessmentId        String
+  oldOverallScore     Float
+  newOverallScore     Float
+  oldCategoryScores   String   // JSON string of old category scores
+  newCategoryScores   String   // JSON string of new category scores
+  oldPercentiles      String   // JSON string of old percentiles
+  newPercentiles      String   // JSON string of new percentiles
+  triggerReason       String   // JSON string of progress reports that triggered this update
+  createdAt           DateTime @default(now())
+  assessment          Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  
+  @@index([assessmentId])
+  @@index([createdAt])
 }

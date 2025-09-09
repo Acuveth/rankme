@@ -56,6 +56,28 @@ interface UserSettings {
   lastLogin: string
 }
 
+interface DailyTask {
+  id: string
+  title: string
+  description?: string
+  category: string
+  completed: boolean
+  date: string
+  priority?: string
+  estimatedMinutes?: number
+}
+
+interface WeeklyTask {
+  id: string
+  title: string
+  description?: string
+  category: string
+  completed: boolean
+  week: number
+  priority?: string
+  estimatedMinutes?: number
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -105,6 +127,9 @@ export default function DashboardPage() {
       dayOfWeek: string;
     }>;
   } | null>(null)
+  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([])
+  const [weeklyTasks, setWeeklyTasks] = useState<WeeklyTask[]>([])
+  const [tasksLoading, setTasksLoading] = useState(false)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -121,6 +146,13 @@ export default function DashboardPage() {
     fetchLoginStreak()
     fetchLoginAnalytics()
   }, [session, status, router])
+
+  // Fetch tasks after assessments are loaded
+  useEffect(() => {
+    if (assessments.length > 0) {
+      fetchUserTasks()
+    }
+  }, [assessments])
 
   const fetchUserAssessments = async () => {
     try {
@@ -206,6 +238,72 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Error fetching login analytics:', error)
+    }
+  }
+
+  const fetchUserTasks = async () => {
+    try {
+      // Wait for assessments to be loaded first
+      if (assessments.length === 0) return
+
+      setTasksLoading(true)
+      const latestAssessment = assessments.find(a => a.status === 'completed')
+      if (!latestAssessment) {
+        setTasksLoading(false)
+        return
+      }
+
+      // Fetch daily tasks
+      const dailyResponse = await fetch(`/api/tasks/daily?assessmentId=${latestAssessment.id}`)
+      if (dailyResponse.ok) {
+        const dailyData = await dailyResponse.json()
+        setDailyTasks(dailyData.tasks || [])
+      }
+
+      // Fetch weekly tasks
+      const weeklyResponse = await fetch(`/api/tasks/weekly?assessmentId=${latestAssessment.id}`)
+      if (weeklyResponse.ok) {
+        const weeklyData = await weeklyResponse.json()
+        setWeeklyTasks(weeklyData.tasks || [])
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error)
+    } finally {
+      setTasksLoading(false)
+    }
+  }
+
+  const toggleTaskCompletion = async (taskId: string, taskType: 'daily' | 'weekly', currentCompleted: boolean) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskType}/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          completed: !currentCompleted,
+          assessmentId: assessments.find(a => a.status === 'completed')?.id
+        })
+      })
+
+      if (response.ok) {
+        // Update local state
+        if (taskType === 'daily') {
+          setDailyTasks(prev => 
+            prev.map(task => 
+              task.id === taskId ? { ...task, completed: !currentCompleted } : task
+            )
+          )
+        } else {
+          setWeeklyTasks(prev => 
+            prev.map(task => 
+              task.id === taskId ? { ...task, completed: !currentCompleted } : task
+            )
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling task completion:', error)
     }
   }
 
@@ -406,6 +504,119 @@ export default function DashboardPage() {
           </div>
 
         </div>
+
+        {/* Your Tasks Section */}
+        {(dailyTasks.length > 0 || weeklyTasks.length > 0) && (
+          <div className="mb-8">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">{t('dashboard.yourTasks')}</h2>
+                {subscription?.status === 'active' && completedAssessments.length > 0 && (
+                  <Link
+                    href={`/coach/${completedAssessments[0].id}`}
+                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <span className="text-sm font-medium">{t('dashboard.viewAiCoach')}</span>
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Link>
+                )}
+              </div>
+
+              {tasksLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="text-gray-600 mt-2">Loading tasks...</p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Daily Tasks */}
+                  {dailyTasks.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <Calendar className="h-5 w-5 mr-2 text-gray-600" />
+{t('dashboard.todaysTasks')} ({dailyTasks.filter(t => t.completed).length}/{dailyTasks.length})
+                      </h3>
+                      <div className="space-y-3">
+                        {dailyTasks.slice(0, 5).map((task) => (
+                          <div key={task.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center space-x-3">
+                              <button
+                                onClick={() => toggleTaskCompletion(task.id, 'daily', task.completed)}
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                  task.completed 
+                                    ? 'bg-gray-900 border-gray-900 text-white' 
+                                    : 'border-gray-300 hover:border-gray-400'
+                                }`}
+                              >
+                                {task.completed && <span className="text-xs">✓</span>}
+                              </button>
+                              <div>
+                                <p className={`font-medium ${task.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                                  {task.title}
+                                </p>
+                                <p className="text-xs text-gray-500 capitalize">{task.category}</p>
+                              </div>
+                            </div>
+                            {task.estimatedMinutes && (
+                              <span className="text-xs text-gray-500">{task.estimatedMinutes}min</span>
+                            )}
+                          </div>
+                        ))}
+                        {dailyTasks.length > 5 && (
+                          <p className="text-sm text-gray-500 text-center py-2">
+                            +{dailyTasks.length - 5} more tasks
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Weekly Tasks */}
+                  {weeklyTasks.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <Clock className="h-5 w-5 mr-2 text-gray-600" />
+{t('dashboard.thisWeeksTasks')} ({weeklyTasks.filter(t => t.completed).length}/{weeklyTasks.length})
+                      </h3>
+                      <div className="space-y-3">
+                        {weeklyTasks.slice(0, 5).map((task) => (
+                          <div key={task.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center space-x-3">
+                              <button
+                                onClick={() => toggleTaskCompletion(task.id, 'weekly', task.completed)}
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                  task.completed 
+                                    ? 'bg-gray-900 border-gray-900 text-white' 
+                                    : 'border-gray-300 hover:border-gray-400'
+                                }`}
+                              >
+                                {task.completed && <span className="text-xs">✓</span>}
+                              </button>
+                              <div>
+                                <p className={`font-medium ${task.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                                  {task.title}
+                                </p>
+                                <p className="text-xs text-gray-500 capitalize">{task.category}</p>
+                              </div>
+                            </div>
+                            {task.estimatedMinutes && (
+                              <span className="text-xs text-gray-500">{task.estimatedMinutes}min</span>
+                            )}
+                          </div>
+                        ))}
+                        {weeklyTasks.length > 5 && (
+                          <p className="text-sm text-gray-500 text-center py-2">
+                            +{weeklyTasks.length - 5} more tasks
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Assessments */}

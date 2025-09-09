@@ -18,7 +18,7 @@ import {
   Calendar, MessageSquare, TrendingUp, Target, Award, Clock, 
   ArrowLeft, Settings, Star, CheckCircle, Play, Users,
   DollarSign, Heart, BarChart3, Zap, Trophy, ChevronDown, ChevronUp,
-  Trash2, X, Folder, Activity, Briefcase, Brain
+  Trash2, X, Folder, Activity, Briefcase, Brain, BookOpen
 } from 'lucide-react'
 
 interface CoachData {
@@ -93,6 +93,7 @@ export default function CoachDashboard() {
   } | null>(null)
   const [awaitingTaskConfirmation, setAwaitingTaskConfirmation] = useState(false)
   const [showJournal, setShowJournal] = useState(false)
+  const [showJournalEntries, setShowJournalEntries] = useState(false)
   const [journalEntry, setJournalEntry] = useState('')
   const [journalQuestion, setJournalQuestion] = useState('')
   const [showGoals, setShowGoals] = useState(false)
@@ -591,7 +592,6 @@ export default function CoachDashboard() {
 
       if (response.ok) {
         const data = await response.json()
-        alert(t('coach.taskCreatedSuccessfully'))
         
         // Refresh the data
         if (taskData.type === 'weekly') {
@@ -1081,7 +1081,6 @@ export default function CoachDashboard() {
       // Refresh user progress after journal entry
       await loadUserProgress()
       
-      alert(t('coach.journalEntrySaved'))
       setJournalEntry('')
       setJournalQuestion('')
       setShowJournal(false)
@@ -1524,7 +1523,6 @@ export default function CoachDashboard() {
 
     setGoals(prev => [...prev, goalToAdd])
     setNewGoal({category: '', title: '', description: '', target: '', deadline: ''})
-    alert(t('coach.goalCreatedSuccess'))
   }
 
   const removeGoal = (goalId: string) => {
@@ -2809,7 +2807,7 @@ export default function CoachDashboard() {
                           )}
                         </div>
                         <div className="text-xs text-gray-500 mb-2">
-                          {new Date(checkin.scheduledFor).toLocaleDateString()} at{' '}
+                          {new Date(checkin.scheduledFor).toLocaleDateString()} {t('coach.at')}{' '}
                           {new Date(checkin.scheduledFor).toLocaleTimeString([], { 
                             hour: '2-digit', 
                             minute: '2-digit' 
@@ -2831,7 +2829,7 @@ export default function CoachDashboard() {
                   })
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-sm text-gray-500 mb-3">No check-ins scheduled</p>
+                    <p className="text-sm text-gray-500 mb-3">{t('coach.noCheckInsScheduled')}</p>
                     <button
                       onClick={() => setShowCheckInSetup(true)}
                       className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-all"
@@ -2855,6 +2853,17 @@ export default function CoachDashboard() {
                   <div>
                     <div className="font-semibold text-gray-900 text-sm">{t('coach.dailyJournal')}</div>
                     <div className="text-xs text-gray-600">{t('coach.reflectOnProgress')}</div>
+                  </div>
+                </button>
+                
+                <button 
+                  onClick={() => setShowJournalEntries(true)}
+                  className="w-full flex items-center p-3 bg-white rounded-lg hover:bg-gray-50 transition-all text-left"
+                >
+                  <BookOpen className="h-4 w-4 text-gray-600 mr-3" />
+                  <div>
+                    <div className="font-semibold text-gray-900 text-sm">{t('coach.viewJournalEntries')}</div>
+                    <div className="text-xs text-gray-600">{t('coach.readPastReflections')}</div>
                   </div>
                 </button>
                 
@@ -2927,30 +2936,53 @@ export default function CoachDashboard() {
             <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-[400px]">
               {chatMessages.length === 0 && (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <MessageSquare className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{t('coach.startAConversation')}</h3>
-                  <p className="text-gray-600 mb-4">{t('coach.askMeAboutProgress')}</p>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setChatInput(t('coach.howCanIImprove'))}
-                      className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
-                    >
-                      "{t('coach.howCanIImprove')}"
-                    </button>
-                    <button
-                      onClick={() => setChatInput(t('coach.whatShouldIFocus'))}
-                      className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
-                    >
-                      "{t('coach.whatShouldIFocus')}"
-                    </button>
-                    <button
-                      onClick={() => setChatInput(t('coach.feelingStuck'))}
-                      className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
-                    >
-                      "{t('coach.feelingStuck')}"
-                    </button>
+                  <h3 className="font-semibold text-gray-900 mb-3 text-lg">{t('coach.coachCapabilitiesTitle')}</h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">{t('coach.coachCapabilitiesSubtitle')}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div className="p-4 bg-gray-50 rounded-lg text-left">
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm">{t('coach.taskManagement')}</h4>
+                      <p className="text-gray-600 text-sm">{t('coach.taskManagementDesc')}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg text-left">
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm">{t('coach.progressTracking')}</h4>
+                      <p className="text-gray-600 text-sm">{t('coach.progressTrackingDesc')}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg text-left">
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm">{t('coach.personalizedAdvice')}</h4>
+                      <p className="text-gray-600 text-sm">{t('coach.personalizedAdviceDesc')}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg text-left">
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm">{t('coach.goalSetting')}</h4>
+                      <p className="text-gray-600 text-sm">{t('coach.goalSettingDesc')}</p>
+                    </div>
+                  </div>
+
+                  <div className="text-left max-w-md mx-auto">
+                    <h4 className="font-semibold text-gray-900 mb-4 text-center">{t('coach.exampleQuestions')}</h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setChatInput(t('coach.howCanIImprove'))}
+                        className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
+                      >
+                        "{t('coach.howCanIImprove')}"
+                      </button>
+                      <button
+                        onClick={() => setChatInput(t('coach.whatShouldIFocus'))}
+                        className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
+                      >
+                        "{t('coach.whatShouldIFocus')}"
+                      </button>
+                      <button
+                        onClick={() => setChatInput(t('coach.feelingStuck'))}
+                        className="block w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm"
+                      >
+                        "{t('coach.feelingStuck')}"
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -3060,13 +3092,6 @@ export default function CoachDashboard() {
             {/* Journal Content */}
             <div className="flex-1 overflow-y-auto p-6">
               <div className="mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2">{t('coach.todaysReflection')}</h4>
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                  <p className="text-gray-800 text-sm leading-relaxed">{journalQuestion}</p>
-                </div>
-              </div>
-
-              <div className="mb-6">
                 <label htmlFor="journal-entry" className="block font-semibold text-gray-900 mb-2">
                   {t('coach.yourThoughts')}
                 </label>
@@ -3118,6 +3143,19 @@ export default function CoachDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Journal Entries Viewer Modal */}
+      {showJournalEntries && (
+        <JournalEntriesModal 
+          journalEntries={journalEntries.map(entry => ({
+            id: entry.date,
+            content: entry.entry,
+            createdAt: new Date(entry.date),
+            question: entry.question
+          }))}
+          onClose={() => setShowJournalEntries(false)}
+        />
       )}
 
       {/* Goals Modal */}
@@ -3512,6 +3550,7 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
   onSubmit: (taskData: any) => Promise<any>
   initialDate?: Date
 }) {
+  const { t } = useLanguage()
   const [taskData, setTaskData] = useState({
     type: 'daily',
     title: '',
@@ -3642,6 +3681,133 @@ function DailyTaskCreatorModal({ onClose, onSubmit, initialDate }: {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+// Journal Entries Viewer Modal Component
+function JournalEntriesModal({ journalEntries, onClose }: {
+  journalEntries: Array<{
+    id: string
+    content: string
+    createdAt: Date
+    question?: string
+  }>
+  onClose: () => void
+}) {
+  const { t } = useLanguage()
+  const [expandedEntry, setExpandedEntry] = useState<string | null>(null)
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+              <BookOpen className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">{t('coach.journalEntriesTitle')}</h3>
+              <p className="text-sm text-gray-600">{t('coach.journalEntriesSubtitle')}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {journalEntries.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 font-semibold">{t('coach.noJournalEntries')}</p>
+              <p className="text-sm text-gray-500 mt-2">Start writing to track your journey</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {journalEntries.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all"
+                >
+                  <button
+                    onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
+                    className="w-full p-4 text-left"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <span className="text-sm font-semibold text-gray-900">
+                            {new Date(entry.createdAt).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(entry.createdAt).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-800 line-clamp-2">
+                          {entry.content}
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform ${
+                            expandedEntry === entry.id ? 'rotate-180' : ''
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  {expandedEntry === entry.id && (
+                    <div className="px-4 pb-4 border-t border-gray-100">
+                      <div className="mt-4 max-h-96 overflow-y-auto">
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                          {entry.content}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">
+              {journalEntries.length} {journalEntries.length === 1 ? 'entry' : 'entries'}
+            </span>
+            <button
+              onClick={onClose}
+              className="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -86,6 +86,7 @@ export async function GET(
 
     // Generate AI coaching insights using LLM based on assessment results
     const assessmentData = {
+      assessmentId: assessment.id,  // Add assessment ID for function calls
       overall: {
         score: assessment.scoreOverall.overall,
         percentile: assessment.scoreOverall.percentileOverall
@@ -262,6 +263,7 @@ export async function POST(
     }
 
     const assessmentData = {
+      assessmentId: assessment.id,  // Add assessment ID for function calls
       overall: {
         score: assessment.scoreOverall.overall,
         percentile: assessment.scoreOverall.percentileOverall
@@ -318,6 +320,14 @@ export async function POST(
               context
             )
             
+            // Process the conversation for potential score updates
+            const scoreUpdateResult = await enhancedCoachingEngine.processProgressForScoreUpdate(
+              message,
+              assistantsResponse.message,
+              user.id,
+              assessment.id
+            )
+            
             const responseTime = Date.now() - startTime
             
             return NextResponse.json({
@@ -342,6 +352,15 @@ export async function POST(
                 persistentMemory: true,
                 contextStored: true
               },
+              scoreUpdate: scoreUpdateResult.scoreUpdated ? {
+                updated: true,
+                improvementAreas: scoreUpdateResult.updateResult?.improvementAreas || [],
+                scoreChange: scoreUpdateResult.updateResult ? {
+                  oldOverall: scoreUpdateResult.updateResult.oldScores.overall,
+                  newOverall: scoreUpdateResult.updateResult.newScores.overall,
+                  improvement: scoreUpdateResult.updateResult.newScores.overall - scoreUpdateResult.updateResult.oldScores.overall
+                } : null
+              } : { updated: false },
               responseTime
             })
             
@@ -358,6 +377,203 @@ export async function POST(
           message,
           assessment.id
         )
+        
+        // ============================================================================
+        // COMPREHENSIVE TASK MANAGEMENT REQUEST DETECTION AND ROUTING
+        // ============================================================================
+        
+        // Detect different types of task management requests
+        const taskManagementPatterns = {
+          // READ ALL TASKS
+          readAllTasks: /^(can you |could you |please )?(show|list|what are|display|view).*(my |all |current )?tasks?(\?)?$|^(tasks?|my tasks?)(\?)?$/i,
+          readDailyTasks: /(can you |could you |please )?(show|list|what are).*(daily|today).*(tasks?)/i,
+          readWeeklyTasks: /(can you |could you |please )?(show|list|what are).*(weekly|this week).*(tasks?)/i,
+          
+          // READ INDIVIDUAL TASK
+          readTaskDetails: /(tell me (more )?about|show me details|what.s).*(task|the .*(task|one))/i,
+          
+          // UPDATE TASKS
+          updateTask: /(make|change|update|modify|edit).*(task|first|second|third|the .*(task|one)|my .*task)/i,
+          markComplete: /(mark|set).*(complete|done|finished)/i,
+          
+          // DELETE TASKS
+          deleteTask: /(delete|remove|get rid of).*(task|first|second|third|the .*(task|one)|my .*task)/i,
+          
+          // SEARCH TASKS
+          searchTasks: /(find|search for|look for).*(task|tasks)/i,
+          
+          // CREATE TASKS
+          createTasks: /(can you |could you |please )?(create|make|add|generate|give me).*(task|tasks)/i
+        }
+        
+        // Route to appropriate task management action
+        if (taskManagementPatterns.readAllTasks.test(message)) {
+          return await handleTaskManagementAction('read_all_tasks', { taskType: 'all', includeCompleted: true }, user, assessment, params.id)
+        }
+        
+        if (taskManagementPatterns.readDailyTasks.test(message)) {
+          return await handleTaskManagementAction('read_all_tasks', { taskType: 'daily', taskDate: new Date().toISOString(), includeCompleted: true }, user, assessment, params.id)
+        }
+        
+        if (taskManagementPatterns.readWeeklyTasks.test(message)) {
+          const currentWeek = Math.ceil((Date.now() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000))
+          return await handleTaskManagementAction('read_all_tasks', { taskType: 'weekly', taskWeek: currentWeek, includeCompleted: true }, user, assessment, params.id)
+        }
+        
+        if (taskManagementPatterns.searchTasks.test(message)) {
+          // Extract search query from message
+          const searchMatch = message.match(/(find|search for|look for).*?(tasks?).*?["']?([^"']*?)["']?$/i)
+          const searchQuery = searchMatch ? searchMatch[3] || message.replace(/(find|search for|look for).*(tasks?)/i, '').trim() : message
+          return await handleTaskManagementAction('find_tasks', { searchQuery }, user, assessment, params.id)
+        }
+        
+        if (taskManagementPatterns.createTasks.test(message)) {
+          // Handle task creation request - let AI coach handle this with its existing logic
+          // Don't return here, let it fall through to the enhanced coach response
+        }
+        
+        // For task details, updates, and deletions, we'll need to first get all tasks to identify which one they mean
+        if (taskManagementPatterns.readTaskDetails.test(message) || taskManagementPatterns.updateTask.test(message) || taskManagementPatterns.deleteTask.test(message)) {
+          // Get all current tasks to enable AI to identify which task user is referring to
+          const allTasks = await enhancedCoachingEngine.getUserTasks(user.id, assessment.id, { includeCompleted: false })
+          
+          // Add task context to the message for AI to process
+          const taskContext = {
+            userTasks: allTasks,
+            requestType: taskManagementPatterns.readTaskDetails.test(message) ? 'details' : 
+                        taskManagementPatterns.updateTask.test(message) ? 'update' : 'delete',
+            originalMessage: message
+          }
+          
+          // Let the AI coach handle this with full task context
+          data.taskContext = taskContext
+        }
+        
+        // Helper function for task management actions
+        async function handleTaskManagementAction(action: string, actionData: any, user: any, assessment: any, assessmentId: string) {
+          try {
+            // Handle the action directly based on action type
+            if (action === 'read_all_tasks') {
+              const { taskType = 'all', includeCompleted = true, taskDate, taskWeek } = actionData
+              const allTasks = await enhancedCoachingEngine.getUserTasks(
+                user.id,
+                assessment.id,
+                {
+                  type: taskType,
+                  date: taskDate ? new Date(taskDate) : undefined,
+                  week: taskWeek,
+                  includeCompleted
+                }
+              )
+
+              let responseMessage = `You have ${allTasks.totalCount} tasks total`
+              if (allTasks.completedCount > 0) {
+                responseMessage += ` (${allTasks.completedCount} completed, ${allTasks.totalCount - allTasks.completedCount} pending)`
+              }
+
+              if (allTasks.daily.length > 0) {
+                responseMessage += `\n\n**Daily Tasks:**\n${allTasks.daily.map((task, i) => 
+                  `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.estimatedMinutes}min, ${task.category})\n   ${task.description || 'No description'}`
+                ).join('\n')}`
+              }
+
+              if (allTasks.weekly.length > 0) {
+                responseMessage += `\n\n**Weekly Tasks:**\n${allTasks.weekly.map((task, i) => 
+                  `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.estimatedMinutes}min, ${task.category})\n   ${task.description || 'No description'}`
+                ).join('\n')}`
+              }
+
+              if (allTasks.totalCount === 0) {
+                responseMessage = "You don't have any tasks right now. Would you like me to create some personalized tasks for you?"
+              }
+
+              await enhancedCoachingEngine.saveChatMessage(
+                user.id,
+                'assistant',
+                responseMessage,
+                assessment.id
+              )
+
+              return NextResponse.json({
+                success: true,
+                message: responseMessage,
+                tasks: allTasks
+              })
+            }
+            
+            if (action === 'find_tasks') {
+              const { searchQuery } = actionData
+              const searchResults = await enhancedCoachingEngine.findTasksByDescription(
+                user.id,
+                assessment.id,
+                searchQuery
+              )
+
+              if (searchResults.matchCount === 0) {
+                const noResultsMessage = `I couldn't find any tasks matching "${searchQuery}". You can ask me to list all your tasks or create new ones if needed.`
+                
+                await enhancedCoachingEngine.saveChatMessage(
+                  user.id,
+                  'assistant',
+                  noResultsMessage,
+                  assessment.id
+                )
+
+                return NextResponse.json({
+                  success: true,
+                  message: noResultsMessage,
+                  searchResults
+                })
+              }
+
+              let resultsMessage = `🔍 **Found ${searchResults.matchCount} tasks matching "${searchQuery}":**\n\n`
+
+              if (searchResults.daily.length > 0) {
+                resultsMessage += `**Daily Tasks:**\n${searchResults.daily.map((task, i) => 
+                  `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.category})\n   ${task.description || 'No description'}`
+                ).join('\n')}\n\n`
+              }
+
+              if (searchResults.weekly.length > 0) {
+                resultsMessage += `**Weekly Tasks:**\n${searchResults.weekly.map((task, i) => 
+                  `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.category})\n   ${task.description || 'No description'}`
+                ).join('\n')}`
+              }
+
+              await enhancedCoachingEngine.saveChatMessage(
+                user.id,
+                'assistant',
+                resultsMessage,
+                assessment.id
+              )
+
+              return NextResponse.json({
+                success: true,
+                message: resultsMessage,
+                searchResults
+              })
+            }
+          } catch (error) {
+            console.error(`Error handling ${action}:`, error)
+            const errorMessage = "I encountered an error while managing your tasks. Please try again."
+            
+            await enhancedCoachingEngine.saveChatMessage(
+              user.id,
+              'assistant',
+              errorMessage,
+              assessment.id
+            )
+
+            return NextResponse.json({
+              success: false,
+              message: errorMessage
+            })
+          }
+        }
+        
+        // ============================================================================
+        // LEGACY TASK HANDLING (keep for backward compatibility)
+        // ============================================================================
         
         // Check if user is asking to list their tasks
         const isListRequest = /list.*tasks?|show.*tasks?|what.*tasks?|my tasks?|current tasks?/i.test(message)
@@ -861,8 +1077,8 @@ export async function POST(
           effectiveTaskPreferences = {
             ...taskPreferences,
             focusAreas: [requestedFocusArea], // Override with requested focus area
-            dailyCount: taskPreferences?.dailyCount || 3,
-            weeklyCount: taskPreferences?.weeklyCount || 2
+            dailyCount: taskPreferences?.dailyCount || (Math.floor(Math.random() * 10) + 1),
+            weeklyCount: taskPreferences?.weeklyCount || (Math.floor(Math.random() * 10) + 1)
           }
         }
         
@@ -1176,6 +1392,323 @@ export async function POST(
           tasks: createdWeeklyTasks,
           week: currentWeek
         })
+
+      case 'read_all_tasks':
+        const { taskType: mainTaskType = 'all', includeCompleted = true, taskDate, taskWeek } = data
+        try {
+          const allTasks = await enhancedCoachingEngine.getUserTasks(
+            user.id,
+            assessment.id,
+            {
+              type: mainTaskType,
+              date: taskDate ? new Date(taskDate) : undefined,
+              week: taskWeek,
+              includeCompleted
+            }
+          )
+
+          let responseMessage = `You have ${allTasks.totalCount} tasks total`
+          if (allTasks.completedCount > 0) {
+            responseMessage += ` (${allTasks.completedCount} completed, ${allTasks.totalCount - allTasks.completedCount} pending)`
+          }
+
+          if (allTasks.daily.length > 0) {
+            responseMessage += `\n\n**Daily Tasks:**\n${allTasks.daily.map((task, i) => 
+              `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.estimatedMinutes}min, ${task.category})\n   ${task.description || 'No description'}`
+            ).join('\n')}`
+          }
+
+          if (allTasks.weekly.length > 0) {
+            responseMessage += `\n\n**Weekly Tasks:**\n${allTasks.weekly.map((task, i) => 
+              `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.estimatedMinutes}min, ${task.category})\n   ${task.description || 'No description'}`
+            ).join('\n')}`
+          }
+
+          if (allTasks.totalCount === 0) {
+            responseMessage = "You don't have any tasks right now. Would you like me to create some personalized tasks for you?"
+          }
+
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            responseMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: true,
+            message: responseMessage,
+            tasks: allTasks
+          })
+        } catch (error) {
+          console.error('Error reading all tasks:', error)
+          const errorMessage = "I encountered an error while reading your tasks. Please try again."
+          
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            errorMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: false,
+            message: errorMessage
+          })
+        }
+
+      case 'read_task_details':
+        const { taskId, taskType: readTaskType } = data
+        try {
+          const taskDetails = await enhancedCoachingEngine.getTaskDetails(taskId, readTaskType, user.id)
+          
+          if (!taskDetails.success) {
+            const errorMessage = `I couldn't find that task. ${taskDetails.error}`
+            
+            await enhancedCoachingEngine.saveChatMessage(
+              user.id,
+              'assistant',
+              errorMessage,
+              assessment.id
+            )
+
+            return NextResponse.json({
+              success: false,
+              message: errorMessage
+            })
+          }
+
+          const task = taskDetails.task
+          let detailsMessage = `**Task Details:**\n\n`
+          detailsMessage += `**${task.title}**\n`
+          detailsMessage += `📝 ${task.description || 'No description provided'}\n`
+          detailsMessage += `⏱️ Estimated time: ${task.estimatedMinutes} minutes\n`
+          detailsMessage += `📂 Category: ${task.category}\n`
+          detailsMessage += `⚡ Priority: ${task.priority || 'medium'}\n`
+          detailsMessage += `📊 Status: ${task.completed ? '✅ Completed' : '⏳ Pending'}\n`
+          detailsMessage += `📅 Type: ${task.type === 'daily' ? 'Daily task' : 'Weekly task'}\n`
+          detailsMessage += `🔍 Difficulty: ${task.difficultyLevel}\n`
+          detailsMessage += `⏰ Time Status: ${task.timeStatus.replace(/_/g, ' ')}\n`
+
+          if (task.suggestions && task.suggestions.length > 0) {
+            detailsMessage += `\n**Suggestions for improvement:**\n${task.suggestions.map(s => `• ${s}`).join('\n')}`
+          }
+
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            detailsMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: true,
+            message: detailsMessage,
+            taskDetails: task
+          })
+        } catch (error) {
+          console.error('Error reading task details:', error)
+          const errorMessage = "I encountered an error while reading the task details. Please try again."
+          
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            errorMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: false,
+            message: errorMessage
+          })
+        }
+
+      case 'update_task':
+        const { taskId: updateTaskId, taskType: updateTaskType, updates } = data
+        try {
+          const updateResult = await enhancedCoachingEngine.updateTask(
+            updateTaskId,
+            updateTaskType,
+            user.id,
+            updates
+          )
+
+          if (!updateResult.success) {
+            const errorMessage = `I couldn't update that task. ${updateResult.error}`
+            
+            await enhancedCoachingEngine.saveChatMessage(
+              user.id,
+              'assistant',
+              errorMessage,
+              assessment.id
+            )
+
+            return NextResponse.json({
+              success: false,
+              message: errorMessage
+            })
+          }
+
+          const changesText = updateResult.changesApplied!.length > 0 
+            ? updateResult.changesApplied!.join(', ')
+            : 'no changes'
+
+          const successMessage = `✅ **Task Updated Successfully!**\n\nI've updated the task "${updateResult.task.title}"\n\n**Changes applied:** ${changesText}\n\nThe task is now ready with your modifications!`
+
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            successMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: true,
+            message: successMessage,
+            updatedTask: updateResult.task,
+            changesApplied: updateResult.changesApplied
+          })
+        } catch (error) {
+          console.error('Error updating task:', error)
+          const errorMessage = "I encountered an error while updating the task. Please try again."
+          
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            errorMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: false,
+            message: errorMessage
+          })
+        }
+
+      case 'delete_individual_task':
+        const { taskId: deleteTaskId, taskType: deleteTaskType } = data
+        try {
+          const deleteResult = await enhancedCoachingEngine.deleteTask(
+            deleteTaskId,
+            deleteTaskType,
+            user.id
+          )
+
+          if (!deleteResult.success) {
+            const errorMessage = `I couldn't delete that task. ${deleteResult.error}`
+            
+            await enhancedCoachingEngine.saveChatMessage(
+              user.id,
+              'assistant',
+              errorMessage,
+              assessment.id
+            )
+
+            return NextResponse.json({
+              success: false,
+              message: errorMessage
+            })
+          }
+
+          const successMessage = `🗑️ **Task Deleted Successfully!**\n\nI've removed the task "${deleteResult.deletedTask.title}" from your dashboard.\n\nThe task has been permanently deleted and won't appear in your task list anymore.`
+
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            successMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: true,
+            message: successMessage,
+            deletedTask: deleteResult.deletedTask
+          })
+        } catch (error) {
+          console.error('Error deleting task:', error)
+          const errorMessage = "I encountered an error while deleting the task. Please try again."
+          
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            errorMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: false,
+            message: errorMessage
+          })
+        }
+
+      case 'find_tasks':
+        const { searchQuery } = data
+        try {
+          const searchResults = await enhancedCoachingEngine.findTasksByDescription(
+            user.id,
+            assessment.id,
+            searchQuery
+          )
+
+          if (searchResults.matchCount === 0) {
+            const noResultsMessage = `I couldn't find any tasks matching "${searchQuery}". You can ask me to list all your tasks or create new ones if needed.`
+            
+            await enhancedCoachingEngine.saveChatMessage(
+              user.id,
+              'assistant',
+              noResultsMessage,
+              assessment.id
+            )
+
+            return NextResponse.json({
+              success: true,
+              message: noResultsMessage,
+              searchResults
+            })
+          }
+
+          let resultsMessage = `🔍 **Found ${searchResults.matchCount} tasks matching "${searchQuery}":**\n\n`
+
+          if (searchResults.daily.length > 0) {
+            resultsMessage += `**Daily Tasks:**\n${searchResults.daily.map((task, i) => 
+              `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.category})\n   ${task.description || 'No description'}`
+            ).join('\n')}\n\n`
+          }
+
+          if (searchResults.weekly.length > 0) {
+            resultsMessage += `**Weekly Tasks:**\n${searchResults.weekly.map((task, i) => 
+              `${i + 1}. ${task.completed ? '✅' : '⏳'} **${task.title}** (${task.category})\n   ${task.description || 'No description'}`
+            ).join('\n')}`
+          }
+
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            resultsMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: true,
+            message: resultsMessage,
+            searchResults
+          })
+        } catch (error) {
+          console.error('Error finding tasks:', error)
+          const errorMessage = "I encountered an error while searching for tasks. Please try again."
+          
+          await enhancedCoachingEngine.saveChatMessage(
+            user.id,
+            'assistant',
+            errorMessage,
+            assessment.id
+          )
+
+          return NextResponse.json({
+            success: false,
+            message: errorMessage
+          })
+        }
       
       default:
         return NextResponse.json(

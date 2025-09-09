@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Calendar, Clock, Bell, ChevronRight, X, Plus, Trash2, Sun, Moon, Coffee, Sunset } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 interface CheckInSetupProps {
   onComplete: (settings: CheckInSettings) => void
@@ -17,6 +18,7 @@ export interface CheckInSettings {
 }
 
 export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose, initialSettings }) => {
+  const { t } = useLanguage()
   const [settings, setSettings] = useState<CheckInSettings>(initialSettings || {
     frequency: 'daily',
     time: '09:00',
@@ -30,20 +32,20 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
   const [showAdvanced, setShowAdvanced] = useState(false)
 
   const frequencies = [
-    { value: 'daily', label: 'Daily', description: 'Once every day' },
-    { value: 'multiple-daily', label: 'Multiple Daily', description: 'Multiple times per day' },
-    { value: 'weekly', label: 'Weekly', description: 'Specific days' },
-    { value: 'biweekly', label: 'Bi-weekly', description: 'Every 2 weeks' },
-    { value: 'monthly', label: 'Monthly', description: 'Once a month' }
+    { value: 'daily', label: t('coach.frequencyDaily'), description: t('coach.dailyDescription') },
+    { value: 'multiple-daily', label: t('coach.frequencyMultipleDaily'), description: t('coach.multipleDailyDescription') },
+    { value: 'weekly', label: t('coach.frequencyWeekly'), description: t('coach.weeklyDescription') },
+    { value: 'biweekly', label: t('coach.frequencyBiweekly'), description: t('coach.biweeklyDescription') },
+    { value: 'monthly', label: t('coach.frequencyMonthly'), description: t('coach.monthlyDescription') }
   ]
 
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const fullDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const weekDays = [t('coach.mon'), t('coach.tue'), t('coach.wed'), t('coach.thu'), t('coach.fri'), t('coach.sat'), t('coach.sun')]
+  const fullDays = [t('coach.monday'), t('coach.tuesday'), t('coach.wednesday'), t('coach.thursday'), t('coach.friday'), t('coach.saturday'), t('coach.sunday')]
 
   const timePresets = [
-    { value: 'morning', label: 'Morning', icon: Sun, time: '08:00', description: '8 AM' },
-    { value: 'afternoon', label: 'Afternoon', icon: Coffee, time: '13:00', description: '1 PM' },
-    { value: 'evening', label: 'Evening', icon: Sunset, time: '18:00', description: '6 PM' },
+    { value: 'morning', label: t('coach.morning'), icon: Sun, time: '08:00', description: '8 AM' },
+    { value: 'afternoon', label: t('coach.afternoon'), icon: Coffee, time: '13:00', description: '1 PM' },
+    { value: 'evening', label: t('coach.evening'), icon: Sunset, time: '18:00', description: '6 PM' },
     { value: 'night', label: 'Night', icon: Moon, time: '21:00', description: '9 PM' },
     { value: 'custom', label: 'Custom', icon: Clock, time: '', description: 'Choose time' }
   ]
@@ -143,7 +145,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
           <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Set Up Check-Ins</h2>
+                <h2 className="text-lg font-bold text-gray-900">{t('coach.setUpCheckInsTitle')}</h2>
               </div>
               {onClose && (
                 <button
@@ -161,7 +163,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
             {/* Frequency Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                How often?
+{t('coach.howOften')}
               </label>
               <div className="space-y-2">
                 {frequencies.map((freq) => (
@@ -196,7 +198,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
             {settings.frequency === 'daily' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  When?
+                  {t('coach.whenLabel')}
                 </label>
                 
                 <div className="grid grid-cols-3 gap-2 mb-3">
@@ -235,7 +237,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
             {settings.frequency === 'multiple-daily' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Times
+                  {t('coach.times')}
                 </label>
                 
                 <div className="space-y-2">
@@ -268,7 +270,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
                     className="mt-2 flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded"
                   >
                     <Plus className="h-3 w-3" />
-                    Add time
+                    {t('coach.addTime')}
                   </button>
                 )}
               </div>
@@ -278,7 +280,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
             {(settings.frequency === 'weekly' || settings.frequency === 'biweekly' || settings.frequency === 'monthly') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Time
+                  {t('coach.timeLabel')}
                 </label>
                 <input
                   type="time"
@@ -293,7 +295,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
             {settings.frequency === 'weekly' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Days
+                  {t('coach.daysLabel')}
                 </label>
                 <div className="grid grid-cols-4 gap-1">
                   {weekDays.map((day, index) => (
@@ -319,13 +321,13 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className="text-sm font-medium text-gray-600 hover:text-gray-900"
               >
-                {showAdvanced ? 'Hide' : 'Show'} Advanced
+                {showAdvanced ? t('coach.hideAdvanced') : t('coach.showAdvanced')} Advanced
               </button>
 
               {showAdvanced && (
                 <div className="mt-2 p-3 bg-gray-50 rounded-lg">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reminder
+                    {t('coach.reminder')}
                   </label>
                   <select
                     value={settings.reminderMinutesBefore || 15}
@@ -344,13 +346,13 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
 
             {/* Preview */}
             <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-sm font-medium text-gray-700 mb-1">Schedule:</div>
+              <div className="text-sm font-medium text-gray-700 mb-1">{t('coach.schedule')}</div>
               <div className="text-sm text-gray-900">
                 {getSchedulePreview()}
               </div>
               {settings.reminderMinutesBefore && settings.reminderMinutesBefore > 0 && (
                 <div className="text-xs text-gray-600 mt-1">
-                  Reminder: {settings.reminderMinutesBefore} min before
+                  {t('coach.reminder')}: {settings.reminderMinutesBefore} {t('coach.reminderMinBefore')}
                 </div>
               )}
             </div>
@@ -372,7 +374,7 @@ export const CheckInSetup: React.FC<CheckInSetupProps> = ({ onComplete, onClose,
               }
               className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-medium disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
             >
-              Continue Setup
+{t('coach.continueSetup')}
             </button>
           </div>
         </div>

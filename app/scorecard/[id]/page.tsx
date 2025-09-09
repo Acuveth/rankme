@@ -30,7 +30,7 @@ export default function ScorecardPage() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [scoreData, setScoreData] = useState<ScoreData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -234,7 +234,7 @@ export default function ScorecardPage() {
             onClick={() => router.push('/')}
             className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
           >
-            {t('scorecard.backToHome')}
+            {translateText('backToHome')}
           </button>
         </div>
       </div>
@@ -257,33 +257,158 @@ export default function ScorecardPage() {
   }
 
   const translateCategoryName = (categoryId: string): string => {
-    const categoryMap: { [key: string]: string } = {
-      'financial': t('scorecard.financialHealth'),
-      'health_fitness': t('scorecard.physicalWellness'),
-      'social': t('scorecard.socialNetwork'),
-      'romantic': t('scorecard.personalGrowth')
+    const categoryMappings: { [key: string]: { [lang: string]: string } } = {
+      'financial': {
+        'en': 'Financial Health',
+        'es': 'Salud Financiera',
+        'fr': 'Santé Financière',
+        'de': 'Finanzielle Gesundheit'
+      },
+      'health_fitness': {
+        'en': 'Physical Wellness',
+        'es': 'Bienestar Físico',
+        'fr': 'Bien-être Physique',
+        'de': 'Körperliches Wohlbefinden'
+      },
+      'social': {
+        'en': 'Social Network',
+        'es': 'Red Social',
+        'fr': 'Réseau Social',
+        'de': 'Soziales Netzwerk'
+      },
+      'romantic': {
+        'en': 'Romantic',
+        'es': 'Romántico',
+        'fr': 'Romantique',
+        'de': 'Romantisch'
+      }
     }
-    return categoryMap[categoryId] || categoryId
+    
+    return categoryMappings[categoryId]?.[language] || categoryId
   }
-
 
   // Helper function to translate performance levels
   const translatePerformanceLevel = (level: string): string => {
-    const levelMap: { [key: string]: string } = {
-      'Exceptional': t('scorecard.excellent'), // Using 'excellent' as closest match
-      'Excellent': t('scorecard.excellent'),
-      'Good': t('scorecard.good'),
-      'Fair': t('scorecard.average'), // Using 'average' as closest match
-      'Needs Attention': t('scorecard.needsImprovement')
+    const levelMappings: { [key: string]: { [lang: string]: string } } = {
+      'Exceptional': {
+        'en': 'Exceptional',
+        'es': 'Excepcional',
+        'fr': 'Exceptionnel',
+        'de': 'Außergewöhnlich'
+      },
+      'Excellent': {
+        'en': 'Excellent',
+        'es': 'Excelente',
+        'fr': 'Excellent',
+        'de': 'Ausgezeichnet'
+      },
+      'Good': {
+        'en': 'Good',
+        'es': 'Bueno',
+        'fr': 'Bon',
+        'de': 'Gut'
+      },
+      'Average': {
+        'en': 'Average',
+        'es': 'Promedio',
+        'fr': 'Moyen',
+        'de': 'Durchschnittlich'
+      },
+      'Fair': {
+        'en': 'Fair',
+        'es': 'Regular',
+        'fr': 'Correct',
+        'de': 'Angemessen'
+      },
+      'Needs Attention': {
+        'en': 'Needs Improvement',
+        'es': 'Necesita Mejora',
+        'fr': 'Besoin d\'Amélioration',
+        'de': 'Verbesserungsbedürftig'
+      },
+      'Needs Improvement': {
+        'en': 'Needs Improvement',
+        'es': 'Necesita Mejora',
+        'fr': 'Besoin d\'Amélioration',
+        'de': 'Verbesserungsbedürftig'
+      }
     }
-    return levelMap[level] || level
+    
+    return levelMappings[level]?.[language] || level
   }
 
-  const categoryNames: { [key: string]: string } = {
-    'financial': t('scorecard.financialHealth'),
-    'health_fitness': t('scorecard.physicalWellness'),
-    'social': t('scorecard.socialNetwork'),
-    'romantic': t('scorecard.personalGrowth')
+  // Helper function for problematic translations
+  const translateText = (key: string): string => {
+    const textMappings: { [key: string]: { [lang: string]: string } } = {
+      'scorecardShowsPercentiles': {
+        'en': 'This scorecard shows your percentile rankings. Unlock deeper insights with our premium features.',
+        'es': 'Esta tarjeta de puntuación muestra tus rankings percentiles. Desbloquea perspectivas más profundas con nuestras características premium.',
+        'fr': 'Cette fiche de score montre vos classements en percentiles. Débloquez des insights plus profonds avec nos fonctionnalités premium.',
+        'de': 'Diese Bewertungskarte zeigt Ihre Perzentil-Rankings. Schalten Sie tiefere Einblicke mit unseren Premium-Funktionen frei.'
+      },
+      'emailYourResults': {
+        'en': 'Email Your Results',
+        'es': 'Envía Tus Resultados por Email',
+        'fr': 'Envoyer Vos Résultats par Email',
+        'de': 'Ihre Ergebnisse per E-Mail'
+      },
+      'resultsSentSuccessfully': {
+        'en': 'Results sent successfully!',
+        'es': '¡Resultados enviados exitosamente!',
+        'fr': 'Résultats envoyés avec succès !',
+        'de': 'Ergebnisse erfolgreich gesendet!'
+      },
+      'checkYourInbox': {
+        'en': 'Check your inbox for your detailed life score.',
+        'es': 'Revisa tu bandeja de entrada para tu puntuación de vida detallada.',
+        'fr': 'Vérifiez votre boîte de réception pour votre score de vie détaillé.',
+        'de': 'Überprüfen Sie Ihren Posteingang für Ihre detaillierte Lebenspunktzahl.'
+      },
+      'sendToAnotherEmail': {
+        'en': 'Send to another email',
+        'es': 'Enviar a otro email',
+        'fr': 'Envoyer à un autre email',
+        'de': 'An eine andere E-Mail senden'
+      },
+      'enterEmailAddress': {
+        'en': 'Enter your email address',
+        'es': 'Ingresa tu dirección de email',
+        'fr': 'Entrez votre adresse email',
+        'de': 'Geben Sie Ihre E-Mail-Adresse ein'
+      },
+      'sendMyResults': {
+        'en': 'Send My Results',
+        'es': 'Enviar Mis Resultados',
+        'fr': 'Envoyer Mes Résultats',
+        'de': 'Meine Ergebnisse Senden'
+      },
+      'emailResultsDesc': {
+        'en': 'Get a beautifully formatted email with your complete assessment results and insights.',
+        'es': 'Obtén un email bellamente formateado con los resultados completos de tu evaluación e insights.',
+        'fr': 'Obtenez un email magnifiquement formaté avec vos résultats d\'évaluation complets et des insights.',
+        'de': 'Erhalten Sie eine schön formatierte E-Mail mit Ihren vollständigen Bewertungsergebnissen und Einsichten.'
+      },
+      'viewDeepReport': {
+        'en': 'View Deep Report',
+        'es': 'Ver Informe Profundo',
+        'fr': 'Voir le Rapport Approfondi',
+        'de': 'Detailbericht Anzeigen'
+      },
+      'getDeepAnalysis': {
+        'en': 'Get Deep Analysis',
+        'es': 'Obtener Análisis Profundo',
+        'fr': 'Obtenir l\'Analyse Approfondie',
+        'de': 'Tiefgehende Analyse Erhalten'
+      },
+      'backToHome': {
+        'en': 'Back to Home',
+        'es': 'Volver al Inicio',
+        'fr': 'Retour à l\'Accueil',
+        'de': 'Zurück zur Startseite'
+      }
+    }
+    
+    return textMappings[key]?.[language] || key
   }
 
   const translateSex = (sex: string): string => {
@@ -492,7 +617,7 @@ export default function ScorecardPage() {
                 <Target className="h-8 w-8 text-gray-600 mx-auto mb-2" />
                 <h3 className="font-bold text-gray-900 mb-2">{t('pricing.freeAssessment')}</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  {t('scorecard.scorecardShowsPercentiles')}
+                  {translateText('scorecardShowsPercentiles')}
                 </p>
               </div>
             </div>
@@ -501,7 +626,7 @@ export default function ScorecardPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center mb-4">
                 <Mail className="h-5 w-5 text-gray-600 mr-2" />
-                <h3 className="font-bold text-gray-900">{t('scorecard.emailYourResults')}</h3>
+                <h3 className="font-bold text-gray-900">{translateText('emailYourResults')}</h3>
               </div>
               
               {emailSent ? (
@@ -511,13 +636,13 @@ export default function ScorecardPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="text-gray-700 font-medium">{t('scorecard.resultsSentSuccessfully')}</p>
-                  <p className="text-sm text-gray-600 mt-1">{t('scorecard.checkYourInbox')}</p>
+                  <p className="text-gray-700 font-medium">{translateText('resultsSentSuccessfully')}</p>
+                  <p className="text-sm text-gray-600 mt-1">{translateText('checkYourInbox')}</p>
                   <button
                     onClick={() => setEmailSent(false)}
                     className="text-sm text-gray-500 hover:text-gray-700 mt-2 underline"
                   >
-                    {t('scorecard.sendToAnotherEmail')}
+                    {translateText('sendToAnotherEmail')}
                   </button>
                 </div>
               ) : (
@@ -527,7 +652,7 @@ export default function ScorecardPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t('scorecard.enterEmailAddress')}
+                      placeholder={translateText('enterEmailAddress')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
                       required
                       disabled={emailLoading}
@@ -543,7 +668,7 @@ export default function ScorecardPage() {
                     ) : (
                       <>
                         <Mail className="h-5 w-5 mr-2" />
-                        {t('scorecard.sendMyResults')}
+                        {translateText('sendMyResults')}
                       </>
                     )}
                   </button>
@@ -551,7 +676,7 @@ export default function ScorecardPage() {
               )}
               
               <p className="text-xs text-gray-500 mt-3 text-center">
-                {t('scorecard.emailResultsDesc')}
+                {translateText('emailResultsDesc')}
               </p>
             </div>
 
@@ -623,9 +748,9 @@ export default function ScorecardPage() {
                   <span className="font-semibold text-gray-900">
                     {scoreData.completionTime ? (
                       scoreData.completionTime < 60 
-                        ? `${scoreData.completionTime} seconds`
-                        : `${Math.floor(scoreData.completionTime / 60)} min ${scoreData.completionTime % 60} sec`
-                    ) : '~8 mins'}
+                        ? `${scoreData.completionTime} ${t('report.seconds')}`
+                        : `${Math.floor(scoreData.completionTime / 60)} ${t('report.mins')} ${scoreData.completionTime % 60} ${t('report.sec')}`
+                    ) : t('report.defaultCompletionTime')}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -651,13 +776,13 @@ export default function ScorecardPage() {
                 onClick={() => router.push(hasDeepReportPurchase ? `/report/${params.id}` : `/paywall/report/${params.id}`)}
                 className="px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all font-semibold"
               >
-                {hasDeepReportPurchase ? t('scorecard.viewDeepReport') : t('pricing.getDeepAnalysis')}
+                {hasDeepReportPurchase ? translateText('viewDeepReport') : translateText('getDeepAnalysis')}
               </button>
               <button
                 onClick={() => router.push('/')}
                 className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
               >
-                {t('scorecard.backToHome')}
+                {translateText('backToHome')}
               </button>
             </div>
           </div>

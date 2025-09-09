@@ -60,6 +60,10 @@ export interface Translations {
     friday: string
     saturday: string
     sunday: string
+    yourTasks: string
+    viewAiCoach: string
+    todaysTasks: string
+    thisWeeksTasks: string
   }
   
   // Account Settings
@@ -254,6 +258,7 @@ export interface Translations {
     socialNetwork: string
     personalGrowth: string
     excellent: string
+    exceptional: string
     good: string
     average: string
     needsImprovement: string
@@ -361,6 +366,11 @@ export interface Translations {
     growthArea: string
     questionsAnswered: string
     completionTime: string
+    seconds: string
+    minutes: string
+    mins: string
+    sec: string
+    defaultCompletionTime: string
     peerGroup: string
     recentActivity: string
     scoreDataNotFound: string
@@ -381,6 +391,11 @@ export interface Translations {
     oneYearGoals: string
     recommendedResources: string
     primaryGrowthAreas: string
+    generatingDeepReport: string
+    individualQuestionAnalysis: string
+    yourAnswer: string
+    myRankMeLifeScoreDeepReport: string
+    linkCopiedToClipboard: string
   }
 
   // Coach Dashboard
@@ -619,6 +634,47 @@ export interface Translations {
     overdue: string
     checkInType: string
     setUpCheckIns: string
+    setUpCheckInsTitle: string
+    continueSetup: string
+    frequencyDaily: string
+    frequencyWeekly: string
+    frequencyBiweekly: string
+    frequencyMonthly: string
+    frequencyMultipleDaily: string
+    dailyDescription: string
+    weeklyDescription: string
+    biweeklyDescription: string
+    monthlyDescription: string
+    multipleDailyDescription: string
+    at: string
+    howOften: string
+    whenLabel: string
+    times: string
+    timeLabel: string
+    daysLabel: string
+    addTime: string
+    hideAdvanced: string
+    showAdvanced: string
+    reminder: string
+    schedule: string
+    reminderMinBefore: string
+    monday: string
+    tuesday: string
+    wednesday: string
+    thursday: string
+    friday: string
+    saturday: string
+    sunday: string
+    mon: string
+    tue: string
+    wed: string
+    thu: string
+    fri: string
+    sat: string
+    sun: string
+    morning: string
+    afternoon: string
+    evening: string
     createNewTask: string
     createDailyGoal: string
     howCanIImprove: string
@@ -697,8 +753,11 @@ export interface Translations {
     
     // CoachPreferenceSetup component - Setup Process
     setupProgress: string
+    step: string
+    of: string
     stepOf: string
     welcomeToAICoach: string
+    letsPersonalize: string
     personalizeExperience: string
     whatAreaFocus: string
     primaryFocusArea: string
@@ -714,6 +773,10 @@ export interface Translations {
     fitnessNutritionWellness: string
     relationshipsSocial: string
     selfImprovementSkills: string
+    financialHealthDesc: string
+    physicalHealthDesc: string
+    socialLifeDesc: string
+    personalGrowthDesc: string
     
     // Task Preferences
     taskPreferences: string
@@ -723,6 +786,8 @@ export interface Translations {
     taskDifficulty: string
     oneTask: string
     tasksRecommended: string
+    threeTasksRecommended: string
+    twoThreeRecommended: string
     fiveTasks: string
     noWeeklyTasks: string
     recommendedTasks: string
@@ -735,6 +800,7 @@ export interface Translations {
     // Coaching Style
     coachingStyle: string
     howInteractWithYou: string
+    howToInteract: string
     coachingApproach: string
     supportive: string
     direct: string
@@ -751,10 +817,14 @@ export interface Translations {
     softEncouragement: string
     mixedApproach: string
     pushMeHard: string
+    gentleDesc: string
+    balancedDesc: string
+    intenseDesc: string
     
     // Check-in Preferences  
     checkinPreferences: string
     howOftenCheckin: string
+    howOftenCheckIn: string
     checkinFrequency: string
     preferredCheckinTime: string
     daily: string
@@ -807,8 +877,24 @@ export interface Translations {
     hereToHelpGrow: string
     startAConversation: string
     askMeAboutProgress: string
+    coachCapabilitiesTitle: string
+    coachCapabilitiesSubtitle: string
+    taskManagement: string
+    taskManagementDesc: string
+    progressTracking: string
+    progressTrackingDesc: string
+    personalizedAdvice: string
+    personalizedAdviceDesc: string
+    goalSetting: string
+    goalSettingDesc: string
+    exampleQuestions: string
     viewFullReport: string
     deepAnalysisInsights: string
+    viewJournalEntries: string
+    readPastReflections: string
+    noJournalEntries: string
+    journalEntriesTitle: string
+    journalEntriesSubtitle: string
     briefDescription: string
     message: string
     pleaseProvideDetails: string
@@ -1075,6 +1161,7 @@ export type TranslationKey =
   | 'scorecard.socialNetwork'
   | 'scorecard.personalGrowth'
   | 'scorecard.excellent'
+  | 'scorecard.exceptional'
   | 'scorecard.good'
   | 'scorecard.average'
   | 'scorecard.needsImprovement'
@@ -1178,6 +1265,11 @@ export type TranslationKey =
   | 'report.growthArea'
   | 'report.questionsAnswered'
   | 'report.completionTime'
+  | 'report.seconds'
+  | 'report.minutes'
+  | 'report.mins'
+  | 'report.sec'
+  | 'report.defaultCompletionTime'
   | 'report.peerGroup'
   | 'report.recentActivity'
   | 'report.scoreDataNotFound'
@@ -1189,6 +1281,19 @@ export type TranslationKey =
   | 'report.good'
   | 'report.fair'
   | 'report.needsAttention'
+  | 'report.crossCategoryPatterns'
+  | 'report.surprisingFindings'
+  | 'report.longTermStrategy'
+  | 'report.primaryLimitingFactor'
+  | 'report.threeMonthGoals'
+  | 'report.oneYearGoals'
+  | 'report.recommendedResources'
+  | 'report.primaryGrowthAreas'
+  | 'report.generatingDeepReport'
+  | 'report.individualQuestionAnalysis'
+  | 'report.yourAnswer'
+  | 'report.myRankMeLifeScoreDeepReport'
+  | 'report.linkCopiedToClipboard'
   | 'coach.backToDashboard'
   | 'coach.aiCoach'
   | 'coach.yourCoach'
@@ -1413,8 +1518,24 @@ export type TranslationKey =
   | 'coach.hereToHelpGrow'
   | 'coach.startAConversation'
   | 'coach.askMeAboutProgress'
+  | 'coach.coachCapabilitiesTitle'
+  | 'coach.coachCapabilitiesSubtitle'
+  | 'coach.taskManagement'
+  | 'coach.taskManagementDesc'
+  | 'coach.progressTracking'
+  | 'coach.progressTrackingDesc'
+  | 'coach.personalizedAdvice'
+  | 'coach.personalizedAdviceDesc'
+  | 'coach.goalSetting'
+  | 'coach.goalSettingDesc'
+  | 'coach.exampleQuestions'
   | 'coach.viewFullReport'
   | 'coach.deepAnalysisInsights'
+  | 'coach.viewJournalEntries'
+  | 'coach.readPastReflections'
+  | 'coach.noJournalEntries'
+  | 'coach.journalEntriesTitle'
+  | 'coach.journalEntriesSubtitle'
   | 'coach.briefDescription'
   | 'coach.message'
   | 'coach.pleaseProvideDetails'
@@ -1479,6 +1600,47 @@ export type TranslationKey =
   | 'coach.healthJournalPrompt'
   | 'coach.socialJournalPrompt'
   | 'coach.personalJournalPrompt'
+  | 'coach.setUpCheckInsTitle'
+  | 'coach.continueSetup'
+  | 'coach.frequencyDaily'
+  | 'coach.frequencyWeekly'
+  | 'coach.frequencyBiweekly'
+  | 'coach.frequencyMonthly'
+  | 'coach.frequencyMultipleDaily'
+  | 'coach.dailyDescription'
+  | 'coach.weeklyDescription'
+  | 'coach.biweeklyDescription'
+  | 'coach.monthlyDescription'
+  | 'coach.multipleDailyDescription'
+  | 'coach.at'
+  | 'coach.howOften'
+  | 'coach.whenLabel'
+  | 'coach.times'
+  | 'coach.timeLabel'
+  | 'coach.daysLabel'
+  | 'coach.addTime'
+  | 'coach.hideAdvanced'
+  | 'coach.showAdvanced'
+  | 'coach.reminder'
+  | 'coach.schedule'
+  | 'coach.reminderMinBefore'
+  | 'coach.monday'
+  | 'coach.tuesday'
+  | 'coach.wednesday'
+  | 'coach.thursday'
+  | 'coach.friday'
+  | 'coach.saturday'
+  | 'coach.sunday'
+  | 'coach.mon'
+  | 'coach.tue'
+  | 'coach.wed'
+  | 'coach.thu'
+  | 'coach.fri'
+  | 'coach.sat'
+  | 'coach.sun'
+  | 'coach.morning'
+  | 'coach.afternoon'
+  | 'coach.evening'
   | 'dashboard.welcome'
   | 'dashboard.welcomeBack'
   | 'dashboard.subtitle'
@@ -1530,6 +1692,10 @@ export type TranslationKey =
   | 'dashboard.friday'
   | 'dashboard.saturday'
   | 'dashboard.sunday'
+  | 'dashboard.yourTasks'
+  | 'dashboard.viewAiCoach'
+  | 'dashboard.todaysTasks'
+  | 'dashboard.thisWeeksTasks'
   | 'settings.accountSettings'
   | 'settings.profileInformation'
   | 'settings.accountName'
@@ -1746,6 +1912,7 @@ export const translations: Record<Language, Translations> = {
       socialNetwork: 'Social Network',
       personalGrowth: 'Personal Growth',
       excellent: 'Excellent',
+      exceptional: 'Exceptional',
       good: 'Good',
       average: 'Average',
       needsImprovement: 'Needs Improvement',
@@ -1851,6 +2018,11 @@ export const translations: Record<Language, Translations> = {
       growthArea: 'Growth Area',
       questionsAnswered: 'Questions Answered',
       completionTime: 'Completion Time',
+      seconds: 'seconds',
+      minutes: 'minutes',
+      mins: 'mins',
+      sec: 'sec',
+      defaultCompletionTime: '~8 mins',
       peerGroup: 'Peer Group',
       recentActivity: 'Recent Activity',
       scoreDataNotFound: 'Score data not found',
@@ -1870,7 +2042,12 @@ export const translations: Record<Language, Translations> = {
       threeMonthGoals: '3-Month Goals',
       oneYearGoals: '1-Year Goals',
       recommendedResources: 'Recommended Resources',
-      primaryGrowthAreas: 'Primary Growth Areas'
+      primaryGrowthAreas: 'Primary Growth Areas',
+      generatingDeepReport: 'Generating deep report',
+      individualQuestionAnalysis: 'Individual Question Analysis',
+      yourAnswer: 'Your Answer: ',
+      myRankMeLifeScoreDeepReport: 'My RankMe Life Score Deep Report',
+      linkCopiedToClipboard: 'Link copied to clipboard!'
     },
     coach: {
       // Navigation & Basic
@@ -2060,10 +2237,10 @@ export const translations: Record<Language, Translations> = {
       describeTheTask: 'Describe the task...',
       
       // Journal Questions
-      financialJournalPrompt: 'How did you manage your finances today? What progress did you make toward your financial goals?',
-      healthJournalPrompt: 'How did you take care of your health today? What healthy choices did you make?',
-      socialJournalPrompt: 'How did you connect with others today? What social interactions brought you joy?',
-      personalJournalPrompt: 'What did you learn about yourself today? How did you grow personally?',
+      financialJournalPrompt: '',
+      healthJournalPrompt: '',
+      socialJournalPrompt: '',
+      personalJournalPrompt: '',
       
       // Additional UI strings
       startYourStreakToday: 'Start your streak today!',
@@ -2108,6 +2285,47 @@ export const translations: Record<Language, Translations> = {
       overdue: 'Overdue',
       checkInType: 'Check-in',
       setUpCheckIns: 'Set Up Check-ins',
+      setUpCheckInsTitle: 'Set Up Check-Ins',
+      continueSetup: 'Continue Setup',
+      frequencyDaily: 'Daily',
+      frequencyWeekly: 'Weekly',
+      frequencyBiweekly: 'Bi-weekly',
+      frequencyMonthly: 'Monthly',
+      frequencyMultipleDaily: 'Multiple Daily',
+      dailyDescription: 'Once every day',
+      weeklyDescription: 'Specific days',
+      biweeklyDescription: 'Every 2 weeks',
+      monthlyDescription: 'Once per month',
+      multipleDailyDescription: 'Multiple times per day',
+      at: 'at',
+      howOften: 'How often?',
+      whenLabel: 'When?',
+      times: 'Times',
+      timeLabel: 'Time',
+      daysLabel: 'Days',
+      addTime: 'Add time',
+      hideAdvanced: 'Hide',
+      showAdvanced: 'Show',
+      reminder: 'Reminder',
+      schedule: 'Schedule:',
+      reminderMinBefore: 'min before',
+      monday: 'Monday',
+      tuesday: 'Tuesday',
+      wednesday: 'Wednesday',
+      thursday: 'Thursday',
+      friday: 'Friday',
+      saturday: 'Saturday',
+      sunday: 'Sunday',
+      mon: 'Mon',
+      tue: 'Tue',
+      wed: 'Wed',
+      thu: 'Thu',
+      fri: 'Fri',
+      sat: 'Sat',
+      sun: 'Sun',
+      morning: 'Morning',
+      afternoon: 'Afternoon',
+      evening: 'Evening',
       createNewTask: 'Create New Task',
       createDailyGoal: 'Create Daily Goal',
       howCanIImprove: 'How can I improve my life score?',
@@ -2186,8 +2404,11 @@ export const translations: Record<Language, Translations> = {
       
       // CoachPreferenceSetup component - Setup Process
       setupProgress: 'Setup Progress',
+      step: 'Step',
+      of: 'of',
       stepOf: 'Step ${step} of ${total}',
       welcomeToAICoach: 'Welcome to Your AI Life Coach!',
+      letsPersonalize: 'Let\'s personalize your experience',
       personalizeExperience: 'Let\'s personalize your experience. What area would you like to focus on?',
       whatAreaFocus: 'What area would you like to focus on?',
       primaryFocusArea: 'Primary Focus Area',
@@ -2203,6 +2424,10 @@ export const translations: Record<Language, Translations> = {
       fitnessNutritionWellness: 'Fitness, nutrition & wellness habits',
       relationshipsSocial: 'Relationships & social connections',
       selfImprovementSkills: 'Self-improvement & skill development',
+      financialHealthDesc: 'Budget management & wealth building',
+      physicalHealthDesc: 'Fitness, nutrition & wellness habits',
+      socialLifeDesc: 'Relationships & social connections',
+      personalGrowthDesc: 'Self-improvement & skill development',
       
       // Task Preferences
       taskPreferences: 'Task Preferences',
@@ -2212,6 +2437,8 @@ export const translations: Record<Language, Translations> = {
       taskDifficulty: 'Task Difficulty',
       oneTask: '1 task',
       tasksRecommended: '3 tasks (recommended)',
+      threeTasksRecommended: '3 tasks (recommended)',
+      twoThreeRecommended: '2-3 (recommended)',
       fiveTasks: '5 tasks',
       noWeeklyTasks: 'No weekly tasks',
       recommendedTasks: '2-3 (recommended)',
@@ -2224,6 +2451,7 @@ export const translations: Record<Language, Translations> = {
       // Coaching Style
       coachingStyle: 'Coaching Style',
       howInteractWithYou: 'How would you like me to interact with you?',
+      howToInteract: 'How would you like me to interact with you?',
       coachingApproach: 'Coaching Approach',
       supportive: 'Supportive',
       direct: 'Direct',
@@ -2240,10 +2468,14 @@ export const translations: Record<Language, Translations> = {
       softEncouragement: 'Soft encouragement',
       mixedApproach: 'Mixed approach',
       pushMeHard: 'Push me hard',
+      gentleDesc: 'Soft encouragement',
+      balancedDesc: 'Mixed approach',
+      intenseDesc: 'Push me hard',
       
       // Check-in Preferences
       checkinPreferences: 'Check-in Preferences',
       howOftenCheckin: 'How often would you like to check in on your progress?',
+      howOftenCheckIn: 'How often would you like to check in on your progress?',
       checkinFrequency: 'Check-in Frequency',
       preferredCheckinTime: 'Preferred Check-in Time',
       daily: 'Daily',
@@ -2308,8 +2540,24 @@ export const translations: Record<Language, Translations> = {
       hereToHelpGrow: 'Here to help you grow',
       startAConversation: 'Start a conversation',
       askMeAboutProgress: 'Ask me about your progress, goals, or anything related to your personal development.',
+      coachCapabilitiesTitle: 'Your AI Life Coach',
+      coachCapabilitiesSubtitle: 'I\'m here to help you grow and achieve your goals. Here\'s what I can do:',
+      taskManagement: 'Task Management',
+      taskManagementDesc: 'Create daily and weekly tasks, set reminders, and track completion',
+      progressTracking: 'Progress Tracking',
+      progressTrackingDesc: 'Monitor your development across all life areas and celebrate wins',
+      personalizedAdvice: 'Personalized Advice',
+      personalizedAdviceDesc: 'Get tailored guidance based on your assessment results and goals',
+      goalSetting: 'Goal Setting',
+      goalSettingDesc: 'Define meaningful objectives and create actionable plans to achieve them',
+      exampleQuestions: 'Try asking me:',
       viewFullReport: 'View Full Report',
       deepAnalysisInsights: 'Deep analysis & insights',
+      viewJournalEntries: 'View Journal Entries',
+      readPastReflections: 'Read your past reflections',
+      noJournalEntries: 'No journal entries yet',
+      journalEntriesTitle: 'Journal Entries',
+      journalEntriesSubtitle: 'Your reflections and thoughts',
       briefDescription: 'Brief description of your issue or question',
       message: 'Message',
       pleaseProvideDetails: 'Please provide as much detail as possible...',
@@ -2396,7 +2644,11 @@ export const translations: Record<Language, Translations> = {
       thursday: 'Thursday',
       friday: 'Friday',
       saturday: 'Saturday',
-      sunday: 'Sunday'
+      sunday: 'Sunday',
+      yourTasks: 'Your Tasks',
+      viewAiCoach: 'View AI Coach',
+      todaysTasks: 'Today\'s Tasks',
+      thisWeeksTasks: 'This Week\'s Tasks'
     },
     settings: {
       accountSettings: 'Account Settings',
@@ -2989,6 +3241,7 @@ export const translations: Record<Language, Translations> = {
       socialNetwork: 'Red Social',
       personalGrowth: 'Crecimiento Personal',
       excellent: 'Excelente',
+      exceptional: 'Excepcional',
       good: 'Bueno',
       average: 'Promedio',
       needsImprovement: 'Necesita Mejora',
@@ -3093,6 +3346,11 @@ export const translations: Record<Language, Translations> = {
       growthArea: 'Área de Crecimiento',
       questionsAnswered: 'Preguntas Respondidas',
       completionTime: 'Tiempo de Finalización',
+      seconds: 'segundos',
+      minutes: 'minutos',
+      mins: 'min',
+      sec: 'seg',
+      defaultCompletionTime: '~8 min',
       peerGroup: 'Grupo de Pares',
       recentActivity: 'Actividad Reciente',
       scoreDataNotFound: 'Datos de puntuación no encontrados',
@@ -3112,7 +3370,12 @@ export const translations: Record<Language, Translations> = {
       threeMonthGoals: 'Objetivos de 3 Meses',
       oneYearGoals: 'Objetivos de 1 Año',
       recommendedResources: 'Recursos Recomendados',
-      primaryGrowthAreas: 'Áreas Principales de Crecimiento'
+      primaryGrowthAreas: 'Áreas Principales de Crecimiento',
+      generatingDeepReport: 'Generando informe profundo',
+      individualQuestionAnalysis: 'Análisis Individual de Preguntas',
+      yourAnswer: 'Tu Respuesta: ',
+      myRankMeLifeScoreDeepReport: 'Mi Informe Profundo de Puntuación de Vida RankMe',
+      linkCopiedToClipboard: '¡Enlace copiado al portapapeles!'
     },
     coach: {
       // Navigation & Basic
@@ -3301,10 +3564,10 @@ export const translations: Record<Language, Translations> = {
       describeTheTask: 'Describe la tarea...',
       
       // Journal Questions
-      financialJournalPrompt: '¿Cómo manejaste tus finanzas hoy? ¿Qué progreso hiciste hacia tus objetivos financieros?',
-      healthJournalPrompt: '¿Cómo cuidaste tu salud hoy? ¿Qué elecciones saludables hiciste?',
-      socialJournalPrompt: '¿Cómo te conectaste con otros hoy? ¿Qué interacciones sociales te trajeron alegría?',
-      personalJournalPrompt: '¿Qué aprendiste sobre ti mismo hoy? ¿Cómo creciste personalmente?',
+      financialJournalPrompt: '',
+      healthJournalPrompt: '',
+      socialJournalPrompt: '',
+      personalJournalPrompt: '',
       
       // Additional UI strings
       startYourStreakToday: '¡Comienza tu racha hoy!',
@@ -3349,6 +3612,47 @@ export const translations: Record<Language, Translations> = {
       overdue: 'Vencido',
       checkInType: 'Check-in',
       setUpCheckIns: 'Configurar Check-ins',
+      setUpCheckInsTitle: 'Configurar Check-Ins',
+      continueSetup: 'Continuar Configuración',
+      frequencyDaily: 'Diario',
+      frequencyWeekly: 'Semanal',
+      frequencyBiweekly: 'Quincenal',
+      frequencyMonthly: 'Mensual',
+      frequencyMultipleDaily: 'Varias Veces al Día',
+      dailyDescription: 'Una vez al día',
+      weeklyDescription: 'Días específicos',
+      biweeklyDescription: 'Cada 2 semanas',
+      monthlyDescription: 'Una vez al mes',
+      multipleDailyDescription: 'Varias veces al día',
+      at: 'a las',
+      howOften: '¿Con qué frecuencia?',
+      whenLabel: '¿Cuándo?',
+      times: 'Horarios',
+      timeLabel: 'Hora',
+      daysLabel: 'Días',
+      addTime: 'Agregar hora',
+      hideAdvanced: 'Ocultar',
+      showAdvanced: 'Mostrar',
+      reminder: 'Recordatorio',
+      schedule: 'Horario:',
+      reminderMinBefore: 'min antes',
+      monday: 'Lunes',
+      tuesday: 'Martes',
+      wednesday: 'Miércoles',
+      thursday: 'Jueves',
+      friday: 'Viernes',
+      saturday: 'Sábado',
+      sunday: 'Domingo',
+      mon: 'Lun',
+      tue: 'Mar',
+      wed: 'Mié',
+      thu: 'Jue',
+      fri: 'Vie',
+      sat: 'Sáb',
+      sun: 'Dom',
+      morning: 'Mañana',
+      afternoon: 'Tarde',
+      evening: 'Noche',
       createNewTask: 'Crear Nueva Tarea',
       createDailyGoal: 'Crear Objetivo Diario',
       howCanIImprove: '¿Cómo puedo mejorar mi puntuación de vida?',
@@ -3427,8 +3731,11 @@ export const translations: Record<Language, Translations> = {
       
       // CoachPreferenceSetup component - Setup Process
       setupProgress: 'Progreso de Configuración',
+      step: 'Paso',
+      of: 'de',
       stepOf: 'Paso ${step} de ${total}',
       welcomeToAICoach: '¡Bienvenido a tu Entrenador de Vida IA!',
+      letsPersonalize: 'Personalicemos tu experiencia',
       personalizeExperience: 'Personalicemos tu experiencia. ¿En qué área te gustaría enfocarte?',
       whatAreaFocus: '¿En qué área te gustaría enfocarte?',
       primaryFocusArea: 'Área de Enfoque Principal',
@@ -3444,6 +3751,10 @@ export const translations: Record<Language, Translations> = {
       fitnessNutritionWellness: 'Fitness, nutrición y hábitos de bienestar',
       relationshipsSocial: 'Relaciones y conexiones sociales',
       selfImprovementSkills: 'Automejora y desarrollo de habilidades',
+      financialHealthDesc: 'Gestión de presupuesto y creación de riqueza',
+      physicalHealthDesc: 'Fitness, nutrición y hábitos de bienestar',
+      socialLifeDesc: 'Relaciones y conexiones sociales',
+      personalGrowthDesc: 'Automejora y desarrollo de habilidades',
       
       // Task Preferences
       taskPreferences: 'Preferencias de Tareas',
@@ -3453,6 +3764,8 @@ export const translations: Record<Language, Translations> = {
       taskDifficulty: 'Dificultad de Tareas',
       oneTask: '1 tarea',
       tasksRecommended: '3 tareas (recomendado)',
+      threeTasksRecommended: '3 tareas (recomendado)',
+      twoThreeRecommended: '2-3 (recomendado)',
       fiveTasks: '5 tareas',
       noWeeklyTasks: 'Sin tareas semanales',
       recommendedTasks: '2-3 (recomendado)',
@@ -3465,6 +3778,7 @@ export const translations: Record<Language, Translations> = {
       // Coaching Style
       coachingStyle: 'Estilo de Entrenamiento',
       howInteractWithYou: '¿Cómo te gustaría que interactúe contigo?',
+      howToInteract: '¿Cómo te gustaría que interactúe contigo?',
       coachingApproach: 'Enfoque de Entrenamiento',
       supportive: 'Solidario',
       direct: 'Directo',
@@ -3481,10 +3795,14 @@ export const translations: Record<Language, Translations> = {
       softEncouragement: 'Aliento suave',
       mixedApproach: 'Enfoque mixto',
       pushMeHard: 'Presióname fuerte',
+      gentleDesc: 'Aliento suave',
+      balancedDesc: 'Enfoque mixto',
+      intenseDesc: 'Presióname fuerte',
       
       // Check-in Preferences
       checkinPreferences: 'Preferencias de Check-in',
       howOftenCheckin: '¿Con qué frecuencia te gustaría revisar tu progreso?',
+      howOftenCheckIn: '¿Con qué frecuencia te gustaría revisar tu progreso?',
       checkinFrequency: 'Frecuencia de Check-in',
       preferredCheckinTime: 'Hora Preferida de Check-in',
       daily: 'Diario',
@@ -3549,8 +3867,24 @@ export const translations: Record<Language, Translations> = {
       hereToHelpGrow: 'Aquí para ayudarte a crecer',
       startAConversation: 'Iniciar una conversación',
       askMeAboutProgress: 'Pregúntame sobre tu progreso, objetivos o cualquier cosa relacionada con tu desarrollo personal.',
+      coachCapabilitiesTitle: 'Tu Coach de Vida IA',
+      coachCapabilitiesSubtitle: 'Estoy aquí para ayudarte a crecer y alcanzar tus objetivos. Esto es lo que puedo hacer:',
+      taskManagement: 'Gestión de Tareas',
+      taskManagementDesc: 'Crear tareas diarias y semanales, establecer recordatorios y seguir el progreso',
+      progressTracking: 'Seguimiento del Progreso',
+      progressTrackingDesc: 'Monitorear tu desarrollo en todas las áreas de la vida y celebrar logros',
+      personalizedAdvice: 'Consejos Personalizados',
+      personalizedAdviceDesc: 'Obtener orientación adaptada basada en tus resultados de evaluación y objetivos',
+      goalSetting: 'Establecimiento de Objetivos',
+      goalSettingDesc: 'Definir objetivos significativos y crear planes de acción para alcanzarlos',
+      exampleQuestions: 'Prueba preguntándome:',
       viewFullReport: 'Ver Informe Completo',
       deepAnalysisInsights: 'Análisis profundo y perspectivas',
+      viewJournalEntries: 'Ver Entradas del Diario',
+      readPastReflections: 'Lee tus reflexiones pasadas',
+      noJournalEntries: 'Aún no hay entradas del diario',
+      journalEntriesTitle: 'Entradas del Diario',
+      journalEntriesSubtitle: 'Tus reflexiones y pensamientos',
       briefDescription: 'Breve descripción de tu problema o pregunta',
       message: 'Mensaje',
       pleaseProvideDetails: 'Por favor proporciona todos los detalles posibles...',
@@ -3637,7 +3971,11 @@ export const translations: Record<Language, Translations> = {
       thursday: 'Jueves',
       friday: 'Viernes',
       saturday: 'Sábado',
-      sunday: 'Domingo'
+      sunday: 'Domingo',
+      yourTasks: 'Tus Tareas',
+      viewAiCoach: 'Ver Entrenador IA',
+      todaysTasks: 'Tareas de Hoy',
+      thisWeeksTasks: 'Tareas de Esta Semana'
     },
     settings: {
       accountSettings: 'Configuración de Cuenta',
@@ -4006,6 +4344,7 @@ export const translations: Record<Language, Translations> = {
       socialNetwork: 'Réseau Social',
       personalGrowth: 'Croissance Personnelle',
       excellent: 'Excellent',
+      exceptional: 'Exceptionnel',
       good: 'Bon',
       average: 'Moyen',
       needsImprovement: 'Besoin d\'Amélioration',
@@ -4076,8 +4415,50 @@ export const translations: Record<Language, Translations> = {
       shareText: 'Découvrez mon Rapport de Vie Approfondi RankMe ! Score Global :',
       captionCopied: 'Légende copiée dans le presse-papiers !',
       backToDashboard: 'Retour au Tableau de Bord',
+      reportOverview: 'Aperçu du Rapport',
+      assessmentDate: 'Date d\'Évaluation',
+      questionsAnalyzed: 'Questions Analysées',
+      categoriesCovered: 'Catégories Couvertes',
+      peerGroupSize: 'Taille du Groupe de Pairs',
+      keyInsights: 'Insights Clés',
+      topPerformer: 'Top Performer',
+      focusArea: 'Zone de Focus',
+      growthPotential: 'Potentiel de Croissance',
+      shareReport: 'Partager le Rapport',
+      downloadPDF: 'Télécharger le PDF',
+      categoryDeepDive: 'Analyse Approfondie des Catégories',
+      quickWins: 'Gains Rapides',
+      wantOngoingSupport: 'Vous voulez un soutien continu ?',
+      reportDataNotFound: 'Données du rapport introuvables',
+      backToHome: 'Retour à l\'Accueil',
+      youAreMostSimilarTo: 'Vous êtes le plus similaire aux personnes de la catégorie',
+      areas: 'Zones',
+      youExcelIn: 'Vous excellez en',
+      biggestOpportunityIn: 'Plus grande opportunité en',
+      followingActionPlanCouldImprove: 'Suivre le plan d\'action pourrait améliorer votre score global de 15-25 points',
+      shareYourLifeScore: 'Partagez Votre Score de Vie',
+      ofPeopleInYourDemographic: 'des personnes de votre démographie',
+      thPercentile: 'e percentile',
+      topPercent: 'Top',
+      belowAverage: 'En dessous de la moyenne',
+      aboveAverage: 'Au-dessus de la moyenne',
+      bottomPercent: 'Bas',
+      yourLifeScore: 'Votre Score de Vie',
+      performanceBreakdown: 'Répartition des Performances',
+      topStrength: 'Force Principale',
+      growthArea: 'Zone de Croissance',
+      questionsAnswered: 'Questions Répondues',
+      completionTime: 'Temps de Complétion',
+      peerGroup: 'Groupe de Pairs',
+      recentActivity: 'Activité Récente',
+      scoreDataNotFound: 'Données de score introuvables',
       readyToImproveYourScore: 'Prêt à Améliorer Votre Score ?',
       improveScoreDescription: 'Obtenez des perspectives personnalisées et des recommandations pratiques pour améliorer votre performance de vie.',
+      exceptional: 'Exceptionnel',
+      excellent: 'Excellent',
+      good: 'Bon',
+      fair: 'Passable',
+      needsAttention: 'Nécessite de l\'Attention',
       personalizedInsights: 'Perspectives Personnalisées',
       crossCategoryPatterns: 'Modèles Inter-Catégories',
       surprisingFindings: 'Découvertes Surprenantes',
@@ -4086,7 +4467,12 @@ export const translations: Record<Language, Translations> = {
       threeMonthGoals: 'Objectifs de 3 Mois',
       oneYearGoals: 'Objectifs d\'1 An',
       recommendedResources: 'Ressources Recommandées',
-      primaryGrowthAreas: 'Domaines de Croissance Principaux'
+      primaryGrowthAreas: 'Domaines de Croissance Principaux',
+      generatingDeepReport: 'Génération du rapport détaillé',
+      individualQuestionAnalysis: 'Analyse Individuelle des Questions',
+      yourAnswer: 'Votre Réponse: ',
+      myRankMeLifeScoreDeepReport: 'Mon Rapport Détaillé de Score de Vie RankMe',
+      linkCopiedToClipboard: 'Lien copié dans le presse-papiers!'
     },
     coach: {
       // Navigation & Basic
@@ -4275,10 +4661,10 @@ export const translations: Record<Language, Translations> = {
       describeTheTask: 'Décrivez la tâche...',
       
       // Journal Questions
-      financialJournalPrompt: 'Comment avez-vous géré vos finances aujourd\'hui ? Quels progrès avez-vous fait vers vos objectifs financiers ?',
-      healthJournalPrompt: 'Comment avez-vous pris soin de votre santé aujourd\'hui ? Quels choix sains avez-vous fait ?',
-      socialJournalPrompt: 'Comment vous êtes-vous connecté aux autres aujourd\'hui ? Quelles interactions sociales vous ont apporté de la joie ?',
-      personalJournalPrompt: 'Qu\'avez-vous appris sur vous-même aujourd\'hui ? Comment avez-vous grandi personnellement ?',
+      financialJournalPrompt: '',
+      healthJournalPrompt: '',
+      socialJournalPrompt: '',
+      personalJournalPrompt: '',
       
       // Additional UI strings
       startYourStreakToday: 'Commencez votre série aujourd\'hui !',
@@ -4323,6 +4709,47 @@ export const translations: Record<Language, Translations> = {
       overdue: 'En Retard',
       checkInType: 'Bilan',
       setUpCheckIns: 'Configurer les Bilans',
+      setUpCheckInsTitle: 'Configurer les Bilans',
+      continueSetup: 'Continuer la Configuration',
+      frequencyDaily: 'Quotidien',
+      frequencyWeekly: 'Hebdomadaire',
+      frequencyBiweekly: 'Bimensuel',
+      frequencyMonthly: 'Mensuel',
+      frequencyMultipleDaily: 'Plusieurs Fois par Jour',
+      dailyDescription: 'Une fois par jour',
+      weeklyDescription: 'Jours spécifiques',
+      biweeklyDescription: 'Toutes les 2 semaines',
+      monthlyDescription: 'Une fois par mois',
+      multipleDailyDescription: 'Plusieurs fois par jour',
+      at: 'à',
+      howOften: 'À quelle fréquence ?',
+      whenLabel: 'Quand ?',
+      times: 'Heures',
+      timeLabel: 'Heure',
+      daysLabel: 'Jours',
+      addTime: 'Ajouter heure',
+      hideAdvanced: 'Masquer',
+      showAdvanced: 'Afficher',
+      reminder: 'Rappel',
+      schedule: 'Horaire :',
+      reminderMinBefore: 'min avant',
+      monday: 'Lundi',
+      tuesday: 'Mardi',
+      wednesday: 'Mercredi',
+      thursday: 'Jeudi',
+      friday: 'Vendredi',
+      saturday: 'Samedi',
+      sunday: 'Dimanche',
+      mon: 'Lun',
+      tue: 'Mar',
+      wed: 'Mer',
+      thu: 'Jeu',
+      fri: 'Ven',
+      sat: 'Sam',
+      sun: 'Dim',
+      morning: 'Matin',
+      afternoon: 'Après-midi',
+      evening: 'Soir',
       createNewTask: 'Créer Nouvelle Tâche',
       createDailyGoal: 'Créer Objectif Quotidien',
       howCanIImprove: 'Comment puis-je améliorer mon score de vie ?',
@@ -4401,8 +4828,11 @@ export const translations: Record<Language, Translations> = {
       
       // CoachPreferenceSetup component - Setup Process
       setupProgress: 'Progrès de Configuration',
+      step: 'Étape',
+      of: 'sur',
       stepOf: 'Étape ${step} sur ${total}',
       welcomeToAICoach: 'Bienvenue dans votre Coach de Vie IA !',
+      letsPersonalize: 'Personnalisons votre expérience',
       personalizeExperience: 'Personnalisons votre expérience. Sur quel domaine aimeriez-vous vous concentrer ?',
       whatAreaFocus: 'Sur quel domaine aimeriez-vous vous concentrer ?',
       primaryFocusArea: 'Domaine de Focus Principal',
@@ -4418,6 +4848,10 @@ export const translations: Record<Language, Translations> = {
       fitnessNutritionWellness: 'Fitness, nutrition et habitudes de bien-être',
       relationshipsSocial: 'Relations et connexions sociales',
       selfImprovementSkills: 'Auto-amélioration et développement des compétences',
+      financialHealthDesc: 'Gestion budgétaire et création de richesse',
+      physicalHealthDesc: 'Fitness, nutrition et habitudes de bien-être',
+      socialLifeDesc: 'Relations et connexions sociales',
+      personalGrowthDesc: 'Auto-amélioration et développement des compétences',
       
       // Task Preferences
       taskPreferences: 'Préférences de Tâches',
@@ -4427,6 +4861,8 @@ export const translations: Record<Language, Translations> = {
       taskDifficulty: 'Difficulté des Tâches',
       oneTask: '1 tâche',
       tasksRecommended: '3 tâches (recommandé)',
+      threeTasksRecommended: '3 tâches (recommandé)',
+      twoThreeRecommended: '2-3 (recommandé)',
       fiveTasks: '5 tâches',
       noWeeklyTasks: 'Aucune tâche hebdomadaire',
       recommendedTasks: '2-3 (recommandé)',
@@ -4439,6 +4875,7 @@ export const translations: Record<Language, Translations> = {
       // Coaching Style
       coachingStyle: 'Style de Coaching',
       howInteractWithYou: 'Comment aimeriez-vous que j\'interagisse avec vous ?',
+      howToInteract: 'Comment aimeriez-vous que j\'interagisse avec vous ?',
       coachingApproach: 'Approche de Coaching',
       supportive: 'Solidaire',
       direct: 'Direct',
@@ -4455,10 +4892,14 @@ export const translations: Record<Language, Translations> = {
       softEncouragement: 'Encouragement doux',
       mixedApproach: 'Approche mixte',
       pushMeHard: 'Poussez-moi fort',
+      gentleDesc: 'Encouragement doux',
+      balancedDesc: 'Approche mixte',
+      intenseDesc: 'Poussez-moi fort',
       
       // Check-in Preferences
       checkinPreferences: 'Préférences de Check-in',
       howOftenCheckin: 'À quelle fréquence aimeriez-vous vérifier votre progrès ?',
+      howOftenCheckIn: 'À quelle fréquence aimeriez-vous vérifier votre progrès ?',
       checkinFrequency: 'Fréquence de Check-in',
       preferredCheckinTime: 'Heure Préférée de Check-in',
       daily: 'Quotidien',
@@ -4523,8 +4964,24 @@ export const translations: Record<Language, Translations> = {
       hereToHelpGrow: 'Ici pour vous aider à grandir',
       startAConversation: 'Démarrer une conversation',
       askMeAboutProgress: 'Demandez-moi au sujet de vos progrès, objectifs ou tout ce qui concerne votre développement personnel.',
+      coachCapabilitiesTitle: 'Votre Coach de Vie IA',
+      coachCapabilitiesSubtitle: 'Je suis là pour vous aider à grandir et atteindre vos objectifs. Voici ce que je peux faire :',
+      taskManagement: 'Gestion des Tâches',
+      taskManagementDesc: 'Créer des tâches quotidiennes et hebdomadaires, définir des rappels et suivre les progrès',
+      progressTracking: 'Suivi des Progrès',
+      progressTrackingDesc: 'Surveiller votre développement dans tous les domaines de la vie et célébrer les victoires',
+      personalizedAdvice: 'Conseils Personnalisés',
+      personalizedAdviceDesc: 'Obtenir des conseils sur mesure basés sur vos résultats d\'évaluation et objectifs',
+      goalSetting: 'Définition d\'Objectifs',
+      goalSettingDesc: 'Définir des objectifs significatifs et créer des plans d\'action pour les atteindre',
+      exampleQuestions: 'Essayez de me demander :',
       viewFullReport: 'Voir le Rapport Complet',
       deepAnalysisInsights: 'Analyse approfondie et perspectives',
+      viewJournalEntries: 'Voir les Entrées du Journal',
+      readPastReflections: 'Lisez vos réflexions passées',
+      noJournalEntries: 'Aucune entrée de journal pour le moment',
+      journalEntriesTitle: 'Entrées du Journal',
+      journalEntriesSubtitle: 'Vos réflexions et pensées',
       briefDescription: 'Brève description de votre problème ou question',
       message: 'Message',
       pleaseProvideDetails: 'Veuillez fournir autant de détails que possible...',
@@ -4611,7 +5068,11 @@ export const translations: Record<Language, Translations> = {
       thursday: 'Jeudi',
       friday: 'Vendredi',
       saturday: 'Samedi',
-      sunday: 'Dimanche'
+      sunday: 'Dimanche',
+      yourTasks: 'Vos Tâches',
+      viewAiCoach: 'Voir Coach IA',
+      todaysTasks: 'Tâches d\'Aujourd\'hui',
+      thisWeeksTasks: 'Tâches de Cette Semaine'
     },
     settings: {
       accountSettings: 'Paramètres du Compte',
@@ -4978,6 +5439,7 @@ export const translations: Record<Language, Translations> = {
       socialNetwork: 'Soziales Netzwerk',
       personalGrowth: 'Persönliches Wachstum',
       excellent: 'Ausgezeichnet',
+      exceptional: 'Außergewöhnlich',
       good: 'Gut',
       average: 'Durchschnittlich',
       needsImprovement: 'Verbesserungsbedürftig',
@@ -5048,8 +5510,50 @@ export const translations: Record<Language, Translations> = {
       shareText: 'Schauen Sie sich meinen RankMe Tiefgehenden Lebensbericht an! Gesamtpunktzahl:',
       captionCopied: 'Beschriftung in die Zwischenablage kopiert!',
       backToDashboard: 'Zurück zum Dashboard',
+      reportOverview: 'Berichtsübersicht',
+      assessmentDate: 'Bewertungsdatum',
+      questionsAnalyzed: 'Analysierte Fragen',
+      categoriesCovered: 'Abgedeckte Kategorien',
+      peerGroupSize: 'Größe der Vergleichsgruppe',
+      keyInsights: 'Wichtige Erkenntnisse',
+      topPerformer: 'Top-Performer',
+      focusArea: 'Fokusbereich',
+      growthPotential: 'Wachstumspotenzial',
+      shareReport: 'Bericht Teilen',
+      downloadPDF: 'PDF Herunterladen',
+      categoryDeepDive: 'Tiefgehende Kategorieanalyse',
+      quickWins: 'Schnelle Erfolge',
+      wantOngoingSupport: 'Möchten Sie fortlaufende Unterstützung?',
+      reportDataNotFound: 'Berichtsdaten nicht gefunden',
+      backToHome: 'Zurück zur Startseite',
+      youAreMostSimilarTo: 'Sie sind am ähnlichsten zu Personen in der Kategorie',
+      areas: 'Bereiche',
+      youExcelIn: 'Sie glänzen in',
+      biggestOpportunityIn: 'Größte Chance in',
+      followingActionPlanCouldImprove: 'Das Befolgen des Aktionsplans könnte Ihre Gesamtpunktzahl um 15-25 Punkte verbessern',
+      shareYourLifeScore: 'Teilen Sie Ihren Lebensscore',
+      ofPeopleInYourDemographic: 'der Menschen in Ihrer Demografie',
+      thPercentile: '. Perzentil',
+      topPercent: 'Top',
+      belowAverage: 'Unterdurchschnittlich',
+      aboveAverage: 'Überdurchschnittlich',
+      bottomPercent: 'Untere',
+      yourLifeScore: 'Ihr Lebensscore',
+      performanceBreakdown: 'Leistungsaufschlüsselung',
+      topStrength: 'Hauptstärke',
+      growthArea: 'Wachstumsbereich',
+      questionsAnswered: 'Beantwortete Fragen',
+      completionTime: 'Abschlusszeit',
+      peerGroup: 'Vergleichsgruppe',
+      recentActivity: 'Neueste Aktivität',
+      scoreDataNotFound: 'Score-Daten nicht gefunden',
       readyToImproveYourScore: 'Bereit, Ihren Score zu Verbessern?',
       improveScoreDescription: 'Erhalten Sie personalisierte Einblicke und umsetzbare Empfehlungen zur Steigerung Ihrer Lebensleistung.',
+      exceptional: 'Außergewöhnlich',
+      excellent: 'Ausgezeichnet',
+      good: 'Gut',
+      fair: 'Befriedigend',
+      needsAttention: 'Benötigt Aufmerksamkeit',
       personalizedInsights: 'Personalisierte Einblicke',
       crossCategoryPatterns: 'Kategorienübergreifende Muster',
       surprisingFindings: 'Überraschende Erkenntnisse',
@@ -5058,7 +5562,12 @@ export const translations: Record<Language, Translations> = {
       threeMonthGoals: '3-Monats-Ziele',
       oneYearGoals: '1-Jahres-Ziele',
       recommendedResources: 'Empfohlene Ressourcen',
-      primaryGrowthAreas: 'Hauptwachstumsbereiche'
+      primaryGrowthAreas: 'Hauptwachstumsbereiche',
+      generatingDeepReport: 'Detaillierten Bericht erstellen',
+      individualQuestionAnalysis: 'Individuelle Fragenanalyse',
+      yourAnswer: 'Ihre Antwort: ',
+      myRankMeLifeScoreDeepReport: 'Mein RankMe Lebenscore-Detailbericht',
+      linkCopiedToClipboard: 'Link in die Zwischenablage kopiert!'
     },
     coach: {
       // Navigation & Basic
@@ -5247,10 +5756,10 @@ export const translations: Record<Language, Translations> = {
       describeTheTask: 'Beschreiben Sie die Aufgabe...',
       
       // Journal Questions
-      financialJournalPrompt: 'Wie haben Sie heute Ihre Finanzen verwaltet? Welchen Fortschritt haben Sie bei Ihren finanziellen Zielen gemacht?',
-      healthJournalPrompt: 'Wie haben Sie heute auf Ihre Gesundheit geachtet? Welche gesunden Entscheidungen haben Sie getroffen?',
-      socialJournalPrompt: 'Wie haben Sie sich heute mit anderen verbunden? Welche sozialen Interaktionen haben Ihnen Freude bereitet?',
-      personalJournalPrompt: 'Was haben Sie heute über sich selbst gelernt? Wie sind Sie persönlich gewachsen?',
+      financialJournalPrompt: '',
+      healthJournalPrompt: '',
+      socialJournalPrompt: '',
+      personalJournalPrompt: '',
       
       // Additional UI strings
       startYourStreakToday: 'Starten Sie heute Ihre Serie!',
@@ -5295,6 +5804,47 @@ export const translations: Record<Language, Translations> = {
       overdue: 'Überfällig',
       checkInType: 'Check-in',
       setUpCheckIns: 'Check-ins einrichten',
+      setUpCheckInsTitle: 'Check-ins Einrichten',
+      continueSetup: 'Setup Fortsetzen',
+      frequencyDaily: 'Täglich',
+      frequencyWeekly: 'Wöchentlich',
+      frequencyBiweekly: 'Zweiwöchentlich',
+      frequencyMonthly: 'Monatlich',
+      frequencyMultipleDaily: 'Mehrmals Täglich',
+      dailyDescription: 'Einmal pro Tag',
+      weeklyDescription: 'Bestimmte Tage',
+      biweeklyDescription: 'Alle 2 Wochen',
+      monthlyDescription: 'Einmal pro Monat',
+      multipleDailyDescription: 'Mehrmals pro Tag',
+      at: 'um',
+      howOften: 'Wie oft?',
+      whenLabel: 'Wann?',
+      times: 'Zeiten',
+      timeLabel: 'Zeit',
+      daysLabel: 'Tage',
+      addTime: 'Zeit hinzufügen',
+      hideAdvanced: 'Ausblenden',
+      showAdvanced: 'Anzeigen',
+      reminder: 'Erinnerung',
+      schedule: 'Zeitplan:',
+      reminderMinBefore: 'Min vorher',
+      monday: 'Montag',
+      tuesday: 'Dienstag',
+      wednesday: 'Mittwoch',
+      thursday: 'Donnerstag',
+      friday: 'Freitag',
+      saturday: 'Samstag',
+      sunday: 'Sonntag',
+      mon: 'Mo',
+      tue: 'Di',
+      wed: 'Mi',
+      thu: 'Do',
+      fri: 'Fr',
+      sat: 'Sa',
+      sun: 'So',
+      morning: 'Morgens',
+      afternoon: 'Nachmittags',
+      evening: 'Abends',
       createNewTask: 'Neue Aufgabe erstellen',
       createDailyGoal: 'Tägliches Ziel erstellen',
       howCanIImprove: 'Wie kann ich meine Lebenspunktzahl verbessern?',
@@ -5373,8 +5923,11 @@ export const translations: Record<Language, Translations> = {
       
       // CoachPreferenceSetup component - Setup Process
       setupProgress: 'Einrichtungsfortschritt',
+      step: 'Schritt',
+      of: 'von',
       stepOf: 'Schritt ${step} von ${total}',
       welcomeToAICoach: 'Willkommen bei Ihrem KI-Lebenscoach!',
+      letsPersonalize: 'Lassen Sie uns Ihre Erfahrung personalisieren',
       personalizeExperience: 'Lassen Sie uns Ihre Erfahrung personalisieren. Auf welchen Bereich möchten Sie sich konzentrieren?',
       whatAreaFocus: 'Auf welchen Bereich möchten Sie sich konzentrieren?',
       primaryFocusArea: 'Primärer Fokusbereich',
@@ -5390,6 +5943,10 @@ export const translations: Record<Language, Translations> = {
       fitnessNutritionWellness: 'Fitness, Ernährung und Wellness-Gewohnheiten',
       relationshipsSocial: 'Beziehungen und soziale Verbindungen',
       selfImprovementSkills: 'Selbstverbesserung und Kompetenzentwicklung',
+      financialHealthDesc: 'Budgetverwaltung und Vermögensaufbau',
+      physicalHealthDesc: 'Fitness, Ernährung und Wellness-Gewohnheiten',
+      socialLifeDesc: 'Beziehungen und soziale Verbindungen',
+      personalGrowthDesc: 'Selbstverbesserung und Kompetenzentwicklung',
       
       // Task Preferences
       taskPreferences: 'Aufgaben-Einstellungen',
@@ -5399,6 +5956,8 @@ export const translations: Record<Language, Translations> = {
       taskDifficulty: 'Aufgaben-Schwierigkeit',
       oneTask: '1 Aufgabe',
       tasksRecommended: '3 Aufgaben (empfohlen)',
+      threeTasksRecommended: '3 Aufgaben (empfohlen)',
+      twoThreeRecommended: '2-3 (empfohlen)',
       fiveTasks: '5 Aufgaben',
       noWeeklyTasks: 'Keine wöchentlichen Aufgaben',
       recommendedTasks: '2-3 (empfohlen)',
@@ -5411,6 +5970,7 @@ export const translations: Record<Language, Translations> = {
       // Coaching Style
       coachingStyle: 'Coaching-Stil',
       howInteractWithYou: 'Wie möchten Sie, dass ich mit Ihnen interagiere?',
+      howToInteract: 'Wie möchten Sie, dass ich mit Ihnen interagiere?',
       coachingApproach: 'Coaching-Ansatz',
       supportive: 'Unterstützend',
       direct: 'Direkt',
@@ -5427,10 +5987,14 @@ export const translations: Record<Language, Translations> = {
       softEncouragement: 'Sanfte Ermutigung',
       mixedApproach: 'Gemischter Ansatz',
       pushMeHard: 'Fordere mich stark',
+      gentleDesc: 'Sanfte Ermutigung',
+      balancedDesc: 'Gemischter Ansatz',
+      intenseDesc: 'Fordere mich stark',
       
       // Check-in Preferences
       checkinPreferences: 'Check-in-Einstellungen',
       howOftenCheckin: 'Wie oft möchten Sie Ihren Fortschritt überprüfen?',
+      howOftenCheckIn: 'Wie oft möchten Sie Ihren Fortschritt überprüfen?',
       checkinFrequency: 'Check-in-Häufigkeit',
       preferredCheckinTime: 'Bevorzugte Check-in-Zeit',
       daily: 'Täglich',
@@ -5495,8 +6059,24 @@ export const translations: Record<Language, Translations> = {
       hereToHelpGrow: 'Hier um Ihnen beim Wachsen zu helfen',
       startAConversation: 'Eine Unterhaltung beginnen',
       askMeAboutProgress: 'Fragen Sie mich über Ihren Fortschritt, Ziele oder alles was mit Ihrer persönlichen Entwicklung zu tun hat.',
+      coachCapabilitiesTitle: 'Ihr KI-Lebenscoach',
+      coachCapabilitiesSubtitle: 'Ich bin hier, um Ihnen beim Wachstum und Erreichen Ihrer Ziele zu helfen. Das kann ich für Sie tun:',
+      taskManagement: 'Aufgabenverwaltung',
+      taskManagementDesc: 'Tägliche und wöchentliche Aufgaben erstellen, Erinnerungen setzen und Fortschritte verfolgen',
+      progressTracking: 'Fortschrittverfolgung',
+      progressTrackingDesc: 'Ihre Entwicklung in allen Lebensbereichen überwachen und Erfolge feiern',
+      personalizedAdvice: 'Personalisierte Beratung',
+      personalizedAdviceDesc: 'Maßgeschneiderte Anleitungen basierend auf Ihren Bewertungsergebnissen und Zielen erhalten',
+      goalSetting: 'Zielsetzung',
+      goalSettingDesc: 'Bedeutsame Ziele definieren und umsetzbare Pläne zu deren Erreichung erstellen',
+      exampleQuestions: 'Versuchen Sie mich zu fragen:',
       viewFullReport: 'Vollständigen Bericht Anzeigen',
       deepAnalysisInsights: 'Tiefe Analyse und Einsichten',
+      viewJournalEntries: 'Tagebucheinträge Anzeigen',
+      readPastReflections: 'Lesen Sie Ihre vergangenen Reflexionen',
+      noJournalEntries: 'Noch keine Tagebucheinträge',
+      journalEntriesTitle: 'Tagebucheinträge',
+      journalEntriesSubtitle: 'Ihre Reflexionen und Gedanken',
       briefDescription: 'Kurze Beschreibung Ihres Problems oder Ihrer Frage',
       message: 'Nachricht',
       pleaseProvideDetails: 'Bitte geben Sie so viele Details wie möglich an...',
@@ -5583,7 +6163,11 @@ export const translations: Record<Language, Translations> = {
       thursday: 'Donnerstag',
       friday: 'Freitag',
       saturday: 'Samstag',
-      sunday: 'Sonntag'
+      sunday: 'Sonntag',
+      yourTasks: 'Ihre Aufgaben',
+      viewAiCoach: 'KI-Coach Anzeigen',
+      todaysTasks: 'Heutige Aufgaben',
+      thisWeeksTasks: 'Aufgaben Dieser Woche'
     },
     settings: {
       accountSettings: 'Kontoeinstellungen',

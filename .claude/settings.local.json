@@ -71,7 +71,11 @@
       "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\components\\ClientOnlyLanguageProvider.tsx\")",
       "Bash(del test-qr.js)",
       "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\app\\api\\report\\[id]\\generate-deep-report\\route.ts\")",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(del check-tasks.js)",
+      "Bash(del fix-weekly-tasks.js)",
+      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\fix-weekly-tasks.js\")",
+      "Bash(del \"C:\\Users\\gaberscekl\\rankme\\rankme\\test-score-update.js\")"
     ],
     "deny": [],
     "ask": [],

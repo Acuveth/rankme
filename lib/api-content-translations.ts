@@ -261,6 +261,24 @@ export const apiContentTranslations: APIContentTranslations = {
     es: '60 min/día',
     fr: '60 min/jour',
     de: '60 Min/Tag'
+  },
+  '30-45 minutes daily': {
+    en: '30-45 minutes daily',
+    es: '30-45 minutos diarios',
+    fr: '30-45 minutes par jour',
+    de: '30-45 Minuten täglich'
+  },
+  '45-60 minutes daily': {
+    en: '45-60 minutes daily',
+    es: '45-60 minutos diarios',
+    fr: '45-60 minutes par jour',
+    de: '45-60 Minuten täglich'
+  },
+  '30-60 minutes daily': {
+    en: '30-60 minutes daily',
+    es: '30-60 minutos diarios',
+    fr: '30-60 minutes par jour',
+    de: '30-60 Minuten täglich'
   }
 }
 

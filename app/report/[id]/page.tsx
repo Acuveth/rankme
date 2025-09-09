@@ -90,30 +90,114 @@ export default function DetailedReportPage() {
 
   // Helper function to translate category names
   const translateCategoryName = (categoryName: string): string => {
-    const categoryMap: { [key: string]: string } = {
-      'Financial Health': t('scorecard.financialHealth'),
-      'Physical Wellness': t('scorecard.physicalWellness'),
-      'Health & Fitness': t('scorecard.physicalWellness'),
-      'Social Network': t('scorecard.socialNetwork'),
-      'Social Connections': t('scorecard.socialNetwork'),
-      'Romantic': t('scorecard.romantic'),
-      'Personal Growth': t('scorecard.personalGrowth'),
-      'Career': t('assessment.career'),
-      'Career Development': t('assessment.career')
+    const categoryMappings: { [key: string]: { [lang: string]: string } } = {
+      'Financial Health': {
+        'en': 'Financial Health',
+        'es': 'Salud Financiera',
+        'fr': 'Santé Financière',
+        'de': 'Finanzielle Gesundheit'
+      },
+      'Physical Wellness': {
+        'en': 'Physical Wellness',
+        'es': 'Bienestar Físico',
+        'fr': 'Bien-être Physique',
+        'de': 'Körperliches Wohlbefinden'
+      },
+      'Health & Fitness': {
+        'en': 'Physical Wellness',
+        'es': 'Bienestar Físico',
+        'fr': 'Bien-être Physique',
+        'de': 'Körperliches Wohlbefinden'
+      },
+      'Social Network': {
+        'en': 'Social Network',
+        'es': 'Red Social',
+        'fr': 'Réseau Social',
+        'de': 'Soziales Netzwerk'
+      },
+      'Social Connections': {
+        'en': 'Social Network',
+        'es': 'Red Social',
+        'fr': 'Réseau Social',
+        'de': 'Soziales Netzwerk'
+      },
+      'Romantic': {
+        'en': 'Romantic',
+        'es': 'Romántico',
+        'fr': 'Romantique',
+        'de': 'Romantisch'
+      },
+      'Personal Growth': {
+        'en': 'Personal Growth',
+        'es': 'Crecimiento Personal',
+        'fr': 'Croissance Personnelle',
+        'de': 'Persönliche Entwicklung'
+      },
+      'Career': {
+        'en': 'Career',
+        'es': 'Carrera',
+        'fr': 'Carrière',
+        'de': 'Karriere'
+      },
+      'Career Development': {
+        'en': 'Career',
+        'es': 'Carrera',
+        'fr': 'Carrière',
+        'de': 'Karriere'
+      }
     }
-    return categoryMap[categoryName] || categoryName
+    
+    return categoryMappings[categoryName]?.[language] || categoryName
   }
 
   // Helper function to translate performance levels
   const translatePerformanceLevel = (level: string): string => {
-    const levelMap: { [key: string]: string } = {
-      'Exceptional': t('scorecard.excellent'), // Using 'excellent' as closest match
-      'Excellent': t('scorecard.excellent'),
-      'Good': t('scorecard.good'),
-      'Fair': t('scorecard.average'), // Using 'average' as closest match
-      'Needs Attention': t('scorecard.needsImprovement')
+    const levelMappings: { [key: string]: { [lang: string]: string } } = {
+      'Exceptional': {
+        'en': 'Exceptional',
+        'es': 'Excepcional',
+        'fr': 'Exceptionnel',
+        'de': 'Außergewöhnlich'
+      },
+      'Excellent': {
+        'en': 'Excellent',
+        'es': 'Excelente',
+        'fr': 'Excellent',
+        'de': 'Ausgezeichnet'
+      },
+      'Good': {
+        'en': 'Good',
+        'es': 'Bueno',
+        'fr': 'Bon',
+        'de': 'Gut'
+      },
+      'Average': {
+        'en': 'Average',
+        'es': 'Promedio',
+        'fr': 'Moyen',
+        'de': 'Durchschnittlich'
+      },
+      'Fair': {
+        'en': 'Fair',
+        'es': 'Regular',
+        'fr': 'Correct',
+        'de': 'Angemessen'
+      },
+      'Needs Attention': {
+        'en': 'Needs Improvement',
+        'es': 'Necesita Mejora',
+        'fr': 'Besoin d\'Amélioration',
+        'de': 'Verbesserungsbedürftig'
+      },
+      'Needs Improvement': {
+        'en': 'Needs Improvement',
+        'es': 'Necesita Mejora',
+        'fr': 'Besoin d\'Amélioration',
+        'de': 'Verbesserungsbedürftig'
+      }
     }
-    return levelMap[level] || level
+    
+    return levelMappings[level]?.[language] || level
   }
 
   // Helper function to format percentile text
@@ -177,7 +261,7 @@ export default function DetailedReportPage() {
 
   const fetchDetailedReport = async () => {
     try {
-      const response = await fetch(`/api/report/${params.id}`)
+      const response = await fetch(`/api/report/${params.id}?lang=${language}`)
       if (response.ok) {
         const data = await response.json()
         setReportData(data)
@@ -267,7 +351,10 @@ export default function DetailedReportPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        <div className="flex items-center space-x-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          <span className="text-gray-700 font-medium">{t('report.generatingDeepReport')}</span>
+        </div>
       </div>
     )
   }
@@ -512,7 +599,7 @@ export default function DetailedReportPage() {
                       {/* Detailed Question Analysis */}
                       {category.questionInsights && category.questionInsights.length > 0 && (
                         <div className="mt-8 bg-white rounded-xl border-2 border-gray-100 p-6">
-                          <h4 className="font-bold text-gray-900 mb-4 text-lg">Individual Question Analysis</h4>
+                          <h4 className="font-bold text-gray-900 mb-4 text-lg">{t('report.individualQuestionAnalysis')}</h4>
                           <div className="space-y-4">
                             {category.questionInsights.map((insight, index) => (
                               <div key={insight.questionId} className="border-l-4 border-gray-300 pl-4 py-2">
@@ -532,7 +619,7 @@ export default function DetailedReportPage() {
                                   </div>
                                 </div>
                                 <div className="mb-2">
-                                  <span className="text-sm font-medium text-gray-600">Your Answer: </span>
+                                  <span className="text-sm font-medium text-gray-600">{t('report.yourAnswer')}</span>
                                   <span className="text-sm text-gray-800 font-semibold">{insight.userAnswer}</span>
                                 </div>
                                 <p className="text-sm text-gray-700 leading-relaxed">
@@ -817,13 +904,13 @@ export default function DetailedReportPage() {
                       onClick={() => {
                         if (navigator.share) {
                           navigator.share({
-                            title: 'My RankMe Life Score Deep Report',
+                            title: t('report.myRankMeLifeScoreDeepReport'),
                             text: `I just got my detailed life analysis report! Check out RankMe to see how you rank.`,
                             url: window.location.href
                           })
                         } else {
                           navigator.clipboard.writeText(window.location.href)
-                          alert('Link copied to clipboard!')
+                          alert(t('report.linkCopiedToClipboard'))
                         }
                       }}
                       className="w-full flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all text-sm sm:text-base"

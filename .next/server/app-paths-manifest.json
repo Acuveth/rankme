@@ -1,5 +1,9 @@
 {
-  "/page": "app/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/report/[id]/page": "app/report/[id]/page.js"
+  "/report/[id]/page": "app/report/[id]/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/user/subscription/route": "app/api/user/subscription/route.js",
+  "/api/report/[id]/route": "app/api/report/[id]/route.js",
+  "/api/user/language/route": "app/api/user/language/route.js",
+  "/api/report/[id]/pdf/route": "app/api/report/[id]/pdf/route.js"
 }
