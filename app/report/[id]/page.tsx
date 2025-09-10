@@ -87,6 +87,20 @@ export default function DetailedReportPage() {
   const { data: session } = useSession()
   const { t, language } = useLanguage()
   const [reportData, setReportData] = useState<DetailedScoreData | null>(null)
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
+    executiveSummary: true,
+    quickWins: true,
+    categoryAnalysis: false,
+    actionPlan: false,
+    personalizedInsights: false
+  })
+  
+  const toggleSection = (sectionKey: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }))
+  }
 
   // Helper function to translate category names
   const translateCategoryName = (categoryName: string): string => {
@@ -239,7 +253,7 @@ export default function DetailedReportPage() {
     }
     
     try {
-      const response = await fetch('/api/user/subscription')
+      const response = await fetch('/api/user?type=subscription')
       if (response.ok) {
         const data = await response.json()
         
@@ -282,7 +296,7 @@ export default function DetailedReportPage() {
 
   const handleDownloadPDF = async () => {
     try {
-      const response = await fetch(`/api/report/${params.id}/pdf`)
+      const response = await fetch(`/api/report/${params.id}?format=pdf`)
       if (response.ok) {
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
@@ -609,10 +623,10 @@ export default function DetailedReportPage() {
                                   </h5>
                                   <div className="flex-shrink-0 text-right">
                                     <div className={`inline-block px-2 py-1 rounded text-xs font-bold ${
-                                      insight.score >= 80 ? 'bg-green-100 text-green-800' :
-                                      insight.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                                      insight.score >= 40 ? 'bg-orange-100 text-orange-800' :
-                                      'bg-red-100 text-red-800'
+                                      insight.score >= 80 ? 'bg-gray-50 text-gray-900' :
+                                      insight.score >= 60 ? 'bg-gray-100 text-gray-800' :
+                                      insight.score >= 40 ? 'bg-gray-200 text-gray-700' :
+                                      'bg-gray-300 text-gray-600'
                                     }`}>
                                       {insight.score}/100
                                     </div>
@@ -638,13 +652,38 @@ export default function DetailedReportPage() {
 
             {/* 30-Day Action Plan */}
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-              <div className="flex items-center mb-6">
-                <Calendar className="h-6 w-6 text-gray-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">{t('report.actionPlan30Day')}</h2>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="bg-gray-100 p-3 rounded-lg mr-4">
+                    <Calendar className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{t('report.actionPlan30Day')}</h2>
+                    <p className="text-gray-600 text-sm">Your personalized improvement roadmap</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleSection('actionPlan')}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className={`w-5 h-5 transform transition-transform ${expandedSections.actionPlan ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
+              
+              {!expandedSections.actionPlan && (
+                <div className="text-center py-8 text-gray-500">
+                  <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <p>Click to view your 4-week transformation plan</p>
+                  <p className="text-sm">Week-by-week actions • Time commitments • Focus areas</p>
+                </div>
+              )}
+              
+              {expandedSections.actionPlan && (
 
-              <div className="space-y-6">
-                {reportData.actionPlan.map((week) => (
+                <div className="space-y-6">
+                  {reportData.actionPlan.map((week) => (
                   <div key={week.week} className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
@@ -665,8 +704,9 @@ export default function DetailedReportPage() {
                       ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Cross-Category Insights */}
@@ -709,9 +749,9 @@ export default function DetailedReportPage() {
 
                 <div className="space-y-6">
                   {reportData.aiReport.longTermStrategy.primaryLimitingFactor && (
-                    <div className="bg-red-50 p-6 rounded-xl border border-red-200">
-                      <h3 className="font-semibold text-red-900 mb-3">{t('report.primaryLimitingFactor')}</h3>
-                      <p className="text-red-800 leading-relaxed">
+                    <div className="bg-gray-100 p-6 rounded-xl border border-gray-300">
+                      <h3 className="font-semibold text-gray-900 mb-3">{t('report.primaryLimitingFactor')}</h3>
+                      <p className="text-gray-800 leading-relaxed">
                         {translateDynamicContent(reportData.aiReport.longTermStrategy.primaryLimitingFactor)}
                       </p>
                     </div>
@@ -719,22 +759,22 @@ export default function DetailedReportPage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     {reportData.aiReport.longTermStrategy.threeMonthGoals.length > 0 && (
-                      <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
-                        <h3 className="font-semibold text-yellow-900 mb-3">{t('report.threeMonthGoals')}</h3>
+                      <div className="bg-white p-6 rounded-xl border border-gray-200">
+                        <h3 className="font-semibold text-gray-900 mb-3">{t('report.threeMonthGoals')}</h3>
                         <ul className="space-y-2">
                           {reportData.aiReport.longTermStrategy.threeMonthGoals.map((goal, index) => (
-                            <li key={index} className="text-yellow-800 text-sm">• {translateDynamicContent(goal)}</li>
+                            <li key={index} className="text-gray-800 text-sm">• {translateDynamicContent(goal)}</li>
                           ))}
                         </ul>
                       </div>
                     )}
 
                     {reportData.aiReport.longTermStrategy.oneYearGoals.length > 0 && (
-                      <div className="bg-green-50 p-6 rounded-xl border border-green-200">
-                        <h3 className="font-semibold text-green-900 mb-3">{t('report.oneYearGoals')}</h3>
+                      <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <h3 className="font-semibold text-gray-900 mb-3">{t('report.oneYearGoals')}</h3>
                         <ul className="space-y-2">
                           {reportData.aiReport.longTermStrategy.oneYearGoals.map((goal, index) => (
-                            <li key={index} className="text-green-800 text-sm">• {translateDynamicContent(goal)}</li>
+                            <li key={index} className="text-gray-800 text-sm">• {translateDynamicContent(goal)}</li>
                           ))}
                         </ul>
                       </div>
@@ -742,11 +782,11 @@ export default function DetailedReportPage() {
                   </div>
 
                   {reportData.aiReport.longTermStrategy.recommendedResources.length > 0 && (
-                    <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                      <h3 className="font-semibold text-purple-900 mb-3">{t('report.recommendedResources')}</h3>
+                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                      <h3 className="font-semibold text-gray-900 mb-3">{t('report.recommendedResources')}</h3>
                       <ul className="space-y-2">
                         {reportData.aiReport.longTermStrategy.recommendedResources.map((resource, index) => (
-                          <li key={index} className="text-purple-800 text-sm">• {translateDynamicContent(resource)}</li>
+                          <li key={index} className="text-gray-800 text-sm">• {translateDynamicContent(resource)}</li>
                         ))}
                       </ul>
                     </div>

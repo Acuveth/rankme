@@ -49,7 +49,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
       // Then try to load from database (for logged-in users)
       try {
-        const response = await fetch('/api/user/language')
+        const response = await fetch('/api/user?type=language')
         if (response.ok) {
           const data = await response.json()
           if (data.language && translations[data.language]) {
@@ -76,7 +76,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     
     // Also save to database if user is logged in
     if (typeof window !== 'undefined') {
-      fetch('/api/user/language', {
+      fetch('/api/user?type=language', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ language: lang })

@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle, TrendingUp, Users, Heart, DollarSign, Star, Shield, Zap, User, LogOut } from 'lucide-react'
+import { ArrowRight, CheckCircle, TrendingUp, Users, Heart, DollarSign, Star, Shield, Zap, User, LogOut, Menu, X } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
 import LanguageSelector from '@/components/LanguageSelector'
 
 export default function LandingPage() {
   const { data: session } = useSession()
   const { t } = useLanguage()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const getFeatures = () => [
     { icon: DollarSign, title: t('home.financialHealth'), description: t('home.financialHealthDesc') },
     { icon: Heart, title: t('home.physicalWellness'), description: t('home.physicalWellnessDesc') },
@@ -89,15 +90,85 @@ export default function LandingPage() {
               )}
             </div>
             <div className="sm:hidden">
-              <Link
-                href="/assessment"
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm"
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                aria-label="Toggle mobile menu"
               >
-                {t('home.start')}
-              </Link>
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden border-t border-gray-100 bg-white">
+            <div className="px-4 py-2 space-y-1">
+              <LanguageSelector />
+              <Link 
+                href="/about" 
+                className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t('home.about')}
+              </Link>
+              <Link 
+                href="/pricing" 
+                className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t('home.pricing')}
+              </Link>
+              {session ? (
+                <div className="space-y-1 pt-2 border-t border-gray-100">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    {t('home.dashboard')}
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      signOut()
+                    }}
+                    className="w-full flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors text-left"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {t('header.signOut')}
+                  </button>
+                  <Link
+                    href="/assessment"
+                    className="block w-full bg-gray-900 text-white px-3 py-3 rounded-lg hover:bg-gray-800 transition-all shadow-sm text-center font-medium mt-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('home.newAssessment')}
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-1 pt-2 border-t border-gray-100">
+                  <Link
+                    href="/auth/signin"
+                    className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('home.signIn')}
+                  </Link>
+                  <Link
+                    href="/assessment"
+                    className="block w-full bg-gray-900 text-white px-3 py-3 rounded-lg hover:bg-gray-800 transition-all shadow-sm text-center font-medium mt-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('home.tryFree')}
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -112,11 +183,11 @@ export default function LandingPage() {
           </p>
           
           {/* Social Proof */}
-          <div className="flex justify-center items-center space-x-8 mb-10">
+          <div className="grid grid-cols-3 gap-4 sm:flex sm:justify-center sm:items-center sm:space-x-8 mb-10">
             {getSocialProof().map((item, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{item.metric}</div>
-                <div className="text-sm text-gray-500">{item.label}</div>
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{item.metric}</div>
+                <div className="text-xs sm:text-sm text-gray-500 leading-tight">{item.label}</div>
               </div>
             ))}
           </div>
@@ -146,14 +217,14 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {getFeatures().map((feature, index) => (
-              <div key={index} className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-md transition-all animate-fade-scale border border-gray-100">
-                <div className="bg-gray-100 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
-                  <feature.icon className="h-6 w-6 text-gray-700" />
+              <div key={index} className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-sm hover:shadow-md transition-all animate-fade-scale border border-gray-100">
+                <div className="bg-gray-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
+                  <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700" />
                 </div>
-                <h4 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h4>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h4 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">{feature.title}</h4>
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -233,18 +304,18 @@ export default function LandingPage() {
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             {t('home.privacyDescription')}
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
-            <div className="flex items-center">
-              <Zap className="h-5 w-5 text-gray-600 mr-2" />
-              <span className="text-gray-700">{t('home.instantResults')}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-0 sm:flex sm:justify-center sm:items-center sm:space-x-8">
+            <div className="flex items-center justify-center sm:justify-start">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 mr-2 flex-shrink-0" />
+              <span className="text-sm sm:text-base text-gray-700">{t('home.instantResults')}</span>
             </div>
-            <div className="flex items-center">
-              <Shield className="h-5 w-5 text-gray-600 mr-2" />
-              <span className="text-gray-700">{t('home.privacyFirst')}</span>
+            <div className="flex items-center justify-center sm:justify-start">
+              <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 mr-2 flex-shrink-0" />
+              <span className="text-sm sm:text-base text-gray-700">{t('home.privacyFirst')}</span>
             </div>
-            <div className="flex items-center">
-              <CheckCircle className="h-5 w-5 text-gray-600 mr-2" />
-              <span className="text-gray-700">{t('home.noSpam')}</span>
+            <div className="flex items-center justify-center sm:justify-start">
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 mr-2 flex-shrink-0" />
+              <span className="text-sm sm:text-base text-gray-700">{t('home.noSpam')}</span>
             </div>
           </div>
         </div>

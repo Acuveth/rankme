@@ -5,18 +5,20 @@
       "category": "financial",
       "type": "single",
       "label": "What is your current net worth (assets - liabilities)?",
-      "options": ["Less than -$10k (significant debt)", "-$10k to $0 (some debt)", "$0 to $25k", "$25k to $100k", "$100k to $500k", "More than $500k"],
+      "options": ["Significant debt (negative net worth)", "Minimal assets, some debt (near zero)", "Building wealth (positive, growing)", "Comfortable reserves (several years expenses)", "Financially independent (could live off assets)", "Wealthy (more than needed for lifetime)"],
       "pnts": true,
-      "skip": null
+      "skip": null,
+      "description": "Consider all your assets (savings, investments, property) minus all debts (loans, credit cards, mortgages)."
     },
     {
       "id": "fin_income_avg3y",
       "category": "financial",
       "type": "single",
       "label": "What is your average annual income over the last 3 years?",
-      "options": ["Less than $30k", "$30k - $50k", "$50k - $75k", "$75k - $100k", "$100k - $150k", "More than $150k"],
+      "options": ["Bottom 20% for my region", "Below median for my region", "Around median for my region", "Above median for my region", "Top 20% for my region", "Top 5% for my region"],
       "pnts": true,
-      "skip": null
+      "skip": null,
+      "description": "Compare your income to others in your geographic region and age group. Median household income varies significantly by location."
     },
     {
       "id": "fin_income_trend",
@@ -49,10 +51,11 @@
       "id": "fin_debt_payments",
       "category": "financial",
       "type": "single",
-      "label": "Total monthly debt payments (loans, cards)",
-      "options": ["$0 (no debt payments)", "$1-$500", "$501-$1,000", "$1,001-$2,000", "$2,001-$4,000", "More than $4,000"],
+      "label": "What percentage of your monthly income goes to debt payments?",
+      "options": ["0% (debt-free)", "1-10% (minimal debt)", "11-20% (moderate debt)", "21-35% (significant debt)", "36-50% (high debt burden)", "Over 50% (overwhelming debt)"],
       "pnts": true,
-      "skip": null
+      "skip": null,
+      "description": "Include all debt payments: credit cards, loans, mortgages, student loans, etc. as a percentage of gross monthly income."
     },
     {
       "id": "fin_high_interest_debt",
@@ -74,30 +77,22 @@
       "skip": null
     },
     {
-      "id": "health_height",
+      "id": "health_bmi_range",
       "category": "health_fitness",
       "type": "single",
-      "label": "Height",
-      "options": ["Under 5'0\" (152cm)", "5'0\"-5'3\" (152-160cm)", "5'4\"-5'7\" (163-170cm)", "5'8\"-5'11\" (173-180cm)", "6'0\"-6'3\" (183-190cm)", "Over 6'3\" (190cm+)"],
-      "pnts": false,
-      "skip": null
+      "label": "What best describes your current physical health status?",
+      "options": ["Significantly underweight (BMI <18.5)", "Healthy weight range (BMI 18.5-24.9)", "Slightly overweight (BMI 25-29.9)", "Moderately overweight (BMI 30-34.9)", "Significantly overweight (BMI 35+)"],
+      "pnts": true,
+      "skip": null,
+      "description": "This assessment is based on your overall health status rather than specific measurements. Choose the option that best reflects your current physical condition."
     },
     {
-      "id": "health_weight",
+      "id": "health_body_composition",
       "category": "health_fitness",
       "type": "single",
-      "label": "Weight range",
-      "options": ["Under 120 lbs (54kg)", "120-150 lbs (54-68kg)", "150-180 lbs (68-82kg)", "180-220 lbs (82-100kg)", "220-280 lbs (100-127kg)", "Over 280 lbs (127kg+)"],
-      "pnts": false,
-      "skip": null
-    },
-    {
-      "id": "health_waist",
-      "category": "health_fitness",
-      "type": "single",
-      "label": "Waist size (clothing)",
-      "options": ["XS (26-28 inches)", "S (30-32 inches)", "M (34-36 inches)", "L (38-40 inches)", "XL (42-44 inches)", "XXL+ (46+ inches)"],
-      "pnts": false,
+      "label": "How would you describe your body composition and fitness level?",
+      "options": ["Low muscle mass, high body fat", "Average muscle mass, moderate body fat", "Good muscle tone, healthy body fat", "Athletic build, low body fat", "Very muscular, very low body fat"],
+      "pnts": true,
       "skip": null
     },
     {
@@ -286,19 +281,21 @@
       "id": "fin_retirement_savings",
       "category": "financial",
       "type": "single",
-      "label": "Monthly retirement/pension contributions",
-      "options": ["$0", "$1-$200", "$201-$500", "$501-$1,000", "$1,001-$2,000", "More than $2,000"],
+      "label": "What percentage of your income do you save for retirement?",
+      "options": ["0% (no retirement savings)", "1-5% (minimal savings)", "6-10% (basic savings)", "11-15% (good savings rate)", "16-20% (excellent savings)", "Over 20% (exceptional savings)"],
       "pnts": false,
-      "skip": null
+      "skip": null,
+      "description": "Include employer contributions, personal retirement accounts, and pension contributions."
     },
     {
       "id": "fin_investment_portfolio",
       "category": "financial",
       "type": "single",
-      "label": "Investment portfolio value (stocks, bonds, etc.)",
-      "options": ["$0", "$1-$10k", "$10k-$50k", "$50k-$200k", "$200k-$500k", "More than $500k"],
+      "label": "How would you describe your investment portfolio?",
+      "options": ["No investments", "Just getting started (small emergency fund)", "Building wealth (several months expenses invested)", "Good progress (1-2 years expenses invested)", "Strong portfolio (multiple years expenses invested)", "Investment-focused (significant wealth in investments)"],
       "pnts": true,
-      "skip": null
+      "skip": null,
+      "description": "Consider all investments: retirement accounts, stocks, bonds, mutual funds, ETFs, real estate investments, etc."
     },
     {
       "id": "fin_financial_stress",

@@ -1324,7 +1324,8 @@ IMPORTANT: Always reference specific assessment answers when giving advice to ma
   ): Promise<any[] | null> {
     try {
       if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo-key') {
-        throw new Error('AI Coach is currently unavailable')
+        console.error('OpenAI API key is not configured')
+        return null
       }
 
       const existingTasks = preferences.existingTasks || []
@@ -1422,7 +1423,8 @@ Return ONLY valid JSON in this format:
   ): Promise<any[] | null> {
     try {
       if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo-key') {
-        throw new Error('AI Coach is currently unavailable')
+        console.error('OpenAI API key is not configured')
+        return null
       }
 
       const existingTasks = preferences.existingTasks || []

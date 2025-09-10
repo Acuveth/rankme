@@ -34,10 +34,10 @@ export default function PricingPage() {
               {t('pricing.pageSubtitle')}
             </p>
             
-            <div className="bg-white p-1 rounded-xl inline-flex shadow-sm">
+            <div className="bg-white p-1 rounded-xl inline-flex shadow-sm w-full max-w-xs">
               <button
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all ${
+                className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
                   billingCycle === 'monthly'
                     ? 'bg-gray-900 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
@@ -47,7 +47,7 @@ export default function PricingPage() {
               </button>
               <button
                 onClick={() => setBillingCycle('yearly')}
-                className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all ${
+                className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
                   billingCycle === 'yearly'
                     ? 'bg-gray-900 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
@@ -60,38 +60,38 @@ export default function PricingPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
           {/* Free Assessment */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-gray-100">
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="h-6 w-6 text-gray-600" />
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border-2 border-gray-100">
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Award className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('pricing.freeAssessment')}</h3>
-              <p className="text-gray-600">{t('pricing.freeAssessmentDesc')}</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{t('pricing.freeAssessment')}</h3>
+              <p className="text-sm sm:text-base text-gray-600">{t('pricing.freeAssessmentDesc')}</p>
             </div>
 
-            <div className="text-center mb-6">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{t('pricing.freePrice')}</div>
-              <p className="text-gray-600">{t('pricing.alwaysFree')}</p>
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">{t('pricing.freePrice')}</div>
+              <p className="text-sm sm:text-base text-gray-600">{t('pricing.alwaysFree')}</p>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">{t('pricing.freeFeature1')}</span>
+                <Check className="h-4 w-4 text-gray-600 mr-2 sm:mr-3 flex-shrink-0" />
+                <span className="text-sm sm:text-base text-gray-700">{t('pricing.freeFeature1')}</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">{t('pricing.freeFeature2')}</span>
+                <Check className="h-4 w-4 text-gray-600 mr-2 sm:mr-3 flex-shrink-0" />
+                <span className="text-sm sm:text-base text-gray-700">{t('pricing.freeFeature2')}</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">{t('pricing.freeFeature3')}</span>
+                <Check className="h-4 w-4 text-gray-600 mr-2 sm:mr-3 flex-shrink-0" />
+                <span className="text-sm sm:text-base text-gray-700">{t('pricing.freeFeature3')}</span>
               </div>
               <div className="flex items-center">
-                <Check className="h-4 w-4 text-gray-600 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">{t('pricing.freeFeature4')}</span>
+                <Check className="h-4 w-4 text-gray-600 mr-2 sm:mr-3 flex-shrink-0" />
+                <span className="text-sm sm:text-base text-gray-700">{t('pricing.freeFeature4')}</span>
               </div>
             </div>
 
@@ -220,67 +220,67 @@ export default function PricingPage() {
 
         {/* Comparison Table */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-12">
-          <div className="p-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('pricing.featureComparison')}</h2>
+          <div className="p-4 sm:p-6 lg:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">{t('pricing.featureComparison')}</h2>
             
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[500px]">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900">{t('pricing.features')}</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-900">{t('pricing.free')}</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-900">{t('pricing.deepReport')}</th>
-                    <th className="text-center py-4 px-6 font-semibold text-gray-900">{t('pricing.aiCoach')}</th>
+                    <th className="text-left py-3 sm:py-4 px-2 sm:px-4 lg:px-6 font-semibold text-sm sm:text-base text-gray-900">{t('pricing.features')}</th>
+                    <th className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 font-semibold text-sm sm:text-base text-gray-900">{t('pricing.free')}</th>
+                    <th className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 font-semibold text-sm sm:text-base text-gray-900">{t('pricing.deepReport')}</th>
+                    <th className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 font-semibold text-sm sm:text-base text-gray-900">{t('pricing.aiCoach')}</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-xs sm:text-sm">
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.feature32Question')}</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.feature32Question')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.featureBasicRankings')}</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.featureBasicRankings')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.featureDetailedAnalysis')}</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.featureDetailedAnalysis')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.feature30DayPlan')}</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.feature30DayPlan')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.featurePdfDownload')}</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.featurePdfDownload')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.featureWeeklyPlans')}</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.featureWeeklyPlans')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.featureDailyCheckins')}</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.featureDailyCheckins')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="py-4 px-6 text-gray-700">{t('pricing.featureProgressTracking')}</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6 text-gray-400">-</td>
-                    <td className="text-center py-4 px-6"><Check className="h-4 w-4 text-green-600 mx-auto" /></td>
+                    <td className="py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-700">{t('pricing.featureProgressTracking')}</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6 text-gray-400">-</td>
+                    <td className="text-center py-3 sm:py-4 px-2 sm:px-4 lg:px-6"><Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mx-auto" /></td>
                   </tr>
                 </tbody>
               </table>

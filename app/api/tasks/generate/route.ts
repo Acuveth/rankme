@@ -131,6 +131,17 @@ export async function POST(request: Request) {
       timeframe: date ? new Date(date).toLocaleDateString() : `Week ${weekNumber || 'current'}`
     }
 
+    // Check if OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo-key') {
+      return NextResponse.json(
+        { 
+          error: 'Sorry, the AI Coach is currently unavailable. Please check back later or contact support if this persists.',
+          success: false
+        },
+        { status: 503 }
+      )
+    }
+
     try {
       const savedTasks = { daily: [], weekly: [] }
 
@@ -165,6 +176,14 @@ export async function POST(request: Request) {
               console.log(`Skipping duplicate daily task: ${task.title}`)
             }
           }
+        } else {
+          return NextResponse.json(
+            { 
+              error: 'Sorry, the AI Coach is currently unavailable. Please try again later.',
+              success: false
+            },
+            { status: 503 }
+          )
         }
       }
 
@@ -201,6 +220,14 @@ export async function POST(request: Request) {
               console.log(`Skipping duplicate weekly task: ${task.title}`)
             }
           }
+        } else if (weeklyCount > 0) {
+          return NextResponse.json(
+            { 
+              error: 'Sorry, the AI Coach is currently unavailable. Please try again later.',
+              success: false
+            },
+            { status: 503 }
+          )
         }
       }
 
@@ -223,8 +250,11 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error('Error generating tasks:', error)
       return NextResponse.json(
-        { error: 'Failed to generate tasks. AI Coach may be temporarily unavailable.' },
-        { status: 500 }
+        { 
+          error: 'Sorry, the AI Coach is currently unavailable. Please try again later.',
+          success: false
+        },
+        { status: 503 }
       )
     }
 

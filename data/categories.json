@@ -1,0 +1,97 @@
+{
+  "categories": {
+    "financial": {
+      "name": "Financial Health",
+      "icon": "DollarSign",
+      "order": 1,
+      "priority": "high",
+      "introduction": "Let's explore your financial foundation and wealth-building progress.",
+      "description": "Understanding your financial health helps identify opportunities for building security and wealth.",
+      "coreQuestions": ["fin_net_worth", "fin_income_avg3y", "fin_savings_rate", "fin_emergency_fund"],
+      "adaptiveQuestions": ["fin_retirement_savings", "fin_investment_portfolio", "fin_insurance_coverage"],
+      "skipConditions": {
+        "fin_retirement_savings": {"if": {"fin_income_avg3y": ["0", "1"]}, "reason": "Low income, focus on basics first"},
+        "fin_investment_portfolio": {"if": {"fin_emergency_fund": ["0", "1"]}, "reason": "Build emergency fund before investments"}
+      }
+    },
+    "health_fitness": {
+      "name": "Physical Wellness", 
+      "icon": "Heart",
+      "order": 2,
+      "priority": "high",
+      "introduction": "Now let's assess your physical health and fitness journey.",
+      "description": "Your physical wellness affects every aspect of your life, from energy to confidence.",
+      "coreQuestions": ["health_bmi_range", "health_exercise_freq", "health_sleep", "health_nutrition"],
+      "adaptiveQuestions": ["health_body_composition", "health_pushups", "health_pullups", "health_stress_management"],
+      "skipConditions": {
+        "health_pushups": {"if": {"health_exercise_freq": ["0", "1"]}, "reason": "Focus on building basic exercise habits first"},
+        "health_pullups": {"if": {"health_exercise_freq": ["0", "1"]}, "reason": "Focus on building basic exercise habits first"}
+      }
+    },
+    "social": {
+      "name": "Social Network",
+      "icon": "Users", 
+      "order": 3,
+      "priority": "high",
+      "introduction": "Let's explore your relationships and social connections.",
+      "description": "Strong social connections are fundamental to happiness and life satisfaction.",
+      "coreQuestions": ["social_close_friends", "social_emergency_contacts", "social_meetups", "social_loneliness"],
+      "adaptiveQuestions": ["social_professional_network", "social_circle_diversity", "social_community", "social_giving_back"],
+      "skipConditions": {
+        "social_professional_network": {"if": {"career_satisfaction": ["0", "1"]}, "reason": "Focus on core relationships first"}
+      }
+    },
+    "romantic": {
+      "name": "Romantic",
+      "icon": "Heart",
+      "order": 4, 
+      "priority": "medium",
+      "introduction": "Let's discuss your romantic life and relationship satisfaction.",
+      "description": "Romantic relationships significantly impact overall life satisfaction and emotional wellbeing.",
+      "coreQuestions": ["rom_status", "rom_satisfaction", "rom_confidence"],
+      "adaptiveQuestions": ["rom_duration", "rom_intimacy_or_dates", "rom_communication", "rom_emotional_intelligence"],
+      "skipConditions": {
+        "rom_duration": {"if": {"rom_status": ["0"]}, "reason": "Single status - focus on dating readiness"},
+        "rom_intimacy_or_dates": {"if": {"rom_status": ["0"]}, "skipTo": "rom_dates_single"}
+      }
+    },
+    "career": {
+      "name": "Career Development",
+      "icon": "TrendingUp",
+      "order": 5,
+      "priority": "medium", 
+      "introduction": "Let's examine your professional growth and career satisfaction.",
+      "description": "Career development affects financial security, personal fulfillment, and life direction.",
+      "coreQuestions": ["career_satisfaction", "career_growth", "career_work_life_balance"],
+      "adaptiveQuestions": ["career_skills_development", "career_leadership", "career_networking"],
+      "skipConditions": {
+        "career_leadership": {"if": {"career_satisfaction": ["0", "1"]}, "reason": "Focus on satisfaction before leadership growth"},
+        "career_networking": {"if": {"career_growth": ["0", "1"]}, "reason": "Address current role issues first"}
+      }
+    },
+    "personal_growth": {
+      "name": "Personal Growth",
+      "icon": "Target",
+      "order": 6,
+      "priority": "low",
+      "introduction": "Finally, let's explore your personal development and self-improvement journey.",
+      "description": "Personal growth activities contribute to long-term fulfillment and continuous improvement.",
+      "coreQuestions": ["personal_goal_achievement", "personal_values_alignment"],
+      "adaptiveQuestions": ["personal_learning", "personal_creativity", "personal_mindfulness"],
+      "skipConditions": {
+        "personal_creativity": {"if": {"health_mental_health": ["0", "1"]}, "reason": "Focus on mental health fundamentals first"},
+        "personal_mindfulness": {"if": {"health_stress_management": ["0"]}, "reason": "Start with basic stress management"}
+      }
+    }
+  },
+  "adaptiveLogic": {
+    "maxQuestions": 45,
+    "minQuestionsPerCategory": 3,
+    "priorityWeighting": {
+      "high": 1.0,
+      "medium": 0.7, 
+      "low": 0.5
+    },
+    "skipThreshold": 0.3
+  }
+}

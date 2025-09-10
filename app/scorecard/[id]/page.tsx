@@ -29,7 +29,7 @@ interface ScoreData {
 export default function ScorecardPage() {
   const params = useParams()
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const { t, language } = useLanguage()
   const [scoreData, setScoreData] = useState<ScoreData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -44,12 +44,15 @@ export default function ScorecardPage() {
   const [subscriptionStatus, setSubscriptionStatus] = useState<'none' | 'active' | 'cancelled' | 'loading'>('loading')
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
   const [hasDeepReportPurchase, setHasDeepReportPurchase] = useState(false)
+  const [progressData, setProgressData] = useState<any>(null)
+  const [showProgressModal, setShowProgressModal] = useState(false)
 
   useEffect(() => {
     fetchScoreData()
     if (session?.user?.email) {
       checkSubscriptionStatus()
       checkDeepReportPurchase()
+      fetchProgressData()
     }
   }, [params.id, session])
   
@@ -60,7 +63,7 @@ export default function ScorecardPage() {
     }
     
     try {
-      const response = await fetch('/api/user/subscription')
+      const response = await fetch('/api/user?type=subscription')
       if (response.ok) {
         const data = await response.json()
         
@@ -88,7 +91,7 @@ export default function ScorecardPage() {
     }
     
     try {
-      const response = await fetch('/api/user/purchases')
+      const response = await fetch('/api/user?type=purchases')
       if (response.ok) {
         const data = await response.json()
         
@@ -105,16 +108,41 @@ export default function ScorecardPage() {
       console.error('Error checking Deep Report purchase:', error)
     }
   }
+  
+  const fetchProgressData = async () => {
+    if (!session?.user?.email) return
+    
+    try {
+      const response = await fetch('/api/progress?type=assessment-history')
+      if (response.ok) {
+        const data = await response.json()
+        setProgressData(data)
+      }
+    } catch (error) {
+      console.error('Error fetching progress data:', error)
+    }
+  }
 
   useEffect(() => {
-    // Show account prompt after 3 seconds if user is not logged in
-    if (!session && scoreData) {
+    // Only show account prompt if:
+    // 1. Session is definitively not authenticated (not loading)
+    // 2. Score data has loaded
+    // 3. Page has finished loading
+    if (sessionStatus === 'unauthenticated' && scoreData && !loading) {
       const timer = setTimeout(() => {
-        setShowAccountPrompt(true)
+        // Final check - only show if still unauthenticated
+        if (sessionStatus === 'unauthenticated' && !session) {
+          setShowAccountPrompt(true)
+        }
       }, 3000)
       return () => clearTimeout(timer)
     }
-  }, [session, scoreData])
+    
+    // Hide prompt if user is authenticated or session is loading
+    if (session || sessionStatus === 'authenticated') {
+      setShowAccountPrompt(false)
+    }
+  }, [session, sessionStatus, scoreData, loading])
 
   const fetchScoreData = async () => {
     try {
@@ -176,6 +204,49 @@ export default function ScorecardPage() {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+  }
+  
+  // Generate compelling statistics for sharing
+  const generateCompellingStats = () => {
+    if (!scoreData) return []
+    
+    const stats = []
+    const overall = Math.round(scoreData.overall.percentile)
+    
+    if (overall >= 90) {
+      stats.push(`🏆 Top 10% performer`)
+      stats.push(`Crushing life goals`)
+    } else if (overall >= 75) {
+      stats.push(`⭐ Above average achiever`)
+      stats.push(`Strong life foundation`)
+    } else if (overall >= 50) {
+      stats.push(`🎯 Building momentum`)
+      stats.push(`Great growth potential`)
+    } else {
+      stats.push(`🚀 Ready for takeoff`)
+      stats.push(`Transformation journey begun`)
+    }
+    
+    // Add category-specific insights
+    const topCategory = scoreData.categories.reduce((max, cat) => 
+      cat.percentile > max.percentile ? cat : max
+    )
+    
+    const categoryNames: { [key: string]: string } = {
+      financial: 'Financial Health',
+      health_fitness: 'Physical Wellness', 
+      social: 'Social Network',
+      romantic: 'Relationships'
+    }
+    
+    const categoryName = categoryNames[topCategory.id] || 'Personal Growth'
+    stats.push(`💪 Strongest area: ${categoryName}`)
+    
+    if (progressData && progressData.stats.overallTrend > 0) {
+      stats.push(`📈 Improving by ${Math.round(progressData.stats.overallTrend)} points`)
+    }
+    
+    return stats
   }
 
   const handleSendEmail = async (e: React.FormEvent) => {
@@ -429,11 +500,118 @@ export default function ScorecardPage() {
   }
 
   const getScoreLevel = (score: number) => {
-    if (score >= 90) return { level: 'Exceptional', color: 'text-gray-900' }
-    if (score >= 75) return { level: 'Excellent', color: 'text-gray-800' }
-    if (score >= 60) return { level: 'Good', color: 'text-gray-700' }
-    if (score >= 40) return { level: 'Fair', color: 'text-gray-600' }
-    return { level: 'Needs Attention', color: 'text-gray-500' }
+    if (score >= 90) return { 
+      level: 'Exceptional', 
+      color: 'text-gray-900', 
+      bgColor: 'bg-gray-50 border-gray-300',
+      description: 'You\'re performing exceptionally well in this area - top 10% of your peers!',
+      icon: '🌟'
+    }
+    if (score >= 75) return { 
+      level: 'Excellent', 
+      color: 'text-gray-800', 
+      bgColor: 'bg-gray-100 border-gray-300',
+      description: 'Strong performance that puts you ahead of most people in your demographic.',
+      icon: '✨'
+    }
+    if (score >= 60) return { 
+      level: 'Good', 
+      color: 'text-gray-700', 
+      bgColor: 'bg-white border-gray-200',
+      description: 'Solid foundation with room for optimization and growth.',
+      icon: '👍'
+    }
+    if (score >= 40) return { 
+      level: 'Fair', 
+      color: 'text-gray-600', 
+      bgColor: 'bg-gray-50 border-gray-200',
+      description: 'Some good elements, but significant improvement opportunities exist.',
+      icon: '⚠️'
+    }
+    return { 
+      level: 'Needs Focus', 
+      color: 'text-gray-500', 
+      bgColor: 'bg-gray-100 border-gray-300',
+      description: 'This area needs immediate attention for meaningful life improvement.',
+      icon: '🎯'
+    }
+  }
+  
+  // Generate Quick Wins for lowest scoring categories
+  const generateQuickWins = (categories: any[]) => {
+    const sortedCategories = [...categories].sort((a, b) => a.percentile - b.percentile)
+    const lowestCategories = sortedCategories.slice(0, 2)
+    
+    const quickWinsMap: { [key: string]: string[] } = {
+      financial: [
+        '📱 Download a budgeting app and track expenses for one week',
+        '💰 Set up automatic transfer of $25/week to savings account',
+        '📚 Read one personal finance article daily for 7 days'
+      ],
+      health_fitness: [
+        '🚶 Take a 15-minute walk after each meal starting today',
+        '💤 Set a consistent bedtime and wake time for this week',
+        '🥗 Replace one snack with a piece of fruit daily'
+      ],
+      social: [
+        '📞 Text one friend you haven\'t spoken to in a month',
+        '🗓️ Schedule one coffee meeting with someone this week',
+        '💬 Join one local community group or online community'
+      ],
+      romantic: [
+        '💬 Have one deep conversation with your partner this week',
+        '📱 Download a dating app if single, or plan one date if partnered',
+        '📖 Read one article about healthy relationships'
+      ],
+      career: [
+        '🎯 Set 3 specific career goals for the next 3 months',
+        '📚 Spend 30 minutes learning a new skill relevant to your job',
+        '🤝 Reach out to one professional contact this week'
+      ],
+      personal_growth: [
+        '📝 Write down 3 things you\'re grateful for daily',
+        '🎯 Set one small, achievable goal for this week',
+        '📚 Read for 15 minutes before bed instead of scrolling'
+      ]
+    }
+    
+    return lowestCategories.map(cat => ({
+      category: translateCategoryName(cat.id),
+      percentile: cat.percentile,
+      wins: quickWinsMap[cat.id] || ['Focus on building consistent daily habits in this area']
+    }))
+  }
+  
+  // Generate progress insights
+  const getProgressInsight = () => {
+    if (!progressData || progressData.assessments.length < 2) return null
+    
+    const latest = progressData.assessments[0]
+    const previous = progressData.assessments[1]
+    const overallChange = latest.overall.percentile - previous.overall.percentile
+    
+    if (overallChange > 5) {
+      return {
+        type: 'improvement',
+        message: `You\'ve improved by ${Math.round(overallChange)} percentile points since your last assessment!`,
+        icon: '📈',
+        color: 'text-gray-800 bg-gray-100 border-gray-200'
+      }
+    } else if (overallChange < -5) {
+      return {
+        type: 'decline',
+        message: `Your scores have declined by ${Math.abs(Math.round(overallChange))} points. Let\'s focus on rebuilding!`,
+        icon: '🎯',
+        color: 'text-orange-600 bg-orange-50 border-orange-200'
+      }
+    } else {
+      return {
+        type: 'stable',
+        message: 'Your scores are stable. Ready to push for your next breakthrough?',
+        icon: '🚀',
+        color: 'text-gray-700 bg-gray-50 border-gray-200'
+      }
+    }
   }
 
   const overallLevel = getScoreLevel(scoreData.overall.percentile)
@@ -525,7 +703,7 @@ export default function ScorecardPage() {
                   const level = getScoreLevel(category.percentile)
                   
                   return (
-                    <div key={category.id} className="bg-gray-50 rounded-xl p-6 hover:shadow-sm transition-all">
+                    <div key={category.id} className={`rounded-xl p-6 hover:shadow-sm transition-all border-2 ${level.bgColor}`}>
                       <div className="flex items-center mb-4">
                         <div className="bg-white p-3 rounded-lg shadow-sm mr-4">
                           <IconComponent className="h-6 w-6 text-gray-700" />
@@ -534,17 +712,27 @@ export default function ScorecardPage() {
                           <h3 className="text-lg font-semibold text-gray-900 w-full">
                             {translateCategoryName(category.id)}
                           </h3>
-                          <p className={`text-sm font-medium ${level.color}`}>
-                            {translatePerformanceLevel(level.level)}
-                          </p>
+                          <div className="flex items-center mt-1">
+                            <span className="text-xl mr-2">{level.icon}</span>
+                            <p className={`text-sm font-medium ${level.color}`}>
+                              {level.level}
+                            </p>
+                          </div>
                         </div>
+                      </div>
+                      
+                      <div className="mb-4">
+                        <div className={`text-2xl font-bold ${level.color} mb-2`}>
+                          {formatPercentile(category.percentile)}
+                        </div>
+                        <p className="text-xs text-gray-600">{level.description}</p>
                       </div>
                       
                       <GaussianChart 
                         percentile={category.percentile} 
                         title={`${translateCategoryName(category.id)} Distribution`}
                         width={300}
-                        height={160}
+                        height={140}
                       />
                     </div>
                   )
@@ -552,40 +740,93 @@ export default function ScorecardPage() {
               </div>
             </div>
 
-            {/* Insights Section */}
+            {/* Performance Overview */}
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('report.keyInsights')}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Performance Overview</h2>
               
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('report.topStrength')}</h3>
-                  <p className="text-gray-700">
-                    {translateCategoryName(scoreData.categories.reduce((max, cat) => 
-                      cat.percentile > max.percentile ? cat : max
-                    ).id)}
-                  </p>
-                  <div className="text-2xl font-bold text-gray-800 mt-2">
-                    {formatPercentile(Math.max(...scoreData.categories.map(c => c.percentile)))}
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('report.growthArea')}</h3>
-                  <p className="text-gray-700">
-                    {translateCategoryName(scoreData.categories.reduce((min, cat) => 
-                      cat.percentile < min.percentile ? cat : min
-                    ).id)}
-                  </p>
-                  <div className="text-2xl font-bold text-gray-800 mt-2">
-                    {formatPercentile(Math.min(...scoreData.categories.map(c => c.percentile)))}
-                  </div>
-                </div>
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                {scoreData.categories.map((category) => {
+                  const level = getScoreLevel(category.percentile)
+                  const categoryName = translateCategoryName(category.id)
+                  
+                  return (
+                    <div key={category.id} className={`p-6 rounded-xl border-2 ${level.bgColor}`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900">{categoryName}</h3>
+                        <span className="text-2xl">{level.icon}</span>
+                      </div>
+                      
+                      <div className="flex items-center mb-3">
+                        <div className={`text-2xl font-bold ${level.color} mr-3`}>
+                          {formatPercentile(category.percentile)}
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-sm font-semibold ${level.color} bg-white`}>
+                          {level.level}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {level.description}
+                      </p>
+                    </div>
+                  )
+                })}
               </div>
             </div>
+            
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Progress Tracking for Logged-in Users */}
+            {session?.user && progressData && progressData.assessments.length > 1 && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+                  📈 Your Progress Journey
+                  <button
+                    onClick={() => setShowProgressModal(true)}
+                    className="ml-2 text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    View Details
+                  </button>
+                </h3>
+                
+                {getProgressInsight() && (
+                  <div className={`p-4 rounded-lg border mb-4 ${getProgressInsight()?.color}`}>
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">{getProgressInsight()?.icon}</span>
+                      <p className="text-sm font-medium">{getProgressInsight()?.message}</p>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600">Total Assessments</span>
+                    <span className="font-semibold text-gray-900">{progressData.stats.totalAssessments}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600">Overall Trend</span>
+                    <span className={`font-semibold ${
+                      progressData.stats.overallTrend > 0 ? 'text-gray-800' : 
+                      progressData.stats.overallTrend < 0 ? 'text-gray-600' : 'text-gray-500'
+                    }`}>
+                      {progressData.stats.overallTrend > 0 ? '+' : ''}{Math.round(progressData.stats.overallTrend)} pts
+                    </span>
+                  </div>
+                  {progressData.stats.improvingCategories.length > 0 && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="text-xs text-gray-800 font-medium mb-1">Improving Areas:</div>
+                      {progressData.stats.improvingCategories.map((cat: any, i: number) => (
+                        <div key={i} className="text-xs text-gray-700">
+                          {translateCategoryName(cat.category)} (+{Math.round(cat.change)})
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             {/* Account Creation Prompt for Non-logged in Users */}
             {!session && (
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 animate-fade-scale">
@@ -843,6 +1084,90 @@ export default function ScorecardPage() {
           </div>
         )}
 
+        {/* Progress Detail Modal */}
+        {showProgressModal && progressData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Your Progress History</h3>
+                  <button
+                    onClick={() => setShowProgressModal(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-2"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-700 font-medium">Total Assessments</div>
+                      <div className="text-2xl font-bold text-gray-900">{progressData.stats.totalAssessments}</div>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-lg">
+                      <div className="text-sm text-gray-700 font-medium">Overall Progress</div>
+                      <div className={`text-2xl font-bold ${
+                        progressData.stats.overallTrend > 0 ? 'text-gray-900' : 
+                        progressData.stats.overallTrend < 0 ? 'text-gray-600' : 'text-gray-500'
+                      }`}>
+                        {progressData.stats.overallTrend > 0 ? '+' : ''}{Math.round(progressData.stats.overallTrend)}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-4">Assessment Timeline</h4>
+                    <div className="space-y-4">
+                      {progressData.assessments.slice(0, 5).map((assessment: any, index: number) => (
+                        <div key={assessment.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="font-medium text-gray-900">
+                              {new Date(assessment.date).toLocaleDateString()}
+                              {assessment.isLatest && <span className="ml-2 text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">Current</span>}
+                            </div>
+                            <div className="text-lg font-bold text-gray-900">
+                              {Math.round(assessment.overall.percentile)}%
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {assessment.categories.map((cat: any) => (
+                              <div key={cat.id} className="flex justify-between">
+                                <span className="text-gray-600">{translateCategoryName(cat.id)}:</span>
+                                <span className="font-medium">{Math.round(cat.percentile)}%</span>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {Object.keys(assessment.improvements).length > 0 && (
+                            <div className="mt-3 pt-3 border-t">
+                              <div className="text-xs text-gray-600 mb-1">Changes from previous:</div>
+                              <div className="flex flex-wrap gap-2">
+                                {Object.entries(assessment.improvements).map(([key, value]: [string, any]) => 
+                                  value !== 0 && (
+                                    <span key={key} className={`text-xs px-2 py-1 rounded ${
+                                      value > 0 ? 'bg-gray-100 text-gray-800' : 'bg-gray-50 text-gray-600'
+                                    }`}>
+                                      {key}: {value > 0 ? '+' : ''}{Math.round(value)}
+                                    </span>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Share Modal */}
         {showShareModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
@@ -889,22 +1214,58 @@ export default function ScorecardPage() {
 
                       <button
                         onClick={() => {
+                          const compellingText = `🎯 Just discovered my life performance score: ${Math.round(scoreData.overall.percentile)}%!\n\n${generateCompellingStats().slice(0, 2).join(' • ')}\n\nTake the assessment: ${window.location.origin}/assessment`
+                          
                           if (navigator.share) {
                             navigator.share({
                               title: 'My RankMe Life Score',
-                              text: `I just got my life performance score! Check out RankMe to see how you rank.`,
+                              text: compellingText,
                               url: window.location.href
                             })
                           } else {
-                            navigator.clipboard.writeText(window.location.href)
-                            alert('Link copied to clipboard!')
+                            navigator.clipboard.writeText(compellingText)
+                            alert('Compelling share text copied to clipboard!')
                           }
                         }}
-                        className="w-full flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all text-sm sm:text-base"
+                        className="w-full flex items-center justify-center px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all text-sm sm:text-base font-semibold shadow-lg"
                       >
                         <Share2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        {t('scorecard.shareLink')}
+                        Share Your Achievement
                       </button>
+                      
+                      {/* Quick copy buttons for different platforms */}
+                      <div className="grid grid-cols-3 gap-2 mt-3">
+                        <button
+                          onClick={() => {
+                            const twitterText = `🎯 Life Score: ${Math.round(scoreData.overall.percentile)}%\n${generateCompellingStats()[0]}\n\nCheck yours: ${window.location.origin}/assessment`
+                            navigator.clipboard.writeText(twitterText)
+                            alert('Twitter text copied!')
+                          }}
+                          className="px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors"
+                        >
+                          🐦 Twitter
+                        </button>
+                        <button
+                          onClick={() => {
+                            const linkedinText = `Just completed a comprehensive life assessment and scored ${Math.round(scoreData.overall.percentile)}%! ${generateCompellingStats()[0]} 🎯\n\nThe insights are incredible. Check out RankMe if you're interested in optimizing key life areas.`
+                            navigator.clipboard.writeText(linkedinText)
+                            alert('LinkedIn text copied!')
+                          }}
+                          className="px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors"
+                        >
+                          💼 LinkedIn
+                        </button>
+                        <button
+                          onClick={() => {
+                            const instagramText = `${generateCompellingStats().slice(0, 3).join('\n')} 🔥\n\n#LifeScore #PersonalGrowth #RankMe`
+                            navigator.clipboard.writeText(instagramText)
+                            alert('Instagram caption copied!')
+                          }}
+                          className="px-3 py-2 bg-pink-50 text-pink-700 rounded-lg text-xs font-medium hover:bg-pink-100 transition-colors"
+                        >
+                          📷 Instagram
+                        </button>
+                      </div>
                     </div>
 
                     <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-xl">

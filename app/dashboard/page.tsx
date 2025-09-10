@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { LoginTrackerComponent } from '@/components/LoginTracker'
 import { useLanguage } from '@/lib/language-context'
 import LanguageSelector from '@/components/LanguageSelector'
+import PredictiveInsights from '@/components/PredictiveInsights'
 import { 
   User, 
   LogOut, 
@@ -139,12 +140,10 @@ export default function DashboardPage() {
       return
     }
 
-    fetchUserAssessments()
-    fetchUserSubscription()
-    fetchUserSettings()
-    fetchPurchasedReports()
-    fetchLoginStreak()
-    fetchLoginAnalytics()
+    // MEGA OPTIMIZATION: Batch all user data calls into a single request
+    fetchAllUserData()
+    // Batch auth data calls  
+    fetchAuthData()
   }, [session, status, router])
 
   // Fetch tasks after assessments are loaded
@@ -154,81 +153,69 @@ export default function DashboardPage() {
     }
   }, [assessments])
 
-  const fetchUserAssessments = async () => {
+  // MEGA OPTIMIZATION: Batch all user data into a single API call
+  const fetchAllUserData = async () => {
     try {
-      const response = await fetch('/api/user/assessments')
+      const response = await fetch('/api/user?batch=assessments,subscription,purchases,settings')
       if (response.ok) {
-        const data = await response.json()
-        setAssessments(data.assessments)
+        const batchData = await response.json()
+        
+        // Process assessments data
+        if (batchData.assessments?.success) {
+          setAssessments(batchData.assessments.assessments)
+        }
+        
+        // Process subscription data  
+        if (batchData.subscription && !batchData.subscription.error) {
+          if (batchData.subscription.hasSubscription && batchData.subscription.subscription) {
+            setSubscription({
+              status: batchData.subscription.subscription.status,
+              product: batchData.subscription.subscription.product,
+              periodEnd: batchData.subscription.subscription.periodEnd
+            })
+          }
+        }
+        
+        // Process purchases data
+        if (batchData.purchases && !batchData.purchases.error) {
+          const deepReportAssessmentIds = batchData.purchases.purchases
+            ?.filter((purchase: any) => 
+              (purchase.product === 'deep_report_oneoff' || purchase.product === 'deep_report') && 
+              purchase.status === 'completed'
+            )
+            .map((purchase: any) => purchase.assessmentId) || []
+          
+          setPurchasedReports(new Set(deepReportAssessmentIds))
+        }
+        
+        // Process settings data
+        if (batchData.settings && !batchData.settings.error) {
+          setUserSettings(batchData.settings.settings)
+        }
       }
     } catch (error) {
-      console.error('Error fetching assessments:', error)
+      console.error('Error fetching batched user data:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchUserSubscription = async () => {
+  // MEGA OPTIMIZATION: Batch auth data into optimized calls
+  const fetchAuthData = async () => {
     try {
-      const response = await fetch('/api/user/subscription')
+      // Single call with analytics=true gives us both streak and analytics data
+      const response = await fetch('/api/auth?action=history&analytics=true&days=30')
       if (response.ok) {
         const data = await response.json()
-        if (data.hasSubscription && data.subscription) {
-          setSubscription({
-            status: data.subscription.status,
-            product: data.subscription.product,
-            periodEnd: data.subscription.periodEnd
-          })
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching subscription:', error)
-    }
-  }
-
-  const fetchPurchasedReports = async () => {
-    try {
-      const response = await fetch('/api/user/purchases')
-      if (response.ok) {
-        const data = await response.json()
-        // Filter for Deep Report purchases and create a Set of assessment IDs
-        const deepReportAssessmentIds = data.purchases
-          ?.filter((purchase: any) => 
-            (purchase.product === 'deep_report_oneoff' || purchase.product === 'deep_report') && 
-            purchase.status === 'completed'
-          )
-          .map((purchase: any) => purchase.assessmentId) || []
         
-        setPurchasedReports(new Set(deepReportAssessmentIds))
-      }
-    } catch (error) {
-      console.error('Error fetching purchased reports:', error)
-    }
-  }
-
-  const fetchLoginStreak = async () => {
-    try {
-      // Get streak information without triggering additional login tracking
-      // The LoginTrackerComponent handles the initial login tracking automatically
-      const response = await fetch('/api/login-history')
-      if (response.ok) {
-        const data = await response.json()
+        // Set login streak data
         setLoginStreak({
           currentStreak: data.streak?.currentStreak || data.streak?.consecutiveLoginDays || 0,
           longestStreak: data.streak?.longestStreak || 0,
           totalLoginDays: data.streak?.totalLoginDays || 0
         })
-      }
-    } catch (error) {
-      console.error('Error fetching login streak:', error)
-    }
-  }
-
-  const fetchLoginAnalytics = async () => {
-    try {
-      const response = await fetch('/api/login-history?analytics=true&days=30')
-      if (response.ok) {
-        const data = await response.json()
+        
+        // Set login analytics data  
         setLoginAnalytics({
           lastLoginTime: data.lastLoginTime ? new Date(data.lastLoginTime) : null,
           loginPattern: data.loginPattern || 'No data',
@@ -237,9 +224,10 @@ export default function DashboardPage() {
         })
       }
     } catch (error) {
-      console.error('Error fetching login analytics:', error)
+      console.error('Error fetching auth data:', error)
     }
   }
+
 
   const fetchUserTasks = async () => {
     try {
@@ -311,24 +299,15 @@ export default function DashboardPage() {
     signOut({ callbackUrl: '/' })
   }
 
-  const fetchUserSettings = async () => {
-    try {
-      const response = await fetch('/api/user/settings')
-      if (response.ok) {
-        const data = await response.json()
-        setUserSettings(data.user)
-        setSettingsForm({
-          name: session?.user?.name || data.user.name || '',
-          country: data.user.country || '',
-          sexGender: data.user.sexGender || '',
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching user settings:', error)
-    }
+  const initializeSettingsForm = (settingsData: any = userSettings) => {
+    setSettingsForm({
+      name: session?.user?.name || settingsData?.name || '',
+      country: settingsData?.country || '',
+      sexGender: settingsData?.sexGender || '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    })
   }
 
   const handleSettingsSubmit = async (e: React.FormEvent) => {
@@ -351,7 +330,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch('/api/user/settings', {
+      const response = await fetch('/api/user?type=settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -366,7 +345,7 @@ export default function DashboardPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setUserSettings(data.user)
+        setUserSettings(data.settings)
         setSettingsSuccess('Settings updated successfully!')
         setSettingsForm({
           ...settingsForm,
@@ -388,9 +367,25 @@ export default function DashboardPage() {
     }
   }
 
-  const openSettings = () => {
+  const openSettings = async () => {
     setShowSettings(true)
-    fetchUserSettings()
+    // Fetch fresh settings data to ensure accuracy (preserving original functionality)
+    try {
+      const response = await fetch('/api/user?type=settings')
+      if (response.ok) {
+        const data = await response.json()
+        const freshSettings = data.settings
+        setUserSettings(freshSettings)
+        initializeSettingsForm(freshSettings)
+      } else {
+        // Fallback to cached data if fresh fetch fails
+        initializeSettingsForm(userSettings)
+      }
+    } catch (error) {
+      console.error('Error fetching fresh settings:', error)
+      // Fallback to cached data if fresh fetch fails
+      initializeSettingsForm(userSettings)
+    }
   }
 
   if (status === 'loading' || loading) {
@@ -504,6 +499,20 @@ export default function DashboardPage() {
           </div>
 
         </div>
+
+        {/* Predictive Insights Section */}
+        {completedAssessments.length > 0 && (
+          <div className="mb-8">
+            <PredictiveInsights 
+              useAllAssessments={true}
+              maxInsights={6}
+              className="shadow-lg"
+              showHeader={true}
+              collapsible={true}
+              defaultCollapsed={true}
+            />
+          </div>
+        )}
 
         {/* Your Tasks Section */}
         {(dailyTasks.length > 0 || weeklyTasks.length > 0) && (
@@ -763,6 +772,7 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
+
 
             {/* Account Settings */}
             <div className="bg-white rounded-2xl shadow-lg p-6">

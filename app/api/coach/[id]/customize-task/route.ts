@@ -63,6 +63,17 @@ export async function POST(
       )
     }
 
+    // Check if OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo-key') {
+      return NextResponse.json(
+        { 
+          error: 'Sorry, the AI Coach is currently unavailable. Please check back later or contact support if this persists.',
+          success: false
+        },
+        { status: 503 }
+      )
+    }
+
     // Use AI to customize the task based on user request
     const customizationPrompt = `You are helping a user customize a task that was generated from their life assessment.
 
@@ -130,35 +141,25 @@ Respond with JSON in this format:
           })
         } catch (parseError) {
           console.error('Failed to parse task customization JSON:', parseError)
+          return NextResponse.json(
+            { 
+              error: 'Sorry, the AI Coach encountered an error. Please try again later.',
+              success: false
+            },
+            { status: 500 }
+          )
         }
       }
     } catch (error) {
       console.error('Error customizing task:', error)
+      return NextResponse.json(
+        { 
+          error: 'Sorry, the AI Coach is currently unavailable. Please try again later.',
+          success: false
+        },
+        { status: 503 }
+      )
     }
-
-    // Fallback to simple modifications if AI fails
-    return NextResponse.json({
-      success: true,
-      taskId,
-      original: originalTask,
-      customized: {
-        id: taskId,
-        title: originalTask.title,
-        description: `${originalTask.description} (Note: ${userRequest})`,
-        category: originalTask.category,
-        estimatedMinutes: originalTask.estimatedMinutes,
-        priority: originalTask.priority,
-        reasoning: `${originalTask.reasoning} - Modified based on your request: "${userRequest}"`
-      },
-      changes: {
-        summary: "Added your request as a note to the task description",
-        modifications: ["Added user request as guidance note"]
-      },
-      approval: {
-        message: "Review your customized task and approve it to add to your dashboard",
-        instructions: "Send this customized task to the approve-tasks endpoint if you're satisfied"
-      }
-    })
   } catch (error) {
     console.error('Error processing task customization:', error)
     return NextResponse.json(

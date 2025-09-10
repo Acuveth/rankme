@@ -112,7 +112,7 @@ export default function SignInPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder={t('auth.enterEmail')}
+                placeholder={t('coach.enterEmail')}
                 required
                 disabled={loading}
               />
@@ -131,7 +131,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
-                placeholder={t('auth.enterPassword')}
+                placeholder="Password"
                 required
                 disabled={loading}
               />

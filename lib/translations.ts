@@ -931,6 +931,133 @@ export interface Translations {
     yourName: string
   }
 
+  // Predictive Insights
+  insights: {
+    // Main Component Headers
+    aiPredictiveInsights: string
+    aiInsights: string
+    quickInsights: string
+    
+    // Description Text
+    insightsBasedOnAssessment: string
+    insightsBasedOnAllAssessments: string
+    analyzingPatterns: string
+    gatheringData: string
+    noMoreInsights: string
+    checkBackLater: string
+    
+    // Insight Type Labels
+    riskAlert: string
+    patternForecast: string
+    smartRecommendation: string
+    strategicTiming: string
+    deepInsights: string
+    
+    // Insight Type Descriptions  
+    riskAlertDesc: string
+    patternForecastDesc: string
+    smartRecommendationDesc: string
+    strategicTimingDesc: string
+    deepInsightsDesc: string
+    
+    // Priority Labels
+    highPriority: string
+    mediumPriority: string
+    lowPriority: string
+    confident: string
+    
+    // Filter Labels
+    allInsights: string
+    
+    // Action Labels
+    viewActions: string
+    suggestedActions: string
+    dismissInsight: string
+    refreshInsights: string
+    tryAgain: string
+    
+    // Metadata
+    cached: string
+    cachedFrom: string
+    generated: string
+    expires: string
+    fromCache: string
+    confidenceHigh: string
+    confidenceMedium: string
+    confidenceLow: string
+    allAssessmentsMode: string
+    
+    // Error Messages
+    errorLoadingInsights: string
+    
+    // Specific Insight Messages
+    taskCompletionRisk: string
+    streakAtRisk: string
+    peakProductivityDetected: string
+    weeklyPatternIdentified: string
+    productivityDeclineDetected: string
+    productivitySurge: string
+    cohortSuccessPattern: string
+    focusAreaIdentified: string
+    optimalTaskLoad: string
+    strategicPlanningAlert: string
+    energyManagementTip: string
+    burnoutPreventionAlert: string
+    moodPerformanceConnection: string
+    goalAchievementPattern: string
+    taskTimingPattern: string
+    
+    // Common Action Suggestions
+    scheduleTasksOptimalTime: string
+    setReminder30Minutes: string
+    prepareMaterialsTonight: string
+    breakTasksIntoSteps: string
+    completeOneMoreTask: string
+    focusOnQuickWins: string
+    setTimer25Minutes: string
+    tryOptimalTimeForWeek: string
+    setDailyReminders: string
+    trackCompletionRate: string
+    adjustSchedule: string
+    planChallengingTasks: string
+    useOptimalDay: string
+    scheduleEasierTasks: string
+    reviewSimplifyGoals: string
+    takeShortBreak: string
+    focusOneCategory: string
+    adjustTaskDifficulty: string
+    documentWhatWorks: string
+    increaseTaskDifficulty: string
+    shareSuccessStrategies: string
+    setAmbitiousGoals: string
+    prePlanSimpleWins: string
+    scheduleFavoriteActivities: string
+    prepareEverythingNight: string
+    partnerAccountability: string
+    makeRestPlanningDay: string
+    scheduleBreaksBeforeEnergyDips: string
+    planEnergizingActivities: string
+    adjustMealTiming: string
+    try10MinuteWalk: string
+    takeCompleteRestDay: string
+    reduceTaskLoad30Percent: string
+    focusEssentialTasks: string
+    scheduleEnjoyableActivity: string
+    practiceSayingNo: string
+    noticeWhatCreatesMood: string
+    planImportantTasksGoodMood: string
+    developShiftingStrategies: string
+    keepJournaling: string
+    considerMoodBoostingActivities: string
+    breakLongTermGoals: string
+    celebrateHalfwayPoint: string
+    reviewGoalsWeekly: string
+    try2MinuteRule: string
+    scheduleTasksImmediately: string
+    setCompletionDeadlines: string
+    useTimeBlocking: string
+  }
+
   // Common
   common: {
     loading: string
@@ -1832,6 +1959,108 @@ export type TranslationKey =
   | 'loginPatterns.weekend'
   | 'loginPatterns.weekday'
   | 'loginPatterns.irregular'
+  | 'insights.aiPredictiveInsights'
+  | 'insights.aiInsights'
+  | 'insights.quickInsights'
+  | 'insights.insightsBasedOnAssessment'
+  | 'insights.insightsBasedOnAllAssessments'
+  | 'insights.analyzingPatterns'
+  | 'insights.gatheringData'
+  | 'insights.noMoreInsights'
+  | 'insights.checkBackLater'
+  | 'insights.riskAlert'
+  | 'insights.patternForecast'
+  | 'insights.smartRecommendation'
+  | 'insights.strategicTiming'
+  | 'insights.deepInsights'
+  | 'insights.riskAlertDesc'
+  | 'insights.patternForecastDesc'
+  | 'insights.smartRecommendationDesc'
+  | 'insights.strategicTimingDesc'
+  | 'insights.deepInsightsDesc'
+  | 'insights.highPriority'
+  | 'insights.mediumPriority'
+  | 'insights.lowPriority'
+  | 'insights.confident'
+  | 'insights.allInsights'
+  | 'insights.viewActions'
+  | 'insights.suggestedActions'
+  | 'insights.dismissInsight'
+  | 'insights.refreshInsights'
+  | 'insights.tryAgain'
+  | 'insights.cached'
+  | 'insights.cachedFrom'
+  | 'insights.generated'
+  | 'insights.expires'
+  | 'insights.fromCache'
+  | 'insights.confidenceHigh'
+  | 'insights.confidenceMedium'
+  | 'insights.confidenceLow'
+  | 'insights.allAssessmentsMode'
+  | 'insights.errorLoadingInsights'
+  | 'insights.taskCompletionRisk'
+  | 'insights.streakAtRisk'
+  | 'insights.peakProductivityDetected'
+  | 'insights.weeklyPatternIdentified'
+  | 'insights.productivityDeclineDetected'
+  | 'insights.productivitySurge'
+  | 'insights.cohortSuccessPattern'
+  | 'insights.focusAreaIdentified'
+  | 'insights.optimalTaskLoad'
+  | 'insights.strategicPlanningAlert'
+  | 'insights.energyManagementTip'
+  | 'insights.burnoutPreventionAlert'
+  | 'insights.moodPerformanceConnection'
+  | 'insights.goalAchievementPattern'
+  | 'insights.taskTimingPattern'
+  | 'insights.scheduleTasksOptimalTime'
+  | 'insights.setReminder30Minutes'
+  | 'insights.prepareMaterialsTonight'
+  | 'insights.breakTasksIntoSteps'
+  | 'insights.completeOneMoreTask'
+  | 'insights.focusOnQuickWins'
+  | 'insights.setTimer25Minutes'
+  | 'insights.tryOptimalTimeForWeek'
+  | 'insights.setDailyReminders'
+  | 'insights.trackCompletionRate'
+  | 'insights.adjustSchedule'
+  | 'insights.planChallengingTasks'
+  | 'insights.useOptimalDay'
+  | 'insights.scheduleEasierTasks'
+  | 'insights.reviewSimplifyGoals'
+  | 'insights.takeShortBreak'
+  | 'insights.focusOneCategory'
+  | 'insights.adjustTaskDifficulty'
+  | 'insights.documentWhatWorks'
+  | 'insights.increaseTaskDifficulty'
+  | 'insights.shareSuccessStrategies'
+  | 'insights.setAmbitiousGoals'
+  | 'insights.prePlanSimpleWins'
+  | 'insights.scheduleFavoriteActivities'
+  | 'insights.prepareEverythingNight'
+  | 'insights.partnerAccountability'
+  | 'insights.makeRestPlanningDay'
+  | 'insights.scheduleBreaksBeforeEnergyDips'
+  | 'insights.planEnergizingActivities'
+  | 'insights.adjustMealTiming'
+  | 'insights.try10MinuteWalk'
+  | 'insights.takeCompleteRestDay'
+  | 'insights.reduceTaskLoad30Percent'
+  | 'insights.focusEssentialTasks'
+  | 'insights.scheduleEnjoyableActivity'
+  | 'insights.practiceSayingNo'
+  | 'insights.noticeWhatCreatesMood'
+  | 'insights.planImportantTasksGoodMood'
+  | 'insights.developShiftingStrategies'
+  | 'insights.keepJournaling'
+  | 'insights.considerMoodBoostingActivities'
+  | 'insights.breakLongTermGoals'
+  | 'insights.celebrateHalfwayPoint'
+  | 'insights.reviewGoalsWeekly'
+  | 'insights.try2MinuteRule'
+  | 'insights.scheduleTasksImmediately'
+  | 'insights.setCompletionDeadlines'
+  | 'insights.useTimeBlocking'
 
 export const translations: Record<Language, Translations> = {
   en: {
@@ -2593,6 +2822,134 @@ export const translations: Record<Language, Translations> = {
       // Configuration Display
       moderateDifficulty: 'moderate difficulty'
     },
+
+    // Predictive Insights
+    insights: {
+      // Main Component Headers
+      aiPredictiveInsights: 'AI Predictive Insights',
+      aiInsights: 'AI Insights',
+      quickInsights: 'AI Insights',
+      
+      // Description Text
+      insightsBasedOnAssessment: 'Insights based on your assessment responses and coaching interactions',
+      insightsBasedOnAllAssessments: 'Insights based on all your assessments and coaching interactions',
+      analyzingPatterns: 'Analyzing your patterns...',
+      gatheringData: 'Gathering data to generate personalized insights...',
+      noMoreInsights: 'No more insights to show. Check back later for new predictions!',
+      checkBackLater: 'Check back later for new predictions!',
+      
+      // Insight Type Labels
+      riskAlert: 'Risk Alert',
+      patternForecast: 'Pattern Forecast',
+      smartRecommendation: 'Smart Recommendation',
+      strategicTiming: 'Strategic Timing',
+      deepInsights: 'Deep Insights',
+      
+      // Insight Type Descriptions  
+      riskAlertDesc: 'Potential challenges ahead',
+      patternForecastDesc: 'Your behavioral patterns',
+      smartRecommendationDesc: 'Optimized for your success',
+      strategicTimingDesc: 'Optimal intervention moments',
+      deepInsightsDesc: 'Pattern-based coaching',
+      
+      // Priority Labels
+      highPriority: 'High Priority',
+      mediumPriority: 'Medium Priority',
+      lowPriority: 'Low Priority',
+      confident: 'confident',
+      
+      // Filter Labels
+      allInsights: 'All',
+      
+      // Action Labels
+      viewActions: 'View Actions',
+      suggestedActions: 'Suggested Actions',
+      dismissInsight: 'Dismiss insight',
+      refreshInsights: 'Refresh insights',
+      tryAgain: 'Try again',
+      
+      // Metadata
+      cached: 'Cached',
+      cachedFrom: 'Cached from',
+      generated: 'Generated',
+      expires: 'Expires',
+      fromCache: 'From Cache',
+      confidenceHigh: 'High',
+      confidenceMedium: 'Medium',
+      confidenceLow: 'Low',
+      allAssessmentsMode: 'All Assessments Mode',
+      
+      // Error Messages
+      errorLoadingInsights: 'Error loading insights',
+      
+      // Specific Insight Messages
+      taskCompletionRisk: 'Task Completion Risk Alert',
+      streakAtRisk: 'Streak at Risk!',
+      peakProductivityDetected: 'Peak Productivity Detected',
+      weeklyPatternIdentified: 'Weekly Pattern Identified',
+      productivityDeclineDetected: 'Productivity Decline Detected',
+      productivitySurge: 'Productivity Surge!',
+      cohortSuccessPattern: 'Cohort Success Pattern',
+      focusAreaIdentified: 'Focus Area Identified',
+      optimalTaskLoad: 'Optimal Task Load',
+      strategicPlanningAlert: 'Strategic Planning Alert',
+      energyManagementTip: 'Energy Management Tip',
+      burnoutPreventionAlert: 'Burnout Prevention Alert',
+      moodPerformanceConnection: 'Mood-Performance Connection',
+      goalAchievementPattern: 'Goal Achievement Pattern',
+      taskTimingPattern: 'Task Timing Pattern',
+      
+      // Common Action Suggestions
+      scheduleTasksOptimalTime: 'Schedule tasks for your most productive time',
+      setReminder30Minutes: 'Set a reminder 30 minutes before your usual task time',
+      prepareMaterialsTonight: 'Prepare materials tonight to reduce friction tomorrow',
+      breakTasksIntoSteps: 'Consider breaking tasks into smaller steps',
+      completeOneMoreTask: 'Complete at least one more task to maintain momentum',
+      focusOnQuickWins: 'Focus on quick wins to boost completion rate',
+      setTimer25Minutes: 'Set a timer for 25 minutes and tackle your easiest task',
+      tryOptimalTimeForWeek: 'Try completing tasks at optimal time for a week',
+      setDailyReminders: 'Set daily reminders for this optimal time',
+      trackCompletionRate: 'Track if this timing improves your completion rate',
+      adjustSchedule: 'Adjust your schedule to protect this time slot',
+      planChallengingTasks: 'Plan challenging tasks for this day',
+      useOptimalDay: 'Use this day for important goal progress',
+      scheduleEasierTasks: 'Schedule easier tasks on less productive days',
+      reviewSimplifyGoals: 'Review and simplify your current goals',
+      takeShortBreak: 'Take a short break to prevent burnout',
+      focusOneCategory: 'Focus on one category at a time',
+      adjustTaskDifficulty: 'Consider adjusting task difficulty',
+      documentWhatWorks: 'Document what\'s working for you',
+      increaseTaskDifficulty: 'Consider increasing task difficulty',
+      shareSuccessStrategies: 'Share your success strategies',
+      setAmbitiousGoals: 'Set more ambitious goals',
+      prePlanSimpleWins: 'Pre-plan simple wins for challenging days',
+      scheduleFavoriteActivities: 'Schedule your favorite activities as rewards',
+      prepareEverythingNight: 'Prepare everything the night before',
+      partnerAccountability: 'Partner with someone for accountability',
+      makeRestPlanningDay: 'Consider making this a rest or planning day',
+      scheduleBreaksBeforeEnergyDips: 'Schedule breaks before energy dips',
+      planEnergizingActivities: 'Plan energizing activities for low points',
+      adjustMealTiming: 'Adjust meal timing for sustained energy',
+      try10MinuteWalk: 'Try a 10-minute walk during low energy times',
+      takeCompleteRestDay: 'Take a complete rest day this week',
+      reduceTaskLoad30Percent: 'Reduce task load by 30% for 3 days',
+      focusEssentialTasks: 'Focus only on essential tasks',
+      scheduleEnjoyableActivity: 'Schedule something enjoyable and relaxing',
+      practiceSayingNo: 'Practice saying no to additional commitments',
+      noticeWhatCreatesMood: 'Notice what creates positive mood states',
+      planImportantTasksGoodMood: 'Plan important tasks when feeling positive',
+      developShiftingStrategies: 'Develop strategies to shift from negative states',
+      keepJournaling: 'Keep journaling to deepen self-awareness',
+      considerMoodBoostingActivities: 'Consider mood-boosting activities before tasks',
+      breakLongTermGoals: 'Break long-term goals into smaller milestones',
+      celebrateHalfwayPoint: 'Celebrate progress at the halfway point',
+      reviewGoalsWeekly: 'Review goals weekly to maintain momentum',
+      try2MinuteRule: 'Try the 2-minute rule for quick tasks',
+      scheduleTasksImmediately: 'Schedule tasks immediately after creating them',
+      setCompletionDeadlines: 'Set completion deadlines when creating tasks',
+      useTimeBlocking: 'Use time-blocking to ensure prompt completion',
+    },
+
     dashboard: {
       welcome: 'Welcome',
       welcomeBack: 'Welcome back',
@@ -3920,6 +4277,134 @@ export const translations: Record<Language, Translations> = {
       // Configuration Display
       moderateDifficulty: 'dificultad moderada'
     },
+
+    // Perspectivas Predictivas
+    insights: {
+      // Encabezados de Componentes Principales
+      aiPredictiveInsights: 'Perspectivas Predictivas de IA',
+      aiInsights: 'Perspectivas de IA',
+      quickInsights: 'Perspectivas de IA',
+      
+      // Texto Descriptivo
+      insightsBasedOnAssessment: 'Perspectivas basadas en tus respuestas de evaluación e interacciones de coaching',
+      insightsBasedOnAllAssessments: 'Perspectivas basadas en todas tus evaluaciones e interacciones de coaching',
+      analyzingPatterns: 'Analizando tus patrones...',
+      gatheringData: 'Recopilando datos para generar perspectivas personalizadas...',
+      noMoreInsights: '¡No hay más perspectivas que mostrar. Vuelve más tarde para nuevas predicciones!',
+      checkBackLater: '¡Vuelve más tarde para nuevas predicciones!',
+      
+      // Etiquetas de Tipo de Perspectiva
+      riskAlert: 'Alerta de Riesgo',
+      patternForecast: 'Pronóstico de Patrón',
+      smartRecommendation: 'Recomendación Inteligente',
+      strategicTiming: 'Momento Estratégico',
+      deepInsights: 'Perspectivas Profundas',
+      
+      // Descripciones de Tipos de Perspectiva
+      riskAlertDesc: 'Desafíos potenciales por delante',
+      patternForecastDesc: 'Tus patrones de comportamiento',
+      smartRecommendationDesc: 'Optimizado para tu éxito',
+      strategicTimingDesc: 'Momentos óptimos de intervención',
+      deepInsightsDesc: 'Coaching basado en patrones',
+      
+      // Etiquetas de Prioridad
+      highPriority: 'Alta Prioridad',
+      mediumPriority: 'Prioridad Media',
+      lowPriority: 'Baja Prioridad',
+      confident: 'confiado',
+      
+      // Etiquetas de Filtro
+      allInsights: 'Todas',
+      
+      // Etiquetas de Acción
+      viewActions: 'Ver Acciones',
+      suggestedActions: 'Acciones Sugeridas',
+      dismissInsight: 'Descartar perspectiva',
+      refreshInsights: 'Actualizar perspectivas',
+      tryAgain: 'Intentar de nuevo',
+      
+      // Metadatos
+      cached: 'En Caché',
+      cachedFrom: 'En caché desde',
+      generated: 'Generado',
+      expires: 'Expira',
+      fromCache: 'Del Caché',
+      confidenceHigh: 'Alta',
+      confidenceMedium: 'Media',
+      confidenceLow: 'Baja',
+      allAssessmentsMode: 'Modo Todas las Evaluaciones',
+      
+      // Mensajes de Error
+      errorLoadingInsights: 'Error cargando perspectivas',
+      
+      // Mensajes de Perspectivas Específicas
+      taskCompletionRisk: 'Alerta de Riesgo de Finalización de Tareas',
+      streakAtRisk: '¡Racha en Riesgo!',
+      peakProductivityDetected: 'Productividad Máxima Detectada',
+      weeklyPatternIdentified: 'Patrón Semanal Identificado',
+      productivityDeclineDetected: 'Decline de Productividad Detectado',
+      productivitySurge: '¡Aumento de Productividad!',
+      cohortSuccessPattern: 'Patrón de Éxito de Cohorte',
+      focusAreaIdentified: 'Área de Enfoque Identificada',
+      optimalTaskLoad: 'Carga Óptima de Tareas',
+      strategicPlanningAlert: 'Alerta de Planificación Estratégica',
+      energyManagementTip: 'Consejo de Gestión de Energía',
+      burnoutPreventionAlert: 'Alerta de Prevención de Agotamiento',
+      moodPerformanceConnection: 'Conexión Estado de Ánimo-Rendimiento',
+      goalAchievementPattern: 'Patrón de Logro de Objetivos',
+      taskTimingPattern: 'Patrón de Tiempo de Tareas',
+      
+      // Sugerencias de Acción Comunes
+      scheduleTasksOptimalTime: 'Programa tareas para tu momento más productivo',
+      setReminder30Minutes: 'Establece un recordatorio 30 minutos antes de tu hora habitual de tareas',
+      prepareMaterialsTonight: 'Prepara materiales esta noche para reducir fricción mañana',
+      breakTasksIntoSteps: 'Considera dividir tareas en pasos más pequeños',
+      completeOneMoreTask: 'Completa al menos una tarea más para mantener el impulso',
+      focusOnQuickWins: 'Enfócate en victorias rápidas para aumentar la tasa de finalización',
+      setTimer25Minutes: 'Establece un temporizador de 25 minutos y aborda tu tarea más fácil',
+      tryOptimalTimeForWeek: 'Intenta completar tareas en el momento óptimo durante una semana',
+      setDailyReminders: 'Establece recordatorios diarios para este momento óptimo',
+      trackCompletionRate: 'Rastrea si este horario mejora tu tasa de finalización',
+      adjustSchedule: 'Ajusta tu horario para proteger este tiempo',
+      planChallengingTasks: 'Planifica tareas desafiantes para este día',
+      useOptimalDay: 'Usa este día para progreso importante en objetivos',
+      scheduleEasierTasks: 'Programa tareas más fáciles en días menos productivos',
+      reviewSimplifyGoals: 'Revisa y simplifica tus objetivos actuales',
+      takeShortBreak: 'Toma un descanso corto para prevenir agotamiento',
+      focusOneCategory: 'Enfócate en una categoría a la vez',
+      adjustTaskDifficulty: 'Considera ajustar la dificultad de las tareas',
+      documentWhatWorks: 'Documenta lo que está funcionando para ti',
+      increaseTaskDifficulty: 'Considera aumentar la dificultad de las tareas',
+      shareSuccessStrategies: 'Comparte tus estrategias de éxito',
+      setAmbitiousGoals: 'Establece objetivos más ambiciosos',
+      prePlanSimpleWins: 'Pre-planifica victorias simples para días desafiantes',
+      scheduleFavoriteActivities: 'Programa tus actividades favoritas como recompensas',
+      prepareEverythingNight: 'Prepara todo la noche anterior',
+      partnerAccountability: 'Asóciate con alguien para responsabilidad',
+      makeRestPlanningDay: 'Considera hacer de este un día de descanso o planificación',
+      scheduleBreaksBeforeEnergyDips: 'Programa descansos antes de caídas de energía',
+      planEnergizingActivities: 'Planifica actividades energizantes para momentos bajos',
+      adjustMealTiming: 'Ajusta el horario de comidas para energía sostenida',
+      try10MinuteWalk: 'Prueba una caminata de 10 minutos durante momentos de baja energía',
+      takeCompleteRestDay: 'Toma un día de descanso completo esta semana',
+      reduceTaskLoad30Percent: 'Reduce la carga de tareas en 30% por 3 días',
+      focusEssentialTasks: 'Enfócate solo en tareas esenciales',
+      scheduleEnjoyableActivity: 'Programa algo agradable y relajante',
+      practiceSayingNo: 'Practica decir no a compromisos adicionales',
+      noticeWhatCreatesMood: 'Nota qué crea estados de ánimo positivos',
+      planImportantTasksGoodMood: 'Planifica tareas importantes cuando te sientas positivo',
+      developShiftingStrategies: 'Desarrolla estrategias para cambiar de estados negativos',
+      keepJournaling: 'Sigue escribiendo en el diario para profundizar la autoconciencia',
+      considerMoodBoostingActivities: 'Considera actividades que mejoren el estado de ánimo antes de las tareas',
+      breakLongTermGoals: 'Divide objetivos a largo plazo en hitos más pequeños',
+      celebrateHalfwayPoint: 'Celebra el progreso en el punto medio',
+      reviewGoalsWeekly: 'Revisa objetivos semanalmente para mantener impulso',
+      try2MinuteRule: 'Prueba la regla de 2 minutos para tareas rápidas',
+      scheduleTasksImmediately: 'Programa tareas inmediatamente después de crearlas',
+      setCompletionDeadlines: 'Establece fechas límite de finalización al crear tareas',
+      useTimeBlocking: 'Usa bloqueo de tiempo para asegurar finalización puntual',
+    },
+
     dashboard: {
       welcome: 'Bienvenido',
       welcomeBack: 'Bienvenido de nuevo',
@@ -5017,6 +5502,134 @@ export const translations: Record<Language, Translations> = {
       // Configuration Display
       moderateDifficulty: 'difficulté modérée'
     },
+
+    // Aperçus Prédictifs
+    insights: {
+      // En-têtes des Composants Principaux
+      aiPredictiveInsights: 'Aperçus Prédictifs IA',
+      aiInsights: 'Aperçus IA',
+      quickInsights: 'Aperçus IA',
+      
+      // Texte Descriptif
+      insightsBasedOnAssessment: 'Aperçus basés sur vos réponses d\'évaluation et interactions de coaching',
+      insightsBasedOnAllAssessments: 'Aperçus basés sur toutes vos évaluations et interactions de coaching',
+      analyzingPatterns: 'Analyse de vos modèles...',
+      gatheringData: 'Collecte de données pour générer des aperçus personnalisés...',
+      noMoreInsights: 'Plus d\'aperçus à afficher. Revenez plus tard pour de nouvelles prédictions !',
+      checkBackLater: 'Revenez plus tard pour de nouvelles prédictions !',
+      
+      // Étiquettes de Types d\'Aperçus
+      riskAlert: 'Alerte de Risque',
+      patternForecast: 'Prévision de Modèle',
+      smartRecommendation: 'Recommandation Intelligente',
+      strategicTiming: 'Timing Stratégique',
+      deepInsights: 'Aperçus Profonds',
+      
+      // Descriptions des Types d\'Aperçus
+      riskAlertDesc: 'Défis potentiels à venir',
+      patternForecastDesc: 'Vos modèles comportementaux',
+      smartRecommendationDesc: 'Optimisé pour votre succès',
+      strategicTimingDesc: 'Moments d\'intervention optimaux',
+      deepInsightsDesc: 'Coaching basé sur les modèles',
+      
+      // Étiquettes de Priorité
+      highPriority: 'Haute Priorité',
+      mediumPriority: 'Priorité Moyenne',
+      lowPriority: 'Faible Priorité',
+      confident: 'confiant',
+      
+      // Étiquettes de Filtre
+      allInsights: 'Tous',
+      
+      // Étiquettes d\'Action
+      viewActions: 'Voir les Actions',
+      suggestedActions: 'Actions Suggérées',
+      dismissInsight: 'Rejeter l\'aperçu',
+      refreshInsights: 'Actualiser les aperçus',
+      tryAgain: 'Réessayer',
+      
+      // Métadonnées
+      cached: 'En Cache',
+      cachedFrom: 'En cache depuis',
+      generated: 'Généré',
+      expires: 'Expire',
+      fromCache: 'Du Cache',
+      confidenceHigh: 'Élevée',
+      confidenceMedium: 'Moyenne',
+      confidenceLow: 'Faible',
+      allAssessmentsMode: 'Mode Toutes les Évaluations',
+      
+      // Messages d\'Erreur
+      errorLoadingInsights: 'Erreur lors du chargement des aperçus',
+      
+      // Messages d\'Aperçus Spécifiques
+      taskCompletionRisk: 'Alerte de Risque d\'Achèvement des Tâches',
+      streakAtRisk: 'Série en Danger !',
+      peakProductivityDetected: 'Productivité Maximale Détectée',
+      weeklyPatternIdentified: 'Modèle Hebdomadaire Identifié',
+      productivityDeclineDetected: 'Déclin de Productivité Détecté',
+      productivitySurge: 'Poussée de Productivité !',
+      cohortSuccessPattern: 'Modèle de Succès de Cohorte',
+      focusAreaIdentified: 'Zone de Focus Identifiée',
+      optimalTaskLoad: 'Charge de Tâche Optimale',
+      strategicPlanningAlert: 'Alerte de Planification Stratégique',
+      energyManagementTip: 'Conseil de Gestion d\'Énergie',
+      burnoutPreventionAlert: 'Alerte de Prévention d\'Épuisement',
+      moodPerformanceConnection: 'Connexion Humeur-Performance',
+      goalAchievementPattern: 'Modèle d\'Atteinte d\'Objectifs',
+      taskTimingPattern: 'Modèle de Timing des Tâches',
+      
+      // Suggestions d\'Actions Communes
+      scheduleTasksOptimalTime: 'Programmer les tâches pour votre moment le plus productif',
+      setReminder30Minutes: 'Définir un rappel 30 minutes avant votre heure habituelle de tâches',
+      prepareMaterialsTonight: 'Préparer les matériaux ce soir pour réduire les frictions demain',
+      breakTasksIntoSteps: 'Envisager de diviser les tâches en étapes plus petites',
+      completeOneMoreTask: 'Compléter au moins une tâche de plus pour maintenir l\'élan',
+      focusOnQuickWins: 'Se concentrer sur les victoires rapides pour augmenter le taux d\'achèvement',
+      setTimer25Minutes: 'Régler une minuterie de 25 minutes et s\'attaquer à votre tâche la plus facile',
+      tryOptimalTimeForWeek: 'Essayer de compléter les tâches au moment optimal pendant une semaine',
+      setDailyReminders: 'Définir des rappels quotidiens pour ce moment optimal',
+      trackCompletionRate: 'Suivre si ce timing améliore votre taux d\'achèvement',
+      adjustSchedule: 'Ajuster votre emploi du temps pour protéger ce créneau',
+      planChallengingTasks: 'Planifier des tâches difficiles pour ce jour',
+      useOptimalDay: 'Utiliser ce jour pour des progrès importants vers les objectifs',
+      scheduleEasierTasks: 'Programmer des tâches plus faciles les jours moins productifs',
+      reviewSimplifyGoals: 'Revoir et simplifier vos objectifs actuels',
+      takeShortBreak: 'Prendre une courte pause pour prévenir l\'épuisement',
+      focusOneCategory: 'Se concentrer sur une catégorie à la fois',
+      adjustTaskDifficulty: 'Envisager d\'ajuster la difficulté des tâches',
+      documentWhatWorks: 'Documenter ce qui fonctionne pour vous',
+      increaseTaskDifficulty: 'Envisager d\'augmenter la difficulté des tâches',
+      shareSuccessStrategies: 'Partager vos stratégies de succès',
+      setAmbitiousGoals: 'Définir des objectifs plus ambitieux',
+      prePlanSimpleWins: 'Pré-planifier des victoires simples pour les jours difficiles',
+      scheduleFavoriteActivities: 'Programmer vos activités préférées comme récompenses',
+      prepareEverythingNight: 'Préparer tout la veille au soir',
+      partnerAccountability: 'S\'associer avec quelqu\'un pour la responsabilité',
+      makeRestPlanningDay: 'Envisager de faire de ce jour un jour de repos ou de planification',
+      scheduleBreaksBeforeEnergyDips: 'Programmer des pauses avant les baisses d\'énergie',
+      planEnergizingActivities: 'Planifier des activités énergisantes pour les moments faibles',
+      adjustMealTiming: 'Ajuster le timing des repas pour une énergie durable',
+      try10MinuteWalk: 'Essayer une marche de 10 minutes pendant les moments de faible énergie',
+      takeCompleteRestDay: 'Prendre une journée de repos complète cette semaine',
+      reduceTaskLoad30Percent: 'Réduire la charge de tâches de 30% pendant 3 jours',
+      focusEssentialTasks: 'Se concentrer uniquement sur les tâches essentielles',
+      scheduleEnjoyableActivity: 'Programmer quelque chose d\'agréable et relaxant',
+      practiceSayingNo: 'Pratiquer dire non aux engagements supplémentaires',
+      noticeWhatCreatesMood: 'Remarquer ce qui crée des états d\'humeur positifs',
+      planImportantTasksGoodMood: 'Planifier des tâches importantes quand vous vous sentez positif',
+      developShiftingStrategies: 'Développer des stratégies pour changer d\'états négatifs',
+      keepJournaling: 'Continuer à tenir un journal pour approfondir la conscience de soi',
+      considerMoodBoostingActivities: 'Envisager des activités d\'amélioration de l\'humeur avant les tâches',
+      breakLongTermGoals: 'Diviser les objectifs à long terme en jalons plus petits',
+      celebrateHalfwayPoint: 'Célébrer les progrès à mi-parcours',
+      reviewGoalsWeekly: 'Revoir les objectifs hebdomadairement pour maintenir l\'élan',
+      try2MinuteRule: 'Essayer la règle des 2 minutes pour les tâches rapides',
+      scheduleTasksImmediately: 'Programmer les tâches immédiatement après les avoir créées',
+      setCompletionDeadlines: 'Définir des échéances d\'achèvement lors de la création des tâches',
+      useTimeBlocking: 'Utiliser le blocage de temps pour assurer un achèvement ponctuel',
+    },
+
     dashboard: {
       welcome: 'Bienvenue',
       welcomeBack: 'Bon retour',
@@ -6112,6 +6725,134 @@ export const translations: Record<Language, Translations> = {
       // Configuration Display
       moderateDifficulty: 'moderate Schwierigkeit'
     },
+
+    // Prädiktive Einblicke
+    insights: {
+      // Hauptkomponenten-Header
+      aiPredictiveInsights: 'KI Prädiktive Einblicke',
+      aiInsights: 'KI-Einblicke',
+      quickInsights: 'KI-Einblicke',
+      
+      // Beschreibungstext
+      insightsBasedOnAssessment: 'Einblicke basierend auf Ihren Bewertungsantworten und Coaching-Interaktionen',
+      insightsBasedOnAllAssessments: 'Einblicke basierend auf all Ihren Bewertungen und Coaching-Interaktionen',
+      analyzingPatterns: 'Analysiere Ihre Muster...',
+      gatheringData: 'Sammle Daten zur Generierung personalisierter Einblicke...',
+      noMoreInsights: 'Keine weiteren Einblicke zu zeigen. Schauen Sie später für neue Vorhersagen vorbei!',
+      checkBackLater: 'Schauen Sie später für neue Vorhersagen vorbei!',
+      
+      // Einblick-Typ Labels
+      riskAlert: 'Risiko-Warnung',
+      patternForecast: 'Muster-Vorhersage',
+      smartRecommendation: 'Intelligente Empfehlung',
+      strategicTiming: 'Strategisches Timing',
+      deepInsights: 'Tiefe Einblicke',
+      
+      // Einblick-Typ Beschreibungen
+      riskAlertDesc: 'Potenzielle Herausforderungen voraus',
+      patternForecastDesc: 'Ihre Verhaltensmuster',
+      smartRecommendationDesc: 'Für Ihren Erfolg optimiert',
+      strategicTimingDesc: 'Optimale Interventionsmomente',
+      deepInsightsDesc: 'Musterbasiertes Coaching',
+      
+      // Prioritäts-Labels
+      highPriority: 'Hohe Priorität',
+      mediumPriority: 'Mittlere Priorität',
+      lowPriority: 'Niedrige Priorität',
+      confident: 'sicher',
+      
+      // Filter-Labels
+      allInsights: 'Alle',
+      
+      // Aktions-Labels
+      viewActions: 'Aktionen Anzeigen',
+      suggestedActions: 'Vorgeschlagene Aktionen',
+      dismissInsight: 'Einblick verwerfen',
+      refreshInsights: 'Einblicke aktualisieren',
+      tryAgain: 'Erneut versuchen',
+      
+      // Metadaten
+      cached: 'Zwischengespeichert',
+      cachedFrom: 'Zwischengespeichert von',
+      generated: 'Generiert',
+      expires: 'Läuft ab',
+      fromCache: 'Aus Cache',
+      confidenceHigh: 'Hoch',
+      confidenceMedium: 'Mittel',
+      confidenceLow: 'Niedrig',
+      allAssessmentsMode: 'Alle-Bewertungen-Modus',
+      
+      // Fehlermeldungen
+      errorLoadingInsights: 'Fehler beim Laden der Einblicke',
+      
+      // Spezifische Einblick-Nachrichten
+      taskCompletionRisk: 'Aufgabenabschluss-Risiko-Warnung',
+      streakAtRisk: 'Serie in Gefahr!',
+      peakProductivityDetected: 'Höchste Produktivität Erkannt',
+      weeklyPatternIdentified: 'Wöchentliches Muster Identifiziert',
+      productivityDeclineDetected: 'Produktivitätsrückgang Erkannt',
+      productivitySurge: 'Produktivitätsschub!',
+      cohortSuccessPattern: 'Kohorten-Erfolgsmuster',
+      focusAreaIdentified: 'Fokusbereich Identifiziert',
+      optimalTaskLoad: 'Optimale Aufgabenlast',
+      strategicPlanningAlert: 'Strategische Planungswarnung',
+      energyManagementTip: 'Energiemanagement-Tipp',
+      burnoutPreventionAlert: 'Burnout-Präventions-Warnung',
+      moodPerformanceConnection: 'Stimmung-Leistung-Verbindung',
+      goalAchievementPattern: 'Zielerreichungsmuster',
+      taskTimingPattern: 'Aufgaben-Timing-Muster',
+      
+      // Allgemeine Aktionsvorschläge
+      scheduleTasksOptimalTime: 'Planen Sie Aufgaben für Ihre produktivste Zeit',
+      setReminder30Minutes: 'Setzen Sie eine Erinnerung 30 Minuten vor Ihrer üblichen Aufgabenzeit',
+      prepareMaterialsTonight: 'Bereiten Sie Materialien heute Abend vor, um morgen Reibung zu reduzieren',
+      breakTasksIntoSteps: 'Erwägen Sie, Aufgaben in kleinere Schritte zu unterteilen',
+      completeOneMoreTask: 'Vervollständigen Sie mindestens eine weitere Aufgabe, um den Schwung aufrechtzuerhalten',
+      focusOnQuickWins: 'Konzentrieren Sie sich auf schnelle Erfolge, um die Abschlussrate zu steigern',
+      setTimer25Minutes: 'Setzen Sie einen Timer für 25 Minuten und gehen Sie Ihre einfachste Aufgabe an',
+      tryOptimalTimeForWeek: 'Versuchen Sie eine Woche lang, Aufgaben zur optimalen Zeit zu erledigen',
+      setDailyReminders: 'Setzen Sie tägliche Erinnerungen für diese optimale Zeit',
+      trackCompletionRate: 'Verfolgen Sie, ob dieses Timing Ihre Abschlussrate verbessert',
+      adjustSchedule: 'Passen Sie Ihren Zeitplan an, um diese Zeit zu schützen',
+      planChallengingTasks: 'Planen Sie herausfordernde Aufgaben für diesen Tag',
+      useOptimalDay: 'Nutzen Sie diesen Tag für wichtige Zielfortschritte',
+      scheduleEasierTasks: 'Planen Sie einfachere Aufgaben an weniger produktiven Tagen',
+      reviewSimplifyGoals: 'Überprüfen und vereinfachen Sie Ihre aktuellen Ziele',
+      takeShortBreak: 'Machen Sie eine kurze Pause, um Burnout zu verhindern',
+      focusOneCategory: 'Konzentrieren Sie sich auf eine Kategorie zur Zeit',
+      adjustTaskDifficulty: 'Erwägen Sie, die Aufgabenschwierigkeit anzupassen',
+      documentWhatWorks: 'Dokumentieren Sie, was für Sie funktioniert',
+      increaseTaskDifficulty: 'Erwägen Sie, die Aufgabenschwierigkeit zu erhöhen',
+      shareSuccessStrategies: 'Teilen Sie Ihre Erfolgsstrategien',
+      setAmbitiousGoals: 'Setzen Sie sich ehrgeizigere Ziele',
+      prePlanSimpleWins: 'Planen Sie einfache Erfolge für herausfordernde Tage vor',
+      scheduleFavoriteActivities: 'Planen Sie Ihre Lieblingsaktivitäten als Belohnungen',
+      prepareEverythingNight: 'Bereiten Sie alles am Vorabend vor',
+      partnerAccountability: 'Partnern Sie sich mit jemandem für Verantwortlichkeit',
+      makeRestPlanningDay: 'Erwägen Sie, dies zu einem Ruhe- oder Planungstag zu machen',
+      scheduleBreaksBeforeEnergyDips: 'Planen Sie Pausen vor Energietiefs',
+      planEnergizingActivities: 'Planen Sie energetisierende Aktivitäten für schwache Punkte',
+      adjustMealTiming: 'Passen Sie die Mahlzeitenzeiten für nachhaltige Energie an',
+      try10MinuteWalk: 'Versuchen Sie einen 10-minütigen Spaziergang während Zeiten niedriger Energie',
+      takeCompleteRestDay: 'Nehmen Sie sich diese Woche einen kompletten Ruhetag',
+      reduceTaskLoad30Percent: 'Reduzieren Sie die Aufgabenlast um 30% für 3 Tage',
+      focusEssentialTasks: 'Konzentrieren Sie sich nur auf wesentliche Aufgaben',
+      scheduleEnjoyableActivity: 'Planen Sie etwas Angenehmes und Entspannendes',
+      practiceSayingNo: 'Üben Sie, nein zu zusätzlichen Verpflichtungen zu sagen',
+      noticeWhatCreatesMood: 'Bemerken Sie, was positive Stimmungszustände schafft',
+      planImportantTasksGoodMood: 'Planen Sie wichtige Aufgaben, wenn Sie sich positiv fühlen',
+      developShiftingStrategies: 'Entwickeln Sie Strategien, um sich von negativen Zuständen zu lösen',
+      keepJournaling: 'Führen Sie weiterhin Tagebuch, um das Selbstbewusstsein zu vertiefen',
+      considerMoodBoostingActivities: 'Erwägen Sie stimmungsaufhellende Aktivitäten vor Aufgaben',
+      breakLongTermGoals: 'Teilen Sie langfristige Ziele in kleinere Meilensteine auf',
+      celebrateHalfwayPoint: 'Feiern Sie Fortschritte am Halbzeitpunkt',
+      reviewGoalsWeekly: 'Überprüfen Sie Ziele wöchentlich, um den Schwung aufrechtzuerhalten',
+      try2MinuteRule: 'Versuchen Sie die 2-Minuten-Regel für schnelle Aufgaben',
+      scheduleTasksImmediately: 'Planen Sie Aufgaben sofort nach dem Erstellen',
+      setCompletionDeadlines: 'Setzen Sie Abschlussfristen beim Erstellen von Aufgaben',
+      useTimeBlocking: 'Verwenden Sie Zeitblockierung, um pünktlichen Abschluss sicherzustellen',
+    },
+
     dashboard: {
       welcome: 'Willkommen',
       welcomeBack: 'Willkommen zurück',

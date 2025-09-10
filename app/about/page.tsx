@@ -36,14 +36,14 @@ export default function AboutPage() {
         </div>
 
         {/* Mission Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="h-8 w-8 text-gray-700" />
+            <div className="text-center mb-6 sm:mb-8">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Target className="h-6 w-6 sm:h-8 sm:w-8 text-gray-700" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('about.ourMission')}</h2>
-              <p className="text-lg text-gray-600">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">{t('about.ourMission')}</h2>
+              <p className="text-base sm:text-lg text-gray-600">
                 {t('about.ourMissionDesc')}
               </p>
             </div>
@@ -51,41 +51,41 @@ export default function AboutPage() {
         </div>
 
         {/* What Makes Us Different */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('about.whatMakesUsDifferent')}</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">{t('about.whatMakesUsDifferent')}</h2>
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
               {t('about.whatMakesUsDesc')}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-8 w-8 text-blue-600" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about.evidenceBased')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">{t('about.evidenceBased')}</h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 {t('about.evidenceBasedDesc')}
               </p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-green-600" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about.peerCalibrated')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">{t('about.peerCalibrated')}</h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 {t('about.peerCalibratedDesc')}
               </p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Brain className="h-8 w-8 text-purple-600" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about.aiPowered')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">{t('about.aiPowered')}</h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 {t('about.aiPoweredDesc')}
               </p>
             </div>
@@ -93,51 +93,51 @@ export default function AboutPage() {
         </div>
 
         {/* The Four Dimensions */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('about.fourLifeDimensions')}</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">{t('about.fourLifeDimensions')}</h2>
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
               {t('about.fourDimensionsDesc')}
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-gray-50 p-6 rounded-xl text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-6 w-6 text-green-600" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('about.financialHealthDim')}</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('about.financialHealthDim')}</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 {t('about.financialHealthDimDesc')}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl text-center">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-6 w-6 text-red-600" />
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('about.physicalWellnessDim')}</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('about.physicalWellnessDim')}</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 {t('about.physicalWellnessDimDesc')}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-6 w-6 text-blue-600" />
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('about.socialNetworkDim')}</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('about.socialNetworkDim')}</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 {t('about.socialNetworkDimDesc')}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-6 w-6 text-purple-600" />
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">{t('about.personalGrowthDim')}</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('about.personalGrowthDim')}</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
                 {t('about.personalGrowthDimDesc')}
               </p>
             </div>
@@ -145,54 +145,54 @@ export default function AboutPage() {
         </div>
 
         {/* Our Approach */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('about.ourApproach')}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">{t('about.ourApproach')}</h2>
             
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div className="flex items-start">
-                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 flex-shrink-0 text-xs sm:text-sm font-bold">
                   1
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('about.comprehensiveAssessmentStep')}</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{t('about.comprehensiveAssessmentStep')}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">
                     {t('about.comprehensiveAssessmentDesc')}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 flex-shrink-0 text-xs sm:text-sm font-bold">
                   2
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('about.dataDrivenInsights')}</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{t('about.dataDrivenInsights')}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">
                     {t('about.dataDrivenInsightsDesc')}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 flex-shrink-0 text-xs sm:text-sm font-bold">
                   3
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('about.personalizedActionPlans')}</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{t('about.personalizedActionPlans')}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">
                     {t('about.personalizedActionPlansDesc')}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-900 text-white rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 flex-shrink-0 text-xs sm:text-sm font-bold">
                   4
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('about.ongoingSupport')}</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{t('about.ongoingSupport')}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">
                     {t('about.ongoingSupportDesc')}
                   </p>
                 </div>

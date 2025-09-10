@@ -14,6 +14,7 @@ import { LoginTrackerComponent } from '@/components/LoginTracker'
 import CoachPreferenceSetup from '@/components/CoachPreferenceSetup'
 import { useLanguage } from '@/lib/language-context'
 import LanguageSelector from '@/components/LanguageSelector'
+import PredictiveInsights from '@/components/PredictiveInsights'
 import { 
   Calendar, MessageSquare, TrendingUp, Target, Award, Clock, 
   ArrowLeft, Settings, Star, CheckCircle, Play, Users,
@@ -304,7 +305,7 @@ export default function CoachDashboard() {
   const loadUserProgress = async () => {
     try {
       console.log('LOADING USER PROGRESS for assessment:', params.id)
-      const response = await fetch(`/api/user-progress?assessmentId=${params.id}`)
+      const response = await fetch(`/api/progress?type=stats&assessmentId=${params.id}`)
       if (response.ok) {
         const progressData = await response.json()
         console.log('RECEIVED PROGRESS DATA:', progressData)
@@ -423,7 +424,7 @@ export default function CoachDashboard() {
         // Fetch real achievements from API
         let achievements = []
         try {
-          const achievementsResponse = await fetch('/api/achievements')
+          const achievementsResponse = await fetch('/api/achievements?action=list')
           if (achievementsResponse.ok) {
             const achievementsData = await achievementsResponse.json()
             achievements = achievementsData.achievements || []
@@ -579,7 +580,9 @@ export default function CoachDashboard() {
 
   const createUserTask = async (taskData: any) => {
     try {
-      const response = await fetch('/api/tasks/user', {
+      // Use consolidated endpoints based on task type
+      const endpoint = taskData.type === 'daily' ? '/api/tasks/daily' : '/api/tasks/weekly'
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -721,7 +724,7 @@ export default function CoachDashboard() {
         if (looksLikeDbId) {
           // Try direct PUT API first for tasks that look like they're from the database
           console.log('📌 Using PUT endpoint for existing task')
-          response = await fetch(`/api/tasks/weekly/${actionId}`, {
+          response = await fetch(`/api/tasks?type=weekly&id=${actionId}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -809,10 +812,10 @@ export default function CoachDashboard() {
         // Check for achievements after weekly task completion
         if (newCompleted) {
           try {
-            const achievementResponse = await fetch('/api/achievements/check', {
+            const achievementResponse = await fetch('/api/achievements', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ trigger: 'task_completion', category: taskInfo?.category || 'financial' })
+              body: JSON.stringify({ action: 'check', trigger: 'task_completion', category: taskInfo?.category || 'financial' })
             })
             
             if (achievementResponse.ok) {
@@ -1286,7 +1289,7 @@ export default function CoachDashboard() {
 
   const deleteDailyGoal = async (goalId: string) => {
     try {
-      const response = await fetch(`/api/tasks/daily/${goalId}`, {
+      const response = await fetch(`/api/tasks?type=daily&id=${goalId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1310,7 +1313,7 @@ export default function CoachDashboard() {
 
   const deleteWeeklyTask = async (taskId: string) => {
     try {
-      const response = await fetch(`/api/tasks/weekly/${taskId}`, {
+      const response = await fetch(`/api/tasks?type=weekly&id=${taskId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1448,7 +1451,7 @@ export default function CoachDashboard() {
     
     try {
       // Use PUT method to update existing task directly by ID
-      const response = await fetch(`/api/tasks/daily/${goalId}`, {
+      const response = await fetch(`/api/tasks?type=daily&id=${goalId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1476,10 +1479,10 @@ export default function CoachDashboard() {
       // Check for new achievements after task completion
       if (newCompletedState) {
         try {
-          const achievementResponse = await fetch('/api/achievements/check', {
+          const achievementResponse = await fetch('/api/achievements', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ trigger: 'task_completion', category: goalToToggle.category })
+            body: JSON.stringify({ action: 'check', trigger: 'task_completion', category: goalToToggle.category })
           })
           
           if (achievementResponse.ok) {
@@ -1635,8 +1638,8 @@ export default function CoachDashboard() {
             <div className="space-y-6">
               {/* Step 1: Set Preferences */}
               <div className="flex items-start">
-                <div className="bg-green-100 p-3 rounded-full mr-4">
-                  <Settings className="h-6 w-6 text-green-600" />
+                <div className="bg-gray-100 p-3 rounded-full mr-4">
+                  <Settings className="h-6 w-6 text-gray-600" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">1. {t('coach.setYourCoachingPreferences')}</h3>
@@ -1689,17 +1692,17 @@ export default function CoachDashboard() {
           {/* Benefits Reminder */}
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-              <Target className="h-10 w-10 text-green-600 mx-auto mb-4" />
+              <Target className="h-10 w-10 text-gray-600 mx-auto mb-4" />
               <h3 className="font-semibold text-gray-900 mb-2">{t('coach.personalizedGoals')}</h3>
               <p className="text-sm text-gray-600">{t('coach.personalizedGoalsDesc')}</p>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-              <MessageSquare className="h-10 w-10 text-blue-600 mx-auto mb-4" />
+              <MessageSquare className="h-10 w-10 text-gray-600 mx-auto mb-4" />
               <h3 className="font-semibold text-gray-900 mb-2">{t('coach.twentyFourSevenSupport')}</h3>
               <p className="text-sm text-gray-600">{t('coach.twentyFourSevenSupportDesc')}</p>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-              <TrendingUp className="h-10 w-10 text-purple-600 mx-auto mb-4" />
+              <TrendingUp className="h-10 w-10 text-gray-600 mx-auto mb-4" />
               <h3 className="font-semibold text-gray-900 mb-2">{t('coach.trackProgress')}</h3>
               <p className="text-sm text-gray-600">{t('coach.trackProgressDesc')}</p>
             </div>
@@ -2288,6 +2291,19 @@ export default function CoachDashboard() {
               )}
             </div>
 
+            {/* Predictive Insights Section */}
+            <div className="mb-8">
+              <PredictiveInsights 
+                assessmentId={params.id as string}
+                useAllAssessments={false}
+                maxInsights={4}
+                className="shadow-lg"
+                showHeader={true}
+                collapsible={true}
+                defaultCollapsed={true}
+              />
+            </div>
+
             {/* This Week's Plan */}
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
               <div className="flex items-center justify-between mb-6">
@@ -2442,7 +2458,7 @@ export default function CoachDashboard() {
                                     e.stopPropagation()
                                     deleteWeeklyTask(action.id)
                                   }}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                                   title={t('coach.deleteTask')}
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -2486,7 +2502,7 @@ export default function CoachDashboard() {
                         </span>
                         <button
                           onClick={() => setShowTaskCreator(true)}
-                          className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                          className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                           + {t('coach.addTask')}
                         </button>
@@ -2506,7 +2522,7 @@ export default function CoachDashboard() {
                         
                         return completedWeeklyTasks.map(task => (
                           <div key={task.id} className="group flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                            <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                            <CheckCircle className="h-5 w-5 text-gray-600 mr-3 flex-shrink-0" />
                             <div className="flex-1">
                               <p className="text-gray-800 font-medium">{task.title}</p>
                               <p className="text-gray-600 text-sm">{task.description}</p>
@@ -2515,7 +2531,7 @@ export default function CoachDashboard() {
                               <span className="text-gray-600 text-xs">{t('coach.weekNumber')} {currentWeek}</span>
                               <button
                                 onClick={() => deleteWeeklyTask(task.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                                 title={t('coach.deleteTask')}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -2547,7 +2563,7 @@ export default function CoachDashboard() {
                         
                         return completedDailyGoals.map((goal, index) => (
                           <div key={goal.id || index} className="group flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                            <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                            <CheckCircle className="h-5 w-5 text-gray-600 mr-3 flex-shrink-0" />
                             <div className="flex-1">
                               <p className="text-gray-800 font-medium">{goal.title}</p>
                               <p className="text-gray-600 text-sm capitalize">{goal.category}</p>
@@ -2556,7 +2572,7 @@ export default function CoachDashboard() {
                               <span className="text-gray-600 text-xs">Today</span>
                               <button
                                 onClick={() => deleteDailyGoal(goal.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-500 hover:text-red-700"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                                 title={t('coach.deleteGoal')}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -2576,7 +2592,7 @@ export default function CoachDashboard() {
                           {getCurrentWeekTasks().filter(task => task.completed).length}
                         </p>
                         <p className="text-xs text-gray-600 mb-1">{t('coach.weeklyTasks')}</p>
-                        <div className="text-xs font-medium text-green-600">
+                        <div className="text-xs font-medium text-gray-600">
                           {Math.round(actualWeeklyProgress)}%
                         </div>
                       </div>
@@ -2585,7 +2601,7 @@ export default function CoachDashboard() {
                           {dailyGoals.filter(goal => goal && goal.completed).length}
                         </p>
                         <p className="text-xs text-gray-600 mb-1">{t('coach.dailyGoalsToday')}</p>
-                        <div className="text-xs font-medium text-blue-600">
+                        <div className="text-xs font-medium text-gray-600">
                           {weeklyDailyGoalsProgress}% {t('coach.week')}
                         </div>
                       </div>
@@ -2594,7 +2610,7 @@ export default function CoachDashboard() {
                           {Math.round(combinedWeeklyProgress)}%
                         </p>
                         <p className="text-xs text-gray-600 mb-1">{t('coach.overallProgress')}</p>
-                        <div className="text-xs font-medium text-purple-600">
+                        <div className="text-xs font-medium text-gray-600">
                           {t('coach.combined')}
                         </div>
                       </div>
@@ -3498,7 +3514,7 @@ export default function CoachDashboard() {
           onSubmit={async (tasksData) => {
             try {
               const promises = tasksData.tasks.map(task => 
-                fetch('/api/tasks/user', {
+                fetch('/api/tasks/weekly', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({

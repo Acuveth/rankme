@@ -533,6 +533,10 @@ model DeepReport {
   id           String   @id @default(cuid())
   assessmentId String   @unique
   reportData   String   // JSON string of the OpenAI-generated report
+  pdfData      Bytes?   // Binary PDF data
+  pdfLanguage  String?  // Language code for PDF (en, es, fr, etc.)
+  pdfGeneratedAt DateTime? // When PDF was generated
+  pdfFileSize  Int?     // Size of PDF in bytes for tracking
   generatedAt  DateTime @default(now())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

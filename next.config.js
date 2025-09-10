@@ -9,6 +9,24 @@ const nextConfig = {
     workerThreads: false,
     esmExternals: 'loose'
   },
+  // Add better error handling for connection issues
+  async headers() {
+    return [
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Connection',
+            value: 'close', // Close connections to prevent hanging
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+    ]
+  },
   // Optimize build performance and memory usage
   webpack: (config, { isServer }) => {
     if (!isServer) {

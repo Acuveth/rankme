@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import questions from '@/data/questions.json'
+import categories from '@/data/categories.json'
 import countries from '@/data/countries.json'
 import { ChevronLeft, ChevronRight, Check, User, Globe, Calendar } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
@@ -26,6 +27,9 @@ export default function AssessmentPage() {
   const { t } = useLanguage()
   const [step, setStep] = useState<'cohort' | 'questions' | 'review'>('cohort')
   const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [activeQuestions, setActiveQuestions] = useState<any[]>([])
+  const [showCategoryIntro, setShowCategoryIntro] = useState(false)
+  const [currentCategory, setCurrentCategory] = useState('')
   const [cohortData, setCohortData] = useState<CohortData>({
     age: 0,
     country: '',
@@ -35,6 +39,53 @@ export default function AssessmentPage() {
   const [assessmentId, setAssessmentId] = useState<string>('')
 
   const questionList = questions.questions
+  
+  // Generate adaptive question list based on answers
+  const generateAdaptiveQuestions = (allAnswers: Answers) => {
+    const adaptiveQuestions: any[] = []
+    const categoryOrder = ['financial', 'health_fitness', 'social', 'romantic', 'career', 'personal_growth']
+    
+    for (const categoryId of categoryOrder) {
+      const category = categories.categories[categoryId]
+      if (!category) continue
+      
+      // Always include core questions
+      for (const questionId of category.coreQuestions) {
+        const question = questionList.find(q => q.id === questionId)
+        if (question) adaptiveQuestions.push({...question, isCore: true, categoryIntro: adaptiveQuestions.filter(q => q.category === categoryId).length === 0})
+      }
+      
+      // Add adaptive questions based on conditions and priority
+      for (const questionId of category.adaptiveQuestions) {
+        const question = questionList.find(q => q.id === questionId)
+        if (!question) continue
+        
+        let shouldSkip = false
+        const skipCondition = category.skipConditions?.[questionId]
+        
+        if (skipCondition && allAnswers[skipCondition.if]) {
+          const conditionQuestionId = Object.keys(skipCondition.if)[0]
+          const conditionValues = skipCondition.if[conditionQuestionId]
+          const userAnswer = allAnswers[conditionQuestionId]
+          
+          if (userAnswer !== undefined && conditionValues.includes(userAnswer.toString())) {
+            shouldSkip = true
+          }
+        }
+        
+        // Skip low priority questions if we're over the target length
+        if (category.priority === 'low' && adaptiveQuestions.length > categories.adaptiveLogic.maxQuestions * 0.8) {
+          shouldSkip = true
+        }
+        
+        if (!shouldSkip) {
+          adaptiveQuestions.push({...question, isCore: false})
+        }
+      }
+    }
+    
+    return adaptiveQuestions.slice(0, categories.adaptiveLogic.maxQuestions)
+  }
 
   const handleCohortSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,6 +120,11 @@ export default function AssessmentPage() {
       }
     }
     
+    // Initialize with all questions for now, will adapt as user answers
+    const initialQuestions = generateAdaptiveQuestions({})
+    setActiveQuestions(initialQuestions)
+    setCurrentCategory(initialQuestions[0]?.category || '')
+    setShowCategoryIntro(true)
     setStep('questions')
   }
 
@@ -78,8 +134,29 @@ export default function AssessmentPage() {
   }
 
   const handleNext = async () => {
-    if (currentQuestion < questionList.length - 1) {
-      setCurrentQuestion(currentQuestion + 1)
+    if (showCategoryIntro) {
+      setShowCategoryIntro(false)
+      return
+    }
+    
+    if (currentQuestion < activeQuestions.length - 1) {
+      const nextQuestion = currentQuestion + 1
+      setCurrentQuestion(nextQuestion)
+      
+      // Check if we're entering a new category
+      const currentCat = activeQuestions[currentQuestion]?.category
+      const nextCat = activeQuestions[nextQuestion]?.category
+      
+      if (currentCat !== nextCat) {
+        setCurrentCategory(nextCat)
+        setShowCategoryIntro(true)
+      }
+      
+      // Regenerate adaptive questions based on current answers
+      const updatedQuestions = generateAdaptiveQuestions(answers)
+      if (updatedQuestions.length !== activeQuestions.length) {
+        setActiveQuestions(updatedQuestions)
+      }
     } else {
       try {
         await saveAnswers()
@@ -166,7 +243,7 @@ export default function AssessmentPage() {
     }
   }
 
-  const progress = ((currentQuestion + 1) / questionList.length) * 100
+  const progress = activeQuestions.length > 0 ? ((currentQuestion + 1) / activeQuestions.length) * 100 : 0
 
   if (step === 'cohort') {
     return (
@@ -263,19 +340,85 @@ export default function AssessmentPage() {
   }
 
   if (step === 'questions') {
-    const question = questionList[currentQuestion]
+    // Show category introduction
+    if (showCategoryIntro) {
+      const category = categories.categories[currentCategory]
+      const categoryColors: { [key: string]: string } = {
+        financial: 'bg-gray-800 text-white',
+        health_fitness: 'bg-gray-700 text-white',
+        social: 'bg-gray-600 text-white',
+        romantic: 'bg-gray-500 text-white',
+        career: 'bg-gray-600 text-white',
+        personal_growth: 'bg-gray-500 text-white'
+      }
+      
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 w-full max-w-2xl animate-fade-scale">
+            {/* Language Selector */}
+            <div className="flex justify-end mb-4">
+              <LanguageSelector />
+            </div>
+            
+            {/* Progress */}
+            <div className="mb-8">
+              <div className="text-sm font-medium text-gray-600 mb-2">
+                {Math.round(progress)}% Complete
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="bg-gradient-to-r from-gray-700 to-gray-900 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+            
+            {/* Category Introduction */}
+            <div className="text-center mb-8">
+              <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold mb-4 ${categoryColors[currentCategory]}`}>
+                {category.name}
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                {category.introduction}
+              </h2>
+              <p className="text-gray-600 text-base leading-relaxed">
+                {category.description}
+              </p>
+            </div>
+            
+            {/* Continue Button */}
+            <div className="flex justify-center">
+              <button
+                onClick={handleNext}
+                className="px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm"
+              >
+                Continue to Questions
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    
+    const question = activeQuestions[currentQuestion]
+    if (!question) return null
+    
     const categoryColors: { [key: string]: string } = {
       financial: 'bg-gray-800 text-white',
       health_fitness: 'bg-gray-700 text-white',
       social: 'bg-gray-600 text-white',
-      romantic: 'bg-gray-500 text-white'
+      romantic: 'bg-gray-500 text-white',
+      career: 'bg-gray-600 text-white',
+      personal_growth: 'bg-gray-500 text-white'
     }
 
     const categoryNames: { [key: string]: string } = {
       financial: t('assessment.financial'),
       health_fitness: t('assessment.healthFitness'),
       social: t('assessment.social'),
-      romantic: t('assessment.personal')
+      romantic: t('assessment.personal'),
+      career: 'Career',
+      personal_growth: 'Personal Growth'
     }
 
     return (
@@ -289,7 +432,8 @@ export default function AssessmentPage() {
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
               <span className="text-sm font-medium text-gray-600 mb-2 sm:mb-0">
-                {t('assessment.question')} {currentQuestion + 1} {t('assessment.of')} {questionList.length}
+                {t('assessment.question')} {currentQuestion + 1} {t('assessment.of')} {activeQuestions.length}
+                {question.isCore && <span className="ml-2 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">Core</span>}
               </span>
               <span className={`px-4 py-1 rounded-full text-xs font-bold ${categoryColors[question.category]} w-fit`}>
                 {categoryNames[question.category]}
@@ -321,9 +465,15 @@ export default function AssessmentPage() {
 
           {/* Question Section */}
           <div className="mb-8">
-            <h3 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-900 leading-relaxed">
+            <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-900 leading-relaxed">
               {question.label}
             </h3>
+            
+            {question.description && (
+              <p className="text-sm text-gray-600 mb-6 leading-relaxed bg-gray-50 p-4 rounded-lg">
+                {question.description}
+              </p>
+            )}
             
             {(question.type === 'single' || question.type === 'likert') && question.options && (
               <div className="space-y-3">
@@ -400,7 +550,7 @@ export default function AssessmentPage() {
               className="flex items-center px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none font-semibold"
             >
               <span className="mr-2">
-                {currentQuestion === questionList.length - 1 ? t('assessment.review') : t('assessment.next')}
+                {currentQuestion === activeQuestions.length - 1 ? t('assessment.finish') : t('assessment.next')}
               </span>
               <ChevronRight className="h-5 w-5" />
             </button>

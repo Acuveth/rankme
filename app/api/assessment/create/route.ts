@@ -1,34 +1,57 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAgeBand } from '@/lib/utils'
+import { cohortDataSchema } from '@/lib/validations/schemas'
+import { withMiddleware, withValidation, withSecurityHeaders } from '@/lib/middleware/security'
+import { withErrorHandler, validateInput } from '@/lib/utils/errorHandler'
 import countries from '@/data/countries.json'
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json()
-    const { age, country, sexGender } = body
+async function createAssessmentHandler(request: NextRequest, validatedData: any) {
+  const { age, country, sexGender } = validatedData
 
-    const ageBand = getAgeBand(age)
-    const region = getRegion(country)
-
-    const assessment = await prisma.assessment.create({
-      data: {
-        cohortAge: ageBand,
-        cohortSex: sexGender,
-        cohortRegion: region,
-        anonId: generateAnonId(),
-      }
-    })
-
-    return NextResponse.json({ assessmentId: assessment.id })
-  } catch (error) {
-    console.error('Error creating assessment:', error)
+  // Sanitize inputs
+  const sanitizedCountry = country.trim().toUpperCase()
+  const sanitizedGender = sexGender.trim()
+  
+  // Validate country code exists
+  const countryExists = countries.countries.some(c => c.code === sanitizedCountry)
+  if (!countryExists) {
     return NextResponse.json(
-      { error: 'Failed to create assessment' },
-      { status: 500 }
+      { error: 'Invalid country code' },
+      { status: 400 }
     )
   }
+
+  const ageBand = getAgeBand(age)
+  const region = getRegion(sanitizedCountry)
+
+  const assessment = await prisma.assessment.create({
+    data: {
+      cohortAge: ageBand,
+      cohortSex: sanitizedGender,
+      cohortRegion: region,
+      anonId: generateAnonId(),
+    },
+    select: {
+      id: true
+    }
+  })
+
+  return NextResponse.json({ 
+    assessmentId: assessment.id 
+  }, {
+    status: 201,
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
+    }
+  })
 }
+
+export const POST = withMiddleware(
+  withValidation(cohortDataSchema),
+  withSecurityHeaders,
+  withErrorHandler
+)(createAssessmentHandler)
 
 function getRegion(countryCode: string): string {
   // Find the country in our countries data
