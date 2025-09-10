@@ -6,8 +6,12 @@ import { withMiddleware, withValidation, withSecurityHeaders } from '@/lib/middl
 import { withErrorHandler, validateInput } from '@/lib/utils/errorHandler'
 import countries from '@/data/countries.json'
 
-async function createAssessmentHandler(request: NextRequest, validatedData: any) {
-  const { age, country, sexGender } = validatedData
+async function createAssessmentHandler(request: NextRequest) {
+  try {
+    // Parse and validate the request body
+    const body = await request.json();
+    const validatedData = validateInput(cohortDataSchema, body);
+    const { age, country, sexGender } = validatedData
 
   // Sanitize inputs
   const sanitizedCountry = country.trim().toUpperCase()
@@ -45,13 +49,16 @@ async function createAssessmentHandler(request: NextRequest, validatedData: any)
       'Cache-Control': 'no-cache, no-store, must-revalidate'
     }
   })
+  } catch (error) {
+    console.error('Assessment creation error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create assessment' },
+      { status: 500 }
+    );
+  }
 }
 
-export const POST = withMiddleware(
-  withValidation(cohortDataSchema),
-  withSecurityHeaders,
-  withErrorHandler
-)(createAssessmentHandler)
+export const POST = withErrorHandler(createAssessmentHandler)
 
 function getRegion(countryCode: string): string {
   // Find the country in our countries data

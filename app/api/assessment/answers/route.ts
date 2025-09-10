@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { assessmentAnswerSchema } from '@/lib/validations/schemas'
-import { withMiddleware, withValidation, withSecurityHeaders } from '@/lib/middleware/security'
-import { withErrorHandler, throwIfNotFound, DatabaseError } from '@/lib/utils/errorHandler'
+import { withSecurityHeaders } from '@/lib/middleware/security'
+import { withErrorHandler, throwIfNotFound, DatabaseError, validateInput } from '@/lib/utils/errorHandler'
 import { sanitizeObject } from '@/lib/middleware/security'
 
-async function saveAnswersHandler(request: NextRequest, validatedData: any) {
-  const { assessmentId, answers } = validatedData
+async function saveAnswersHandler(request: NextRequest) {
+  try {
+    // Parse and validate the request body
+    const body = await request.json()
+    const validatedData = validateInput(assessmentAnswerSchema, body)
+    const { assessmentId, answers } = validatedData
 
   // Verify assessment exists and is not completed
   const assessment = await prisma.assessment.findUnique({
@@ -75,14 +79,17 @@ async function saveAnswersHandler(request: NextRequest, validatedData: any) {
         'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
     })
-  } catch (error) {
-    console.error('Transaction failed:', error)
+  } catch (transactionError) {
+    console.error('Transaction failed:', transactionError)
     throw new DatabaseError('Failed to save assessment answers')
+  }
+  } catch (error) {
+    console.error('Save answers error:', error)
+    return NextResponse.json(
+      { error: 'Failed to save answers' },
+      { status: 500 }
+    )
   }
 }
 
-export const POST = withMiddleware(
-  withValidation(assessmentAnswerSchema),
-  withSecurityHeaders,
-  withErrorHandler
-)(saveAnswersHandler)
+export const POST = withErrorHandler(withSecurityHeaders(saveAnswersHandler))

@@ -644,7 +644,7 @@ export default function DashboardPage() {
 
               {completedAssessments.length > 0 ? (
                 <div className="space-y-4">
-                  {completedAssessments.slice(0, 5).map((assessment) => (
+                  {completedAssessments.map((assessment) => (
                     <div key={assessment.id} className="border border-gray-200 rounded-xl p-4 hover:bg-gray-50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">

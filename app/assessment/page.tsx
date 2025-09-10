@@ -9,6 +9,7 @@ import countries from '@/data/countries.json'
 import { ChevronLeft, ChevronRight, Check, User, Globe, Calendar } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
 import LanguageSelector from '@/components/LanguageSelector'
+import { getTranslatedQuestion } from '@/lib/question-translations'
 
 interface CohortData {
   age: number
@@ -24,7 +25,7 @@ export default function AssessmentPage() {
   const router = useRouter()
   const { data: session } = useSession()
   const searchParams = useSearchParams()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [step, setStep] = useState<'cohort' | 'questions' | 'review'>('cohort')
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [activeQuestions, setActiveQuestions] = useState<any[]>([])
@@ -39,6 +40,43 @@ export default function AssessmentPage() {
   const [assessmentId, setAssessmentId] = useState<string>('')
 
   const questionList = questions.questions
+
+  // Helper function to get translated category content
+  const getCategoryTranslations = (categoryId: string) => {
+    const translations: { [key: string]: { name: string; introduction: string; description: string } } = {
+      financial: {
+        name: t('assessment.financialHealthName'),
+        introduction: t('assessment.financialHealthIntroduction'),
+        description: t('assessment.financialHealthDescription')
+      },
+      health_fitness: {
+        name: t('assessment.physicalWellnessName'),
+        introduction: t('assessment.physicalWellnessIntroduction'),
+        description: t('assessment.physicalWellnessDescription')
+      },
+      social: {
+        name: t('assessment.socialNetworkName'),
+        introduction: t('assessment.socialNetworkIntroduction'),
+        description: t('assessment.socialNetworkDescription')
+      },
+      romantic: {
+        name: t('assessment.romanticName'),
+        introduction: t('assessment.romanticIntroduction'),
+        description: t('assessment.romanticDescription')
+      },
+      career: {
+        name: t('assessment.careerDevelopmentName'),
+        introduction: t('assessment.careerDevelopmentIntroduction'),
+        description: t('assessment.careerDevelopmentDescription')
+      },
+      personal_growth: {
+        name: t('assessment.personalGrowthName'),
+        introduction: t('assessment.personalGrowthIntroduction'),
+        description: t('assessment.personalGrowthDescription')
+      }
+    }
+    return translations[categoryId] || { name: categoryId, introduction: '', description: '' }
+  }
   
   // Generate adaptive question list based on answers
   const generateAdaptiveQuestions = (allAnswers: Answers) => {
@@ -129,7 +167,7 @@ export default function AssessmentPage() {
   }
 
   const handleAnswer = (value: any) => {
-    const question = questionList[currentQuestion]
+    const question = activeQuestions[currentQuestion]
     setAnswers({ ...answers, [question.id]: value })
   }
 
@@ -342,7 +380,7 @@ export default function AssessmentPage() {
   if (step === 'questions') {
     // Show category introduction
     if (showCategoryIntro) {
-      const category = categories.categories[currentCategory]
+      const categoryTranslations = getCategoryTranslations(currentCategory)
       const categoryColors: { [key: string]: string } = {
         financial: 'bg-gray-800 text-white',
         health_fitness: 'bg-gray-700 text-white',
@@ -363,7 +401,7 @@ export default function AssessmentPage() {
             {/* Progress */}
             <div className="mb-8">
               <div className="text-sm font-medium text-gray-600 mb-2">
-                {Math.round(progress)}% Complete
+                {Math.round(progress)}% {t('assessment.complete')}
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
@@ -376,13 +414,13 @@ export default function AssessmentPage() {
             {/* Category Introduction */}
             <div className="text-center mb-8">
               <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold mb-4 ${categoryColors[currentCategory]}`}>
-                {category.name}
+                {categoryTranslations.name}
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                {category.introduction}
+                {categoryTranslations.introduction}
               </h2>
               <p className="text-gray-600 text-base leading-relaxed">
-                {category.description}
+                {categoryTranslations.description}
               </p>
             </div>
             
@@ -392,7 +430,7 @@ export default function AssessmentPage() {
                 onClick={handleNext}
                 className="px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all font-semibold shadow-sm"
               >
-                Continue to Questions
+                {t('assessment.continueToQuestions')}
               </button>
             </div>
           </div>
@@ -402,6 +440,12 @@ export default function AssessmentPage() {
     
     const question = activeQuestions[currentQuestion]
     if (!question) return null
+
+    // Get translated question content
+    const translatedQuestion = getTranslatedQuestion(question.id, language)
+    const questionLabel = translatedQuestion?.label || question.label
+    const questionDescription = translatedQuestion?.description || question.description
+    const questionOptions = translatedQuestion?.options || question.options
     
     const categoryColors: { [key: string]: string } = {
       financial: 'bg-gray-800 text-white',
@@ -420,6 +464,7 @@ export default function AssessmentPage() {
       career: 'Career',
       personal_growth: 'Personal Growth'
     }
+
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -466,18 +511,18 @@ export default function AssessmentPage() {
           {/* Question Section */}
           <div className="mb-8">
             <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-900 leading-relaxed">
-              {question.label}
+              {questionLabel}
             </h3>
             
-            {question.description && (
+            {questionDescription && (
               <p className="text-sm text-gray-600 mb-6 leading-relaxed bg-gray-50 p-4 rounded-lg">
-                {question.description}
+                {questionDescription}
               </p>
             )}
             
-            {(question.type === 'single' || question.type === 'likert') && question.options && (
+            {(question.type === 'single' || question.type === 'likert') && questionOptions && (
               <div className="space-y-3">
-                {question.options.map((option: string, index: number) => (
+                {questionOptions.map((option: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => handleAnswer(index)}
@@ -550,7 +595,7 @@ export default function AssessmentPage() {
               className="flex items-center px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none font-semibold"
             >
               <span className="mr-2">
-                {currentQuestion === activeQuestions.length - 1 ? t('assessment.finish') : t('assessment.next')}
+                {currentQuestion === activeQuestions.length - 1 ? t('finish') : t('assessment.next')}
               </span>
               <ChevronRight className="h-5 w-5" />
             </button>

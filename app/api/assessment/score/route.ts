@@ -38,9 +38,18 @@ export async function POST(request: Request) {
     // Get insights about gap to excellence
     const potentialInsights = getAbsolutePotentialInsights(scores)
 
-    await prisma.scoreCategory.create({
-      data: {
+    await prisma.scoreCategory.upsert({
+      where: { assessmentId },
+      create: {
         assessmentId,
+        financial: scores.categories.financial,
+        healthFitness: scores.categories.health_fitness,
+        social: scores.categories.social,
+        romantic: scores.categories.romantic,
+        career: scores.categories.career,
+        personalGrowth: scores.categories.personal_growth
+      },
+      update: {
         financial: scores.categories.financial,
         healthFitness: scores.categories.health_fitness,
         social: scores.categories.social,
@@ -50,9 +59,20 @@ export async function POST(request: Request) {
       }
     })
 
-    await prisma.scoreOverall.create({
-      data: {
+    await prisma.scoreOverall.upsert({
+      where: { assessmentId },
+      create: {
         assessmentId,
+        overall: scores.overall,
+        percentileOverall: cohortPercentiles.overall,
+        percentileFinancial: cohortPercentiles.financial,
+        percentileHealth: cohortPercentiles.health,
+        percentileSocial: cohortPercentiles.social,
+        percentileRomantic: cohortPercentiles.romantic,
+        percentileCareer: cohortPercentiles.career,
+        percentilePersonalGrowth: cohortPercentiles.personal_growth
+      },
+      update: {
         overall: scores.overall,
         percentileOverall: cohortPercentiles.overall,
         percentileFinancial: cohortPercentiles.financial,
@@ -65,9 +85,18 @@ export async function POST(request: Request) {
     })
 
     // Store categorized answers for AI coach
-    await prisma.categorizedAnswers.create({
-      data: {
+    await prisma.categorizedAnswers.upsert({
+      where: { assessmentId },
+      create: {
         assessmentId,
+        financialAnswers: JSON.stringify(categorizedAnswers.financial),
+        healthFitnessAnswers: JSON.stringify(categorizedAnswers.health_fitness),
+        socialAnswers: JSON.stringify(categorizedAnswers.social),
+        romanticAnswers: JSON.stringify(categorizedAnswers.romantic),
+        careerAnswers: JSON.stringify(categorizedAnswers.career),
+        personalGrowthAnswers: JSON.stringify(categorizedAnswers.personal_growth)
+      },
+      update: {
         financialAnswers: JSON.stringify(categorizedAnswers.financial),
         healthFitnessAnswers: JSON.stringify(categorizedAnswers.health_fitness),
         socialAnswers: JSON.stringify(categorizedAnswers.social),

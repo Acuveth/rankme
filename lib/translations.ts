@@ -148,6 +148,7 @@ export interface Translations {
     justAFewMore: string
     back: string
     review: string
+    continueToQuestions: string
     
     // Categories
     financial: string
@@ -157,6 +158,26 @@ export interface Translations {
     personal: string
     career: string
     personalGrowth: string
+    
+    // Category Descriptions
+    financialHealthName: string
+    financialHealthIntroduction: string
+    financialHealthDescription: string
+    physicalWellnessName: string
+    physicalWellnessIntroduction: string
+    physicalWellnessDescription: string
+    socialNetworkName: string
+    socialNetworkIntroduction: string
+    socialNetworkDescription: string
+    romanticName: string
+    romanticIntroduction: string
+    romanticDescription: string
+    careerDevelopmentName: string
+    careerDevelopmentIntroduction: string
+    careerDevelopmentDescription: string
+    personalGrowthName: string
+    personalGrowthIntroduction: string
+    personalGrowthDescription: string
     
     // Review Page
     reviewYourAssessment: string
@@ -3084,6 +3105,7 @@ export const translations: Record<Language, Translations> = {
       justAFewMore: 'Just a few more!',
       back: 'Back',
       review: 'Review',
+      continueToQuestions: 'Continue to Questions',
       
       // Categories
       financial: 'Financial',
@@ -3093,6 +3115,26 @@ export const translations: Record<Language, Translations> = {
       personal: 'Personal',
       career: 'Career',
       personalGrowth: 'Personal Growth',
+      
+      // Category Descriptions
+      financialHealthName: 'Financial Health',
+      financialHealthIntroduction: 'Let\'s explore your financial foundation and wealth-building progress.',
+      financialHealthDescription: 'Understanding your financial health helps identify opportunities for building security and wealth.',
+      physicalWellnessName: 'Physical Wellness',
+      physicalWellnessIntroduction: 'Now let\'s assess your physical health and fitness journey.',
+      physicalWellnessDescription: 'Your physical wellness affects every aspect of your life, from energy to confidence.',
+      socialNetworkName: 'Social Network',
+      socialNetworkIntroduction: 'Let\'s explore your relationships and social connections.',
+      socialNetworkDescription: 'Strong social connections are fundamental to happiness and life satisfaction.',
+      romanticName: 'Romantic',
+      romanticIntroduction: 'Let\'s discuss your romantic life and relationship satisfaction.',
+      romanticDescription: 'Romantic relationships significantly impact overall life satisfaction and emotional wellbeing.',
+      careerDevelopmentName: 'Career Development',
+      careerDevelopmentIntroduction: 'Let\'s examine your professional growth and career satisfaction.',
+      careerDevelopmentDescription: 'Career development affects financial security, personal fulfillment, and life direction.',
+      personalGrowthName: 'Personal Growth',
+      personalGrowthIntroduction: 'Finally, let\'s explore your personal development and self-improvement journey.',
+      personalGrowthDescription: 'Personal growth activities contribute to long-term fulfillment and continuous improvement.',
       
       // Review Page
       reviewYourAssessment: 'Review Your Assessment',
@@ -4539,6 +4581,7 @@ export const translations: Record<Language, Translations> = {
       justAFewMore: '¡Solo unos pocos más!',
       back: 'Atrás',
       review: 'Revisar',
+      continueToQuestions: 'Continuar a las Preguntas',
       
       // Categories
       financial: 'Financiero',
@@ -4548,6 +4591,26 @@ export const translations: Record<Language, Translations> = {
       personal: 'Personal',
       career: 'Carrera',
       personalGrowth: 'Crecimiento Personal',
+      
+      // Category Descriptions
+      financialHealthName: 'Salud Financiera',
+      financialHealthIntroduction: 'Exploremos tu base financiera y el progreso en la construcción de riqueza.',
+      financialHealthDescription: 'Entender tu salud financiera ayuda a identificar oportunidades para construir seguridad y riqueza.',
+      physicalWellnessName: 'Bienestar Físico',
+      physicalWellnessIntroduction: 'Ahora evaluemos tu salud física y tu camino hacia el estado físico.',
+      physicalWellnessDescription: 'Tu bienestar físico afecta todos los aspectos de tu vida, desde la energía hasta la confianza.',
+      socialNetworkName: 'Red Social',
+      socialNetworkIntroduction: 'Exploremos tus relaciones y conexiones sociales.',
+      socialNetworkDescription: 'Las conexiones sociales sólidas son fundamentales para la felicidad y la satisfacción en la vida.',
+      romanticName: 'Romántico',
+      romanticIntroduction: 'Hablemos de tu vida romántica y la satisfacción en las relaciones.',
+      romanticDescription: 'Las relaciones románticas impactan significativamente en la satisfacción general de la vida y el bienestar emocional.',
+      careerDevelopmentName: 'Desarrollo Profesional',
+      careerDevelopmentIntroduction: 'Examinemos tu crecimiento profesional y la satisfacción en tu carrera.',
+      careerDevelopmentDescription: 'El desarrollo profesional afecta la seguridad financiera, la realización personal y la dirección en la vida.',
+      personalGrowthName: 'Crecimiento Personal',
+      personalGrowthIntroduction: 'Finalmente, exploremos tu desarrollo personal y tu camino de auto-mejora.',
+      personalGrowthDescription: 'Las actividades de crecimiento personal contribuyen a la realización a largo plazo y la mejora continua.',
       
       // Review Page
       reviewYourAssessment: 'Revisa Tu Evaluación',
@@ -5764,6 +5827,7 @@ export const translations: Record<Language, Translations> = {
       justAFewMore: 'Encore quelques-unes !',
       back: 'Retour',
       review: 'Réviser',
+      continueToQuestions: 'Continuer aux Questions',
       
       // Categories
       financial: 'Financier',
@@ -5773,6 +5837,26 @@ export const translations: Record<Language, Translations> = {
       personal: 'Personnel',
       career: 'Carrière',
       personalGrowth: 'Développement Personnel',
+      
+      // Category Descriptions
+      financialHealthName: 'Santé Financière',
+      financialHealthIntroduction: 'Explorons votre fondation financière et vos progrès dans la construction de richesse.',
+      financialHealthDescription: 'Comprendre votre santé financière aide à identifier les opportunités pour construire sécurité et richesse.',
+      physicalWellnessName: 'Bien-être Physique',
+      physicalWellnessIntroduction: 'Maintenant, évaluons votre santé physique et votre parcours de remise en forme.',
+      physicalWellnessDescription: 'Votre bien-être physique affecte tous les aspects de votre vie, de l\'énergie à la confiance.',
+      socialNetworkName: 'Réseau Social',
+      socialNetworkIntroduction: 'Explorons vos relations et connexions sociales.',
+      socialNetworkDescription: 'Des connexions sociales solides sont fondamentales pour le bonheur et la satisfaction de vie.',
+      romanticName: 'Romantique',
+      romanticIntroduction: 'Discutons de votre vie romantique et de la satisfaction relationnelle.',
+      romanticDescription: 'Les relations romantiques impactent significativement la satisfaction globale de vie et le bien-être émotionnel.',
+      careerDevelopmentName: 'Développement de Carrière',
+      careerDevelopmentIntroduction: 'Examinons votre croissance professionnelle et votre satisfaction de carrière.',
+      careerDevelopmentDescription: 'Le développement de carrière affecte la sécurité financière, l\'épanouissement personnel et la direction de vie.',
+      personalGrowthName: 'Développement Personnel',
+      personalGrowthIntroduction: 'Finalement, explorons votre développement personnel et votre parcours d\'amélioration de soi.',
+      personalGrowthDescription: 'Les activités de développement personnel contribuent à l\'épanouissement à long terme et à l\'amélioration continue.',
       
       // Review Page
       reviewYourAssessment: 'Révisez Votre Évaluation',
@@ -6987,6 +7071,7 @@ export const translations: Record<Language, Translations> = {
       justAFewMore: 'Nur noch ein paar!',
       back: 'Zurück',
       review: 'Überprüfen',
+      continueToQuestions: 'Weiter zu den Fragen',
       
       // Categories
       financial: 'Finanziell',
@@ -6996,6 +7081,26 @@ export const translations: Record<Language, Translations> = {
       personal: 'Persönlich',
       career: 'Karriere',
       personalGrowth: 'Persönliche Entwicklung',
+      
+      // Category Descriptions
+      financialHealthName: 'Finanzielle Gesundheit',
+      financialHealthIntroduction: 'Lassen Sie uns Ihre finanzielle Grundlage und Ihren Vermögensaufbau erkunden.',
+      financialHealthDescription: 'Das Verständnis Ihrer finanziellen Gesundheit hilft dabei, Möglichkeiten für Sicherheit und Wohlstand zu identifizieren.',
+      physicalWellnessName: 'Körperliches Wohlbefinden',
+      physicalWellnessIntroduction: 'Nun lassen Sie uns Ihre körperliche Gesundheit und Ihren Fitnessweg bewerten.',
+      physicalWellnessDescription: 'Ihr körperliches Wohlbefinden beeinflusst jeden Aspekt Ihres Lebens, von der Energie bis zum Selbstvertrauen.',
+      socialNetworkName: 'Soziales Netzwerk',
+      socialNetworkIntroduction: 'Lassen Sie uns Ihre Beziehungen und sozialen Verbindungen erkunden.',
+      socialNetworkDescription: 'Starke soziale Verbindungen sind fundamental für Glück und Lebenszufriedenheit.',
+      romanticName: 'Romantisch',
+      romanticIntroduction: 'Lassen Sie uns über Ihr romantisches Leben und Ihre Beziehungszufriedenheit sprechen.',
+      romanticDescription: 'Romantische Beziehungen beeinflussen die allgemeine Lebenszufriedenheit und das emotionale Wohlbefinden erheblich.',
+      careerDevelopmentName: 'Karriereentwicklung',
+      careerDevelopmentIntroduction: 'Lassen Sie uns Ihr berufliches Wachstum und Ihre Karrierezufriedenheit untersuchen.',
+      careerDevelopmentDescription: 'Karriereentwicklung beeinflusst finanzielle Sicherheit, persönliche Erfüllung und Lebensrichtung.',
+      personalGrowthName: 'Persönliche Entwicklung',
+      personalGrowthIntroduction: 'Schließlich erkunden wir Ihre persönliche Entwicklung und Ihren Selbstverbesserungsweg.',
+      personalGrowthDescription: 'Persönliche Entwicklungsaktivitäten tragen zur langfristigen Erfüllung und kontinuierlichen Verbesserung bei.',
       
       // Review Page
       reviewYourAssessment: 'Überprüfen Sie Ihre Bewertung',

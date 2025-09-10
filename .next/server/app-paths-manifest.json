@@ -1,21 +1,6 @@
 {
-  "/not-found": "app/not-found.js",
-  "/dashboard/page": "app/dashboard/page.js",
+  "/assessment/page": "app/assessment/page.js",
   "/scorecard/[id]/page": "app/scorecard/[id]/page.js",
-  "/report/[id]/page": "app/report/[id]/page.js",
-  "/page": "app/page.js",
-  "/coach/[id]/page": "app/coach/[id]/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/progress/route": "app/api/progress/route.js",
-  "/api/scorecard/[id]/route": "app/api/scorecard/[id]/route.js",
-  "/api/coach/[id]/route": "app/api/coach/[id]/route.js",
-  "/api/user/route": "app/api/user/route.js",
-  "/api/auth/route": "app/api/auth/route.js",
-  "/api/checkins/route": "app/api/checkins/route.js",
-  "/api/coach-preferences/route": "app/api/coach-preferences/route.js",
-  "/api/tasks/daily/route": "app/api/tasks/daily/route.js",
-  "/api/tasks/weekly/route": "app/api/tasks/weekly/route.js",
-  "/api/achievements/route": "app/api/achievements/route.js",
-  "/api/goals/route": "app/api/goals/route.js",
-  "/api/insights/predictive/route": "app/api/insights/predictive/route.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js"
 }
