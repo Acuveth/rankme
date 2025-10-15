@@ -1,6 +1,7 @@
 # RankMe - Life Assessment Platform
 
 A comprehensive life assessment platform that benchmarks users across financial, health, social, and romantic dimensions.
+Full article about it found here: https://www.notion.so/RankMe-AI-Powered-Life-Assessment-Coaching-Platform-fbaf29c3cc624b3e9a2467135e09f7da?source=copy_link
 
 ## Features
 
